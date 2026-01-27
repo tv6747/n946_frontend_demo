@@ -7,7 +7,7 @@ import {
 import { findNodePath } from '../../utils/helpers';
 import { MASTER_FILES, KB_TREE_DATA } from '../../data/mockData';
 
-export function KBManagerPanel({ selectedFolderId, files, bots, selectedFileIds, onSelectionChange, onRemove, onShare, onUpload, onViewDetails, onStartChat, isReadOnly = false }) {
+export function KBManagerPanel({ selectedFolderId, files, bots, selectedFileIds, onSelectionChange, onRemove, onShare, onUpload, onViewDetails, onStartChat, isReadOnly = false, userRole, onRoleChange }) {
   
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -83,9 +83,11 @@ export function KBManagerPanel({ selectedFolderId, files, bots, selectedFileIds,
     <div className="flex flex-col h-full bg-slate-50 p-6 overflow-hidden">
        {/* 標題與路徑 */}
        <div className="flex flex-col gap-4 mb-4">
-         <h2 className="text-2xl font-bold flex items-center gap-2 text-slate-800">
-           <FolderOpen className="text-yellow-500 flex-shrink-0"/> <span className="truncate">{pathString}</span>
-         </h2>
+         <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold flex items-center gap-2 text-slate-800">
+                <FolderOpen className="text-yellow-500 flex-shrink-0"/> <span className="truncate">{pathString}</span>
+            </h2>
+         </div>
          
          {!isReadOnly && (
            <div className="h-10 flex items-center justify-between">
@@ -149,7 +151,15 @@ export function KBManagerPanel({ selectedFolderId, files, bots, selectedFileIds,
                         <button onClick={() => alert(`下載 ${selectedFileIds.length} 個檔案`)} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="下載">
                              <Download size={16} />
                         </button>
-                        {!isSharedFolder && (
+                        
+                        {/* Move Button (Admin/Personal only) */}
+                        {(userRole === 'admin' || selectedFolderId.startsWith('personal')) && (
+                             <button onClick={() => alert("移動檔案功能 (Demo)")} className="p-1.5 text-slate-500 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors" title="移動">
+                                 <ArrowLeftRight size={16} />
+                             </button>
+                        )}
+
+                        {!isSharedFolder && (userRole === 'admin' || selectedFolderId.startsWith('personal')) && (
                           <button onClick={() => onRemove(selectedFileIds)} className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="刪除">
                              <Trash2 size={16} />
                           </button>

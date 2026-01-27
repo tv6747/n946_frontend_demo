@@ -46,6 +46,7 @@ export default function App() {
   // KB Mode & Context State
   const [kbMode, setKbMode] = useState('qa'); 
   const [kbSelectedFileIds, setKbSelectedFileIds] = useState([]); // Selected files for RAG
+  const [kbTreeData, setKbTreeData] = useState(KB_TREE_DATA); // Lifted state for Tree (folders)
 
   // Modals State
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -57,9 +58,21 @@ export default function App() {
   const [fileDetailsModal, setFileDetailsModal] = useState(null); 
   const [isLLMModalOpen, setIsLLMModalOpen] = useState(false); // 新增 LLM 設定 Modal 狀態
 
+  // KB Role State for Demo
+  const [userRole, setUserRole] = useState('admin'); // 'admin' | 'user'
+
   const handleFolderSelect = (folderId) => {
     setSelectedFolderId(folderId);
   };
+
+  // Effect to reset folder when switching roles (Admin doesn't see Personal/Shared)
+  useEffect(() => {
+    if (userRole === 'admin') {
+      if (selectedFolderId === 'personal' || selectedFolderId.startsWith('shared_')) {
+        setSelectedFolderId('org');
+      }
+    }
+  }, [userRole]);
 
   useEffect(() => {
     if (currentFeature.mode === MODES.BOT_MGR && selectedBotId) {
@@ -244,18 +257,23 @@ export default function App() {
                 <CommonHistorySidebar currentFeatureId="kb_qa" />
              ) : (
                 <KBSidebar 
-                  treeData={KB_TREE_DATA}
+                  treeData={kbTreeData}
                   selectedFolderId={selectedFolderId}
                   onSelectFolder={handleFolderSelect}
                   onUpload={() => setIsUploadModalOpen(true)}
                   files={files}
                   selectedFileIds={kbSelectedFileIds}
                   onSelectionChange={setKbSelectedFileIds}
+                  userRole={userRole}
+                  onMoveFolder={(sourceId, targetId) => {
+                      alert(`移動資料夾 ${sourceId} 到 ${targetId} (State Update TODO)`);
+                      // TODO: Implement actual move logic
+                  }}
                 />
              )
           ) : currentFeature.mode === MODES.BOT_MGR ? (
              <KBSidebar 
-              treeData={KB_TREE_DATA}
+              treeData={kbTreeData}
               selectedFolderId={selectedFolderId}
               onSelectFolder={handleFolderSelect}
               showBotsSection={true}
@@ -263,6 +281,7 @@ export default function App() {
               selectedBotId={selectedBotId}
               onSelectBot={setSelectedBotId}
               onCreateBot={() => setSelectedBotId('NEW_BOT')}
+              userRole="admin" // Bot manager usually admin
             />
           ) : (
             <CommonHistorySidebar currentFeatureId={currentFeature.id} />
@@ -308,13 +327,43 @@ export default function App() {
             )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 relative">
              <div className="text-right hidden sm:block">
                <p className="text-sm font-semibold text-slate-700">John Doe</p>
-               <p className="text-xs text-slate-400">系統管理員</p>
+               <p className="text-xs text-slate-400">{userRole === 'admin' ? '系統管理員' : '一般使用者'}</p>
              </div>
-             <div className="w-10 h-10 rounded-full bg-blue-100 border-2 border-white shadow-sm flex items-center justify-center text-blue-600 font-bold cursor-pointer hover:bg-blue-200 transition-colors">
-               JD
+             
+             {/* User Avatar & Dropdown */}
+             <div className="relative group">
+                <div className="w-10 h-10 rounded-full bg-blue-100 border-2 border-white shadow-sm flex items-center justify-center text-blue-600 font-bold cursor-pointer hover:bg-blue-200 transition-colors">
+                    JD
+                </div>
+
+                {/* User Dropdown Menu */}
+                <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-right">
+                    <div className="p-3 border-b border-slate-100">
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">切換角色 (Demo)</p>
+                        <button 
+                            onClick={() => setUserRole('admin')}
+                            className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-md mb-1 ${userRole === 'admin' ? 'bg-blue-50 text-blue-700 font-medium' : 'hover:bg-slate-50 text-slate-600'}`}
+                        >
+                            <span>管理者</span>
+                            {userRole === 'admin' && <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>}
+                        </button>
+                        <button 
+                            onClick={() => setUserRole('user')}
+                            className={`w-full flex items-center justify-between px-3 py-2 text-xs rounded-md ${userRole === 'user' ? 'bg-blue-50 text-blue-700 font-medium' : 'hover:bg-slate-50 text-slate-600'}`}
+                        >
+                            <span>一般使用者</span>
+                            {userRole === 'user' && <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>}
+                        </button>
+                    </div>
+                    <div className="p-2">
+                         <button className="w-full text-left px-3 py-2 text-xs text-red-500 hover:bg-red-50 rounded-md transition-colors">
+                            登出
+                         </button>
+                    </div>
+                </div>
              </div>
           </div>
         </header>
@@ -334,6 +383,8 @@ export default function App() {
                 onAddBot={() => setIsBotModalOpen(true)}
                 onViewDetails={(file) => setFileDetailsModal(file)}
                 onStartChat={() => setKbMode('qa')}
+                userRole={userRole}
+                onRoleChange={setUserRole}
               />
             ) : (
               // RAG QA Mode

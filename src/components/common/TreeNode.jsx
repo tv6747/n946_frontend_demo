@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ChevronRight, FolderOpen, Folder } from 'lucide-react';
 import { getAllFileIds } from '../../utils/helpers';
 
-export function TreeNode({ node, level = 0, selectedFolderId, onSelectFolder, files, selectedFileIds, onSelectionChange }) {
+export function TreeNode({ node, level = 0, selectedFolderId, onSelectFolder, files, selectedFileIds, onSelectionChange, canModify, onMoveFolder }) {
   const [expanded, setExpanded] = useState(true);
   const isSelected = selectedFolderId === node.id;
   const hasChildren = node.children && node.children.length > 0;
@@ -37,6 +37,28 @@ export function TreeNode({ node, level = 0, selectedFolderId, onSelectFolder, fi
     }
   };
 
+  // Drag and Drop Logic
+  const handleDragStart = (e) => {
+    if (!canModify) return;
+    e.dataTransfer.setData('text/plain', node.id);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e) => {
+      if (!canModify) return;
+      e.preventDefault(); 
+      e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e) => {
+      if (!canModify || !onMoveFolder) return;
+      e.preventDefault();
+      const sourceId = e.dataTransfer.getData('text/plain');
+      if (sourceId && sourceId !== node.id) {
+          onMoveFolder(sourceId, node.id);
+      }
+  };
+
   if (node.type !== 'folder') return null;
 
   return (
@@ -48,6 +70,10 @@ export function TreeNode({ node, level = 0, selectedFolderId, onSelectFolder, fi
           onSelectFolder(node.id);
           if(hasChildren) setExpanded(!expanded);
         }}
+        draggable={canModify}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
       >
         {/* Folder Selection Checkbox */}
         {files && onSelectionChange && (
@@ -91,6 +117,8 @@ export function TreeNode({ node, level = 0, selectedFolderId, onSelectFolder, fi
               files={files}
               selectedFileIds={selectedFileIds}
               onSelectionChange={onSelectionChange}
+              canModify={canModify}
+              onMoveFolder={onMoveFolder}
             />
           ))}
         </div>

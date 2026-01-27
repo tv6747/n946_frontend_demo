@@ -82,7 +82,7 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
                              )}
                          </div>
                       </span>
-                      進行統整回答
+                      進行回答
                    </span>
                 </div>
              </div>

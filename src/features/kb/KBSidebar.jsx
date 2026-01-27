@@ -1,10 +1,28 @@
-import React, { useState } from 'react';
-import { Plus, UploadCloud, ChevronDown, Bot, Circle } from 'lucide-react';
+import { Plus, UploadCloud, ChevronDown, Bot, Circle, FolderPlus, FolderMinus, FolderInput, Trash2 } from 'lucide-react';
 import { TreeNode } from '../../components/common/TreeNode';
+import { useMemo, useState } from 'react';
 
-export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBotsSection, bots, selectedBotId, onSelectBot, onUpload, files, selectedFileIds, onSelectionChange, onCreateBot }) {
+export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBotsSection, bots, selectedBotId, onSelectBot, onUpload, files, selectedFileIds, onSelectionChange, onCreateBot, userRole = 'user', onMoveFolder }) {
   const [isSectionExpanded, setIsSectionExpanded] = useState(true);
   const [isBotSectionExpanded, setIsBotSectionExpanded] = useState(true);
+
+  // Filter Tree Data based on Role
+  const filteredTreeData = useMemo(() => {
+     if (userRole === 'admin') {
+         // Admin: Hide Personal and Shared
+         return treeData.filter(node => node.id !== 'personal' && node.id !== 'shared_root');
+     } else {
+         // User: Show all (Personal is visible)
+         return treeData;
+     }
+  }, [treeData, userRole]);
+
+  // Check permissions
+  const canModify = useMemo(() => {
+     if (userRole === 'admin') return true;
+     // User can only modify Personal folder and its children
+     return selectedFolderId === 'personal' || selectedFolderId.startsWith('personal_'); 
+  }, [userRole, selectedFolderId]);
 
   return (
     <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col p-3">
@@ -19,11 +37,35 @@ export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBots
         </button>
       )}
 
+      {/* Admin Folder Actions */}
+      {userRole === 'admin' && !onCreateBot && (
+          <div className="grid grid-cols-3 gap-2 mb-3">
+              <button onClick={() => alert("新增資料夾 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors" title="新增資料夾">
+                  <FolderPlus size={16} className="mb-1 text-blue-500"/>
+                  <span className="text-[10px]">新增</span>
+              </button>
+              <button onClick={() => alert("刪除資料夾 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors" title="刪除資料夾">
+                  <FolderMinus size={16} className="mb-1 text-red-500"/>
+                  <span className="text-[10px]">刪除</span>
+              </button>
+              <button 
+                  onClick={() => alert("查看已刪除檔案 (Demo)")} 
+                  className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors" 
+                  title="垃圾桶"
+              >
+                  <Trash2 size={16} className="mb-1 text-slate-500"/>
+                  <span className="text-[10px]">垃圾桶</span>
+              </button>
+          </div>
+      )}
+
       {/* Upload Button for KB Manage Mode */}
       {onUpload && (
         <button 
           onClick={onUpload}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-dashed border-slate-300 hover:border-blue-400 hover:text-blue-600 text-slate-500 rounded-lg transition-all text-sm font-medium mb-4 group shadow-sm flex-shrink-0"
+          disabled={!canModify}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-dashed border-slate-300 hover:border-blue-400 hover:text-blue-600 text-slate-500 rounded-lg transition-all text-sm font-medium mb-4 group shadow-sm flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500"
+          title={!canModify ? "僅限於個人知識庫中操作" : "上傳檔案"}
         >
           <UploadCloud size={16} className="group-hover:scale-110 transition-transform"/>
           上傳檔案
@@ -74,7 +116,7 @@ export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBots
           
            {isSectionExpanded && (
             <div className="p-2 animate-in slide-in-from-top-2 duration-200">
-              {treeData.map(node => (
+              {filteredTreeData.map(node => (
                 <TreeNode 
                   key={node.id} 
                   node={node} 
@@ -83,6 +125,8 @@ export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBots
                   files={files}
                   selectedFileIds={selectedFileIds}
                   onSelectionChange={onSelectionChange}
+                  canModify={canModify}
+                  onMoveFolder={onMoveFolder}
                 />
               ))}
             </div>
