@@ -30,6 +30,8 @@ import { PromptOptimizerInterface } from './features/prompt/PromptOptimizerInter
 import { PromptSaveConfirmModal } from './features/prompt/PromptSaveConfirmModal';
 import { DocumentTranslationInterface } from './features/translation/DocumentTranslationInterface';
 
+import nlmaLogo from './assets/nlma_logo.jpg';
+
 export default function App() {
   const [currentFeature, setCurrentFeature] = useState(FEATURES.INTERACTIVE);
   const [selectedFolderId, setSelectedFolderId] = useState('personal'); 
@@ -215,12 +217,12 @@ export default function App() {
              className="flex items-center gap-3 cursor-pointer group w-full"
              onClick={() => setIsSystemMenuOpen(!isSystemMenuOpen)}
            >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform flex-shrink-0 ${currentSystem === 'GAI' ? 'bg-blue-600 shadow-blue-200' : 'bg-green-600 shadow-green-200'}`}>
-                    {currentSystem === 'GAI' ? <LayoutGrid size={18} /> : <Folder size={18} />}
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center bg-white shadow-sm group-hover:scale-105 transition-transform flex-shrink-0 border border-slate-100`}>
+                    <img src={nlmaLogo} alt="logo" className="w-8 h-8 object-contain" />
                 </div>
                 <div className="flex-1 min-w-0">
                     <h1 className="font-bold text-base text-slate-800 tracking-tight truncate leading-tight">
-                        國土署
+                        公務輔助應用系統
                     </h1>
                 </div>
                 <div className="text-slate-400">
@@ -324,10 +326,10 @@ export default function App() {
 
             <MainDropdown currentFeature={currentFeature} onSelect={handleFeatureSelect} features={systemFeatures} />
             
-            <div className="h-6 w-[1px] bg-slate-200 mx-1 hidden md:block"></div>
+            {/* <div className="h-6 w-[1px] bg-slate-200 mx-1 hidden md:block"></div>
             <span className="text-lg text-slate-800 font-bold hidden md:block animate-in fade-in">
               {currentFeature.label}
-            </span>
+            </span> */}
 
             {/* KB Toggle Switch: Only show in KB Mode */}
             {currentFeature.mode === MODES.KB && (

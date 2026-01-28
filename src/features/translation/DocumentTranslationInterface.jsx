@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, Sparkles } from 'lucide-react';
+import { FileText, Sparkles, Languages } from 'lucide-react';
 import { LANGUAGES } from '../../data/constants';
 
 export function DocumentTranslationInterface() {
@@ -38,7 +38,7 @@ export function DocumentTranslationInterface() {
              className="w-12 h-12 bg-white rounded-full shadow-lg border border-slate-200 text-blue-600 hover:bg-blue-600 hover:text-white hover:scale-110 transition-all flex items-center justify-center group"
              title="開始翻譯"
           >
-             <Sparkles size={24} className="group-hover:animate-pulse" />
+             <Languages size={24} className="group-hover:animate-pulse" />
           </button>
        </div>
 

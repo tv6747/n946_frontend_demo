@@ -1,18 +1,28 @@
 import React, { useState } from 'react';
 import { 
     Bot, MonitorPlay, Check, ChevronRight as ChevronRightIcon, 
-    ChevronLeft as ChevronLeftIcon, Paperclip, Settings, Send, GripVertical 
+    ChevronLeft as ChevronLeftIcon, Paperclip, Settings, Send, GripVertical, Download 
 } from 'lucide-react';
 import { useResizable } from '../../hooks/useResizable';
 import { WelcomeScreen } from '../chat/WelcomeScreen';
 import { CanvasPreview } from './CanvasPreview';
-import { PPT_TEMPLATES } from '../../data/constants';
+// import { PPT_TEMPLATES } from '../../data/constants'; // Replaced by local definition
+
+import tpl1 from '../../assets/template1.jpg';
+import tpl2 from '../../assets/template2.jpg';
+import tpl3 from '../../assets/template3.jpg';
+
+const LOCAL_PPT_TEMPLATES = [
+  { id: 1, name: '範本一', image: tpl1 },
+  { id: 2, name: '範本二', image: tpl2 },
+  { id: 3, name: '範本三', image: tpl3 },
+];
 
 export function PPTGenerationInterface({ currentFeature, onOpenLLMSettings }) {
   const [messages, setMessages] = useState([]); 
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(true);
-  const [selectedTemplate, setSelectedTemplate] = useState(PPT_TEMPLATES[0]);
-  const { leftWidth, startResizing } = useResizable(70);
+  const [selectedTemplate, setSelectedTemplate] = useState(LOCAL_PPT_TEMPLATES[0]);
+  const { leftWidth, startResizing } = useResizable(50);
 
   const handleSuggestionClick = (text) => {
     setMessages([{ id: Date.now(), role: 'user', content: text }]);
@@ -30,13 +40,12 @@ export function PPTGenerationInterface({ currentFeature, onOpenLLMSettings }) {
   return (
     <div className="flex flex-col h-full bg-slate-50 relative overflow-hidden">
        
-       <div className="flex-1 flex overflow-hidden relative z-0">
+       <div className="flex-1 flex overflow-hidden relative z-0 min-h-0">
           
-          {/* Left Column (Chat + Template + Input) */}
+          {/* Left Column (Chat + Template) */}
           <div className="flex flex-col h-full border-r border-slate-200 bg-white z-20 min-w-0" style={{ width: `${leftWidth}%`, minWidth: '300px' }}>
               
-              {/* Upper Section: Chat Messages & Template Panel */}
-              <div className="flex-1 flex min-h-0">
+              <div className="flex-1 flex min-h-0 relative">
                   {/* Chat Messages */}
                   <div className="flex-1 flex flex-col min-w-0">
                      {messages.length === 0 ? (
@@ -62,8 +71,31 @@ export function PPTGenerationInterface({ currentFeature, onOpenLLMSettings }) {
                        </div>
                      )}
                   </div>
+              </div>
+          </div>
 
-                  {/* Template Panel (Collapsible) */}
+          {/* Resizer */}
+          <div 
+             className="w-1 bg-slate-200 hover:bg-blue-400 cursor-col-resize transition-colors z-30 flex items-center justify-center group"
+             onMouseDown={startResizing}
+          >
+             <GripVertical size={12} className="text-slate-400 opacity-0 group-hover:opacity-100" />
+          </div>
+
+          {/* Right Column: Canvas Area */}
+          <div className="flex flex-col bg-slate-100 relative min-w-0" style={{ width: `${100 - leftWidth}%` }}>
+             <div className="flex-1 p-8 flex items-start justify-center overflow-auto custom-scrollbar">
+                <div className="w-full max-w-5xl my-4 mx-auto transition-all min-w-[300px]">
+                   <CanvasPreview 
+                     type="ppt" 
+                     content={lastAIResponse} 
+                     title={userRequest}
+                     template={selectedTemplate} 
+                   />
+                </div>
+             </div>
+          </div>
+                  {/* Template Panel (Attached to Chat) */}
                   <div 
                     className={`transition-all duration-300 ease-in-out relative flex flex-col bg-slate-50 border-l border-slate-200 z-10
                       ${isRightPanelOpen ? 'w-64 opacity-100' : 'w-0 opacity-0 overflow-hidden'}
@@ -78,14 +110,30 @@ export function PPTGenerationInterface({ currentFeature, onOpenLLMSettings }) {
                          
                          <div className="flex-1 overflow-y-auto p-3 custom-scrollbar">
                             <div className="space-y-3">
-                               {PPT_TEMPLATES.map(tpl => (
+                               {LOCAL_PPT_TEMPLATES.map(tpl => (
                                  <div 
                                    key={tpl.id} 
                                    onClick={() => setSelectedTemplate(tpl)}
                                    className={`group relative cursor-pointer rounded-lg overflow-hidden border transition-all ${selectedTemplate.id === tpl.id ? 'ring-2 ring-blue-500 border-transparent' : 'border-slate-200 hover:shadow-md'}`}
                                  >
-                                    <div className={`aspect-video ${tpl.color} flex items-center justify-center text-white/90`}>
-                                       <MonitorPlay size={24} />
+                                    <div className={`aspect-video bg-slate-100 flex items-center justify-center overflow-hidden relative`}>
+                                       <img src={tpl.image} alt={tpl.name} className="w-full h-full object-cover" />
+                                       {/* Download Button */}
+                                       <button 
+                                          onClick={(e) => {
+                                              e.stopPropagation();
+                                              const link = document.createElement('a');
+                                              link.href = tpl.image;
+                                              link.download = `template_${tpl.id}.jpg`;
+                                              document.body.appendChild(link);
+                                              link.click();
+                                              document.body.removeChild(link);
+                                          }}
+                                          className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                          title="下載範本"
+                                       >
+                                           <Download size={14} />
+                                       </button>
                                     </div>
                                     <div className="p-2 bg-white flex justify-between items-center">
                                        <span className="text-xs font-medium text-slate-600 truncate">{tpl.name}</span>
@@ -97,77 +145,53 @@ export function PPTGenerationInterface({ currentFeature, onOpenLLMSettings }) {
                          </div>
                      </div>
                      
-                     {/* Toggle Button */}
+                     {/* Close Button (Only visible when open) */}
                      <button 
-                        onClick={() => setIsRightPanelOpen(!isRightPanelOpen)}
+                        onClick={() => setIsRightPanelOpen(false)}
                         className={`absolute top-1/2 -translate-y-1/2 -left-3 z-50 bg-white border border-slate-200 rounded-full p-1 shadow-md text-slate-500 hover:text-blue-600 hover:scale-110 transition-all focus:outline-none flex items-center justify-center w-6 h-6`}
-                        title={isRightPanelOpen ? "收合面板" : "展開面板"}
+                        title="收合面板"
                       >
-                         {isRightPanelOpen ? <ChevronRightIcon size={14} /> : <ChevronLeftIcon size={14} />}
+                         <ChevronRightIcon size={14} />
                      </button>
                   </div>
-              </div>
-              
-              {/* Input Area (Full width of left column) */}
-              <div className="p-3 bg-white border-t border-slate-200 flex-shrink-0 z-30">
-                <div className="relative border border-slate-300 rounded-lg flex items-center p-2 gap-2 shadow-sm focus-within:ring-2 focus-within:ring-blue-100 transition-all">
-                  <button className="p-1.5 text-slate-400 hover:bg-slate-100 rounded-full"><Paperclip size={18}/></button>
-                  <input 
-                    className="flex-1 outline-none text-sm min-w-0" 
-                    placeholder={currentFeature.placeholder} 
-                    onKeyDown={(e) => {
-                      if(e.key === 'Enter') handleSuggestionClick(e.target.value);
-                    }}
-                  />
-                  <button 
-                    onClick={onOpenLLMSettings}
-                    className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-colors"
-                    title="LLM 參數設定"
-                  >
-                    <Settings size={18} />
-                  </button>
-                  <button className="p-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><Send size={16}/></button>
-                </div>
-             </div>
-
-              {/* Panel Trigger when collapsed (Overlay style) */}
-              {!isRightPanelOpen && (
-                 <div className="absolute right-0 top-1/2 -translate-y-1/2 z-20">
-                    <button 
-                      onClick={() => setIsRightPanelOpen(true)}
-                      className="bg-white border border-slate-200 border-r-0 p-2 rounded-l-xl shadow-lg hover:text-blue-600 text-slate-400 transition-all hover:pl-3"
-                      title="開啟範本面板"
-                    >
-                       <ChevronLeftIcon size={20} />
-                    </button>
-                 </div>
-              )}
-          </div>
-
-          {/* Resizer */}
-          <div 
-             className="w-1 bg-slate-200 hover:bg-blue-400 cursor-col-resize transition-colors z-30 flex items-center justify-center group"
-             onMouseDown={startResizing}
-          >
-             <GripVertical size={12} className="text-slate-400 opacity-0 group-hover:opacity-100" />
-          </div>
-
-          {/* 3. Canvas Area (Resizable) */}
-          <div className="flex flex-col bg-slate-100 relative min-w-0" style={{ width: `${100 - leftWidth}%` }}>
-             <div className="flex-1 p-8 flex items-start justify-center overflow-auto custom-scrollbar">
-                {/* Canvas Container with fixed aspect ratio / size */}
-                <div className="w-full max-w-5xl my-4 mx-auto transition-all min-w-[300px]">
-                   <CanvasPreview 
-                     type="ppt" 
-                     content={lastAIResponse} 
-                     title={userRequest}
-                     templateColor={selectedTemplate.color} 
-                   />
-                </div>
-             </div>
-          </div>
-
+                  
+                  {/* Open Button (Only visible when closed, separate from collapsible div) */}
+                  {!isRightPanelOpen && (
+                     <div className="absolute top-1/2 right-0 -translate-y-1/2 z-20">
+                        <button 
+                          onClick={() => setIsRightPanelOpen(true)}
+                          className="bg-white border border-slate-200 border-r-0 p-2 rounded-l-xl shadow-lg hover:text-blue-600 text-slate-400 transition-all hover:pl-3"
+                          title="開啟範本面板"
+                        >
+                           <ChevronLeftIcon size={20} />
+                        </button>
+                     </div>
+                  )}
        </div>
+       
+       {/* Bottom Section: Input Area */}
+        <div className="p-4 bg-white border-t border-slate-200">
+         <div className="max-w-5xl mx-auto">
+            <div className="relative border border-slate-300 rounded-lg flex items-center p-2 gap-2 bg-white">
+          <button className="p-1.5 text-slate-400 hover:bg-slate-100 rounded-full"><Paperclip size={18}/></button>
+          <input 
+            className="flex-1 outline-none text-sm min-w-0" 
+            placeholder={currentFeature.placeholder} 
+            onKeyDown={(e) => {
+              if(e.key === 'Enter') handleSuggestionClick(e.target.value);
+            }}
+          />
+          <button 
+            onClick={onOpenLLMSettings}
+            className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-colors"
+            title="LLM 參數設定"
+          >
+            <Settings size={20} />
+          </button>
+          <button className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><Send size={16}/></button>
+        </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -25,19 +25,18 @@ export function PromptOptimizerInterface({ onSaveSystemPrompt, onOpenLLMSettings
           onOpenLLMSettings={onOpenLLMSettings}
         />
       </div>
-
-      <div className="flex-shrink-0 p-4 bg-white border-t border-slate-200 z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-         <div className="max-w-5xl mx-auto flex gap-3">
+      <div className="p-4 bg-white border-t border-slate-200">
+         <div className="max-w-5xl mx-auto">
+            <div className="relative border border-slate-300 rounded-lg flex items-center p-2 gap-2 bg-white">
             <input 
               value={globalInput}
               onChange={(e) => setGlobalInput(e.target.value)}
               placeholder="輸入測試案例訊息，將同時發送給 A 與 B 進行測試..."
-              className="flex-1 bg-slate-50 border border-slate-300 text-slate-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3"
+              className="flex-1 outline-none text-sm"
             />
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-sm px-6 py-3 flex items-center gap-2 transition-colors shadow-sm">
-              <Send size={16} /> 測試
-            </button>
-         </div>
+            <button className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><Send size={18}/></button>
+          </div>
+        </div>
       </div>
     </div>
   );

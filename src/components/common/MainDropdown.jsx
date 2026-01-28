@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, MessageSquare, Languages, Presentation, Sparkles, Database, Bot, Mail, FileText, AlertTriangle, Hammer, LayoutGrid } from 'lucide-react';
+import { ChevronDown, MessageSquare, Languages, Presentation, Sparkles, Database, Bot, Mail, FileText, AlertTriangle, Hammer, LayoutGrid, Folder } from 'lucide-react';
 import { MenuItem } from './MenuItem';
 import { FEATURES } from '../../data/constants';
 
@@ -56,8 +56,21 @@ export function MainDropdown({ currentFeature, onSelect, features }) {
         className={`flex items-center gap-2 px-3 py-2 text-white rounded-lg shadow-md transition-all active:scale-95 ${isDocSystem ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}
       >
         <span className="font-semibold tracking-wide flex items-center gap-2">
-            {isDocSystem ? <FileText size={16}/> : <LayoutGrid size={16}/>}
-            {isDocSystem ? '智慧公文' : 'GAI 平台'}
+            {currentFeature.id === "draft_mail" ? <Mail size={16}/> : 
+             currentFeature.id === "draft_hill" ? <AlertTriangle size={16}/> : 
+             currentFeature.id === "draft_area" ? <FileText size={16}/> : 
+             currentFeature.id === "draft_decor" ? <Hammer size={16}/> : 
+             isDocSystem ? <Folder size={16}/> : 
+             currentFeature.id === "interactive" ? <MessageSquare size={16}/> :
+             currentFeature.id === "ppt_gen" ? <Presentation size={16}/> :
+             currentFeature.id === "prompt_opt" ? <Sparkles size={16}/> :
+             currentFeature.id === "kb_manage" ? <Database size={16}/> :
+             currentFeature.id === "bot_manage" ? <Bot size={16}/> :
+             currentFeature.id === "doc_trans" ? <Languages size={16}/> :
+             <LayoutGrid size={16}/>}
+            {currentFeature.label.includes('例行函稿 - ') ? currentFeature.label.replace('例行函稿 - ', '') : 
+             currentFeature.label.includes('答詢機器人 - ') ? currentFeature.label.replace('答詢機器人 - ', '') : 
+             currentFeature.label}
         </span>
         <ChevronDown size={16} className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>

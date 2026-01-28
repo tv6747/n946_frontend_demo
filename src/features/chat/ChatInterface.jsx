@@ -20,7 +20,7 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
   const [messages, setMessages] = useState([]);
   const isDraftMode = currentFeature.id.startsWith('draft_');
   // Default to 50% for drafts, 70% otherwise
-  const { leftWidth, startResizing } = useResizable(isDraftMode ? 50 : 70);
+  const { leftWidth, startResizing } = useResizable(isDraftMode ? 50 : 50);
 
   // Check if we should show the LLM settings button (Only for Interactive Chat)
   const showLLMSettings = currentFeature.id === 'interactive';
@@ -46,7 +46,7 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
     setTimeout(() => {
       setMessages(prev => [
         ...prev,
-        { id: Date.now() + 1, role: 'ai', content: `這是針對「${text}」的模擬回應。\n\n主旨：有關 台端詢問事項，復如說明。\n說明：\n一、依據相關規定辦理。\n二、...` }
+        { id: Date.now() + 1, role: 'ai', content: `這是針對「${text}」的模擬回應。\n\n「${text} 」的回應模擬` }
       ]);
     }, 1000);
   };
@@ -66,21 +66,23 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
                       基於勾選的 
                       <span className="relative group cursor-help underline decoration-dotted underline-offset-4 decoration-indigo-400 font-bold">
                          {ragContext.length} 個檔案
-                         {/* Light Theme Tooltip (Read Only) */}
-                         <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-64 bg-white text-slate-700 border border-slate-200 rounded-xl p-3 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 pointer-events-none">
-                             <div className="font-bold border-b border-slate-100 pb-2 mb-2 text-xs text-slate-400 uppercase tracking-wider">已選文件清單</div>
-                             {ragContext.length === 0 ? (
-                               <div className="text-slate-400 py-2 text-center text-xs italic">未選擇任何文件</div>
-                             ) : (
-                               <ul className="space-y-1 max-h-40 overflow-y-auto custom-scrollbar">
-                                  {ragContext.map(f => (
-                                     <li key={f.id} className="flex items-center gap-2 text-xs py-1 px-1 hover:bg-slate-50 rounded">
-                                        <FileText size={12} className="text-indigo-400 flex-shrink-0" />
-                                        <span className="truncate font-medium" title={f.name}>{f.name}</span>
-                                     </li>
-                                  ))}
-                               </ul>
-                             )}
+                          {/* Light Theme Tooltip (Read Only) */}
+                         <div className="absolute top-full left-1/2 -translate-x-1/2 w-64 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                             <div className="bg-white text-slate-700 border border-slate-200 rounded-xl p-3 shadow-xl">
+                                 <div className="font-bold border-b border-slate-100 pb-2 mb-2 text-xs text-slate-400 uppercase tracking-wider">已選文件清單</div>
+                                 {ragContext.length === 0 ? (
+                                   <div className="text-slate-400 py-2 text-center text-xs italic">未選擇任何文件</div>
+                                 ) : (
+                                   <ul className="space-y-1 max-h-40 overflow-y-auto custom-scrollbar">
+                                      {ragContext.map(f => (
+                                         <li key={f.id} className="flex items-center gap-2 text-xs py-1 px-1 hover:bg-slate-50 rounded">
+                                            <FileText size={12} className="text-indigo-400 flex-shrink-0" />
+                                            <span className="truncate font-medium" title={f.name}>{f.name}</span>
+                                         </li>
+                                      ))}
+                                   </ul>
+                                 )}
+                             </div>
                          </div>
                       </span>
                       進行回答
@@ -118,8 +120,9 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
                ))}
              </div>
            )}
-           <div className="p-4 bg-white border-t border-slate-200">
-              <div className="relative border border-slate-300 rounded-lg flex items-center p-2 gap-2">
+           <div className="p-4 bg-white border-t border-slate-200">         
+            <div className="max-w-5xl mx-auto">
+              <div className="relative border border-slate-300 rounded-lg flex items-center p-2 gap-2 bg-white">
                 {(currentFeature.id === 'interactive' || currentFeature.allowUpload) && (
                    <button className="p-2 text-slate-400 hover:bg-slate-100 rounded-full" title="上傳檔案"><Paperclip size={20}/></button>
                 )}
@@ -137,6 +140,7 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
                 
                 <button className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><Send size={18}/></button>
               </div>
+            </div>
            </div>
         </div>
      );
@@ -144,96 +148,102 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
 
   // Draft Mode: Resizable Layout
   return (
-    <div className="flex h-full bg-slate-50 overflow-hidden">
+    <div className="flex flex-col h-full bg-slate-50 overflow-hidden">
       
-      {/* 1. Chat Column (Resizable) */}
-      <div className="flex flex-col border-r border-slate-200 bg-white" style={{ width: `${leftWidth}%`, minWidth: '350px' }}>
-           {messages.length === 0 ? (
-             <WelcomeScreen featureId={currentFeature.id} onSuggestionClick={handleSuggestionClick} />
-           ) : (
-             <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar bg-slate-50/50">
-               {messages.map(msg => (
-                 <div key={msg.id} className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                   {msg.role === 'ai' && (
-                     <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white mt-1 flex-shrink-0">
-                       <Bot size={16} />
+      {/* 1. Main Content Area (Chat + Preview) */}
+      <div className="flex-1 flex overflow-hidden">
+          {/* Chat Column (Resizable) */}
+          <div className="flex flex-col border-r border-slate-200 bg-white" style={{ width: `${leftWidth}%`, minWidth: '350px' }}>
+               {messages.length === 0 ? (
+                 <WelcomeScreen featureId={currentFeature.id} onSuggestionClick={handleSuggestionClick} />
+               ) : (
+                 <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar bg-slate-50/50">
+                   {messages.map(msg => (
+                     <div key={msg.id} className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                       {msg.role === 'ai' && (
+                         <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white mt-1 flex-shrink-0">
+                           <Bot size={16} />
+                         </div>
+                       )}
+                       <div className="flex flex-col max-w-[85%] gap-2">
+                         <div className={`px-5 py-3.5 rounded-2xl text-sm leading-relaxed shadow-sm whitespace-pre-line ${
+                           msg.role === 'user' 
+                             ? 'bg-blue-600 text-white rounded-tr-sm' 
+                             : 'bg-white border border-slate-200 text-slate-700 rounded-tl-sm'
+                         }`}>
+                           {msg.content}
+                         </div>
+                       </div>
                      </div>
-                   )}
-                   <div className="flex flex-col max-w-[85%] gap-2">
-                     <div className={`px-5 py-3.5 rounded-2xl text-sm leading-relaxed shadow-sm whitespace-pre-line ${
-                       msg.role === 'user' 
-                         ? 'bg-blue-600 text-white rounded-tr-sm' 
-                         : 'bg-white border border-slate-200 text-slate-700 rounded-tl-sm'
-                     }`}>
-                       {msg.content}
-                     </div>
-                   </div>
+                   ))}
                  </div>
-               ))}
-             </div>
-           )}
+               )}
+          </div>
 
-           <div className="p-4 bg-white border-t border-slate-200">
-              <div className="relative border border-slate-300 rounded-lg flex items-center p-2 gap-2">
-                <button className="p-2 text-slate-400 hover:bg-slate-100 rounded-full"><Paperclip size={20}/></button>
-                <input className="flex-1 outline-none text-sm" placeholder={currentFeature.placeholder || "輸入您的問題..."} />
-                
-                {/* Conditionally render LLM settings button */}
-                {showLLMSettings && (
-                  <button onClick={onOpenLLMSettings} className="p-2 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-colors" title="LLM 參數設定">
-                    <Settings size={20} />
-                  </button>
-                )}
+          {/* Resizer */}
+          <div 
+             className="w-1 bg-slate-200 hover:bg-blue-400 cursor-col-resize transition-colors z-30 flex items-center justify-center group"
+             onMouseDown={startResizing}
+          >
+             <GripVertical size={12} className="text-slate-400 opacity-0 group-hover:opacity-100" />
+          </div>
 
-                <button className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><Send size={18}/></button>
-              </div>
-           </div>
+          {/* Canvas Column */}
+          <div className="flex-1 bg-slate-100 flex flex-col min-w-0" style={{ width: `${100 - leftWidth}%` }}>
+               {/* Top Bar for Canvas */}
+               <div className="h-10 bg-white border-b border-slate-200 flex items-center justify-between px-4 flex-shrink-0">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                     <FileText size={14} /> 即時預覽
+                  </span>
+                  <div className="flex items-center gap-2">
+                     {/* Special buttons for Draft Decor */}
+                     {currentFeature.id === 'draft_decor' && (
+                         <>
+                            <button className="flex items-center gap-1 text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded border border-blue-200 hover:bg-blue-100 mr-2" title="傳回公文系統">
+                                <ArrowUpRight size={14}/> 傳回公文系統
+                            </button>
+                            <button className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded transition-colors" title="下載附件">
+                                <FolderDown size={16} />
+                            </button>
+                         </>
+                     )}
+                     <button onClick={onExport} className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded transition-colors" title="匯出文件"><Download size={16} /></button>
+                     <button onClick={onSave} className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded transition-colors" title="儲存草稿"><Save size={16} /></button>
+                     <button className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded transition-colors" title="全螢幕"><Maximize2 size={16} /></button>
+                  </div>
+               </div>
+
+               {/* Canvas Container */}
+               <div className="flex-1 p-8 overflow-auto custom-scrollbar flex justify-center bg-slate-100/50">
+                  <div className="w-full max-w-[210mm] my-4 mx-auto transition-all shadow-xl min-w-[210mm]">
+                     <CanvasPreview 
+                       type="doc" 
+                       content={lastAIResponse} 
+                       title={userRequest}
+                     />
+                  </div>
+               </div>
+            </div>
       </div>
 
-      {/* Resizer */}
-      <div 
-         className="w-1 bg-slate-200 hover:bg-blue-400 cursor-col-resize transition-colors z-30 flex items-center justify-center group"
-         onMouseDown={startResizing}
-      >
-         <GripVertical size={12} className="text-slate-400 opacity-0 group-hover:opacity-100" />
+      {/* 2. Full Width Input Bar at Bottom */}
+      <div className="flex-shrink-0 p-4 bg-white border-t border-slate-200 z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+         <div className="max-w-5xl mx-auto">
+            <div className="relative border border-slate-300 rounded-lg flex items-center p-2 gap-2 bg-white">
+              <button className="p-2 text-slate-400 hover:bg-slate-100 rounded-full"><Paperclip size={20}/></button>
+              <input className="flex-1 outline-none text-sm" placeholder={currentFeature.placeholder || "輸入您的問題..."} />
+              
+              {/* Conditionally render LLM settings button */}
+              {showLLMSettings && (
+                <button onClick={onOpenLLMSettings} className="p-2 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-colors" title="LLM 參數設定">
+                  <Settings size={20} />
+                </button>
+              )}
+
+              <button className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><Send size={18}/></button>
+            </div>
+         </div>
       </div>
-
-      {/* 2. Canvas Column */}
-      <div className="flex-1 bg-slate-100 flex flex-col min-w-0" style={{ width: `${100 - leftWidth}%` }}>
-           {/* Top Bar for Canvas */}
-           <div className="h-10 bg-white border-b border-slate-200 flex items-center justify-between px-4 flex-shrink-0">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
-                 <FileText size={14} /> 即時預覽
-              </span>
-              <div className="flex items-center gap-2">
-                 {/* Special buttons for Draft Decor */}
-                 {currentFeature.id === 'draft_decor' && (
-                     <>
-                        <button className="flex items-center gap-1 text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded border border-blue-200 hover:bg-blue-100 mr-2" title="傳回公文系統">
-                            <ArrowUpRight size={14}/> 傳回公文系統
-                        </button>
-                        <button className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded transition-colors" title="下載附件">
-                            <FolderDown size={16} />
-                        </button>
-                     </>
-                 )}
-                 <button onClick={onExport} className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded transition-colors" title="匯出文件"><Download size={16} /></button>
-                 <button onClick={onSave} className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded transition-colors" title="儲存草稿"><Save size={16} /></button>
-                 <button className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded transition-colors" title="全螢幕"><Maximize2 size={16} /></button>
-              </div>
-           </div>
-
-           {/* Canvas Container */}
-           <div className="flex-1 p-8 overflow-auto custom-scrollbar flex justify-center bg-slate-100/50">
-              <div className="w-full max-w-[210mm] my-4 mx-auto transition-all shadow-xl min-w-[210mm]">
-                 <CanvasPreview 
-                   type="doc" 
-                   content={lastAIResponse} 
-                   title={userRequest}
-                 />
-              </div>
-           </div>
-        </div>
 
     </div>
   );
