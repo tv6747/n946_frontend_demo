@@ -30,6 +30,18 @@ export function DocumentTranslationInterface() {
              <FileText size={48} /> <p>PDF Viewer (Source)</p>
           </div>
        </div>
+       
+       {/* Translation Action Button */}
+       <div className="flex flex-col justify-center items-center">
+          <button 
+             onClick={() => alert('開始翻譯 (Demo)')}
+             className="w-12 h-12 bg-white rounded-full shadow-lg border border-slate-200 text-blue-600 hover:bg-blue-600 hover:text-white hover:scale-110 transition-all flex items-center justify-center group"
+             title="開始翻譯"
+          >
+             <Sparkles size={24} className="group-hover:animate-pulse" />
+          </button>
+       </div>
+
        <div className="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
           <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
              <div className="flex items-center gap-2 font-semibold text-slate-700">

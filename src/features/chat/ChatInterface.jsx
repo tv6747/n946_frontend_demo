@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
   BrainCircuit, FileText, Bot, Download, Save, Paperclip, 
-  Settings, Send, GripVertical, Maximize2, ArrowUpRight, FolderDown 
+  Settings, Send, GripVertical, Maximize2, ArrowUpRight, FolderDown,
+  ThumbsUp, ThumbsDown, BookOpen
 } from 'lucide-react';
 import { useResizable } from '../../hooks/useResizable';
 import { WelcomeScreen } from './WelcomeScreen';
@@ -108,8 +109,8 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
                      </div>
                      {msg.role === 'ai' && (
                         <div className="flex gap-2 flex-wrap animate-in fade-in duration-300">
-                           <ActionButton icon={<Download size={14}/>} label="匯出" onClick={onExport} />
-                           <ActionButton icon={<Save size={14}/>} label="存檔" onClick={onSave} />
+                           <ActionButton icon={<ThumbsUp size={14}/>} onClick={() => {}} />
+                           <ActionButton icon={<ThumbsDown size={14}/>} onClick={() => {}} />
                         </div>
                      )}
                    </div>
@@ -119,7 +120,12 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
            )}
            <div className="p-4 bg-white border-t border-slate-200">
               <div className="relative border border-slate-300 rounded-lg flex items-center p-2 gap-2">
-                <button className="p-2 text-slate-400 hover:bg-slate-100 rounded-full"><Paperclip size={20}/></button>
+                {(currentFeature.id === 'interactive' || currentFeature.allowUpload) && (
+                   <button className="p-2 text-slate-400 hover:bg-slate-100 rounded-full" title="上傳檔案"><Paperclip size={20}/></button>
+                )}
+                {currentFeature.showInstructions && (
+                   <button className="p-2 text-slate-400 hover:bg-slate-100 rounded-full" title="使用說明"><BookOpen size={20}/></button>
+                )}
                 <input className="flex-1 outline-none text-sm" placeholder={currentFeature.placeholder || "輸入您的問題..."} />
                 
                 {/* Conditionally render LLM settings button */}

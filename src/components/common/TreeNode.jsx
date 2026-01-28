@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ChevronRight, FolderOpen, Folder } from 'lucide-react';
 import { getAllFileIds } from '../../utils/helpers';
 
-export function TreeNode({ node, level = 0, selectedFolderId, onSelectFolder, files, selectedFileIds, onSelectionChange, canModify, onMoveFolder }) {
+export function TreeNode({ node, level = 0, selectedFolderId, onSelectFolder, files, selectedFileIds, onSelectionChange, canModify, onMoveFolder, checkable, checkedFolderIds, onCheck }) {
   const [expanded, setExpanded] = useState(true);
   const isSelected = selectedFolderId === node.id;
   const hasChildren = node.children && node.children.length > 0;
@@ -13,17 +13,35 @@ export function TreeNode({ node, level = 0, selectedFolderId, onSelectFolder, fi
     return files.filter(f => f.folderId === node.id).length;
   }, [node.id, files]);
 
-  // Checkbox logic for folder selection
+  // Checkbox logic for folder selection (File Selection Mode)
   const folderFileIds = useMemo(() => {
     if (!files) return [];
     return getAllFileIds(node, files);
   }, [node, files]);
 
-  const isChecked = folderFileIds.length > 0 && folderFileIds.every(id => selectedFileIds && selectedFileIds.includes(id));
-  const isIndeterminate = folderFileIds.length > 0 && !isChecked && folderFileIds.some(id => selectedFileIds && selectedFileIds.includes(id));
+  const isFileSelectionChecked = useMemo(() => {
+      if(!files || !selectedFileIds) return false;
+      return folderFileIds.length > 0 && folderFileIds.every(id => selectedFileIds.includes(id));
+  }, [files, selectedFileIds, folderFileIds]);
+
+  const isFileSelectionIndeterminate = useMemo(() => {
+      if(!files || !selectedFileIds) return false;
+      return folderFileIds.length > 0 && !isFileSelectionChecked && folderFileIds.some(id => selectedFileIds.includes(id));
+  }, [files, selectedFileIds, folderFileIds, isFileSelectionChecked]);
+
+  // Folder Checkbox state (Pure Folder Mode)
+  const isFolderChecked = checkedFolderIds && checkedFolderIds.includes(node.id);
 
   const handleCheck = (e) => {
     e.stopPropagation();
+    
+    // Mode 1: Pure Folder Check (for Bot Manager)
+    if (checkable && onCheck) {
+        onCheck(node.id, e.target.checked);
+        return;
+    }
+
+    // Mode 2: Recursive File Selection (Old logic)
     if (!onSelectionChange) return;
 
     if (e.target.checked) {
@@ -75,13 +93,13 @@ export function TreeNode({ node, level = 0, selectedFolderId, onSelectFolder, fi
         onDragOver={handleDragOver}
         onDrop={handleDrop}
       >
-        {/* Folder Selection Checkbox */}
-        {files && onSelectionChange && (
+        {/* Checkbox Logic: Either explicitly checkable OR implicit file selection mode */}
+        {(checkable || (files && onSelectionChange)) && (
           <input 
             type="checkbox"
             className="w-3.5 h-3.5 mr-1 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-            checked={isChecked}
-            ref={el => el && (el.indeterminate = isIndeterminate)}
+            checked={checkable ? isFolderChecked : isFileSelectionChecked}
+            ref={el => el && (el.indeterminate = checkable ? false : isFileSelectionIndeterminate)}
             onClick={(e) => e.stopPropagation()} // Stop expansion toggle
             onChange={handleCheck}
           />
@@ -119,6 +137,9 @@ export function TreeNode({ node, level = 0, selectedFolderId, onSelectFolder, fi
               onSelectionChange={onSelectionChange}
               canModify={canModify}
               onMoveFolder={onMoveFolder}
+              checkable={checkable}
+              checkedFolderIds={checkedFolderIds}
+              onCheck={onCheck}
             />
           ))}
         </div>

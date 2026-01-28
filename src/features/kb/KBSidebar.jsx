@@ -2,7 +2,7 @@ import { Plus, UploadCloud, ChevronDown, Bot, Circle, FolderPlus, FolderMinus, F
 import { TreeNode } from '../../components/common/TreeNode';
 import { useMemo, useState } from 'react';
 
-export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBotsSection, bots, selectedBotId, onSelectBot, onUpload, files, selectedFileIds, onSelectionChange, onCreateBot, userRole = 'user', onMoveFolder }) {
+export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBotsSection, bots, selectedBotId, onSelectBot, onUpload, files, selectedFileIds, onSelectionChange, onCreateBot, userRole = 'user', onMoveFolder, checkable, checkedFolderIds, onCheck }) {
   const [isSectionExpanded, setIsSectionExpanded] = useState(true);
   const [isBotSectionExpanded, setIsBotSectionExpanded] = useState(true);
 
@@ -127,6 +127,9 @@ export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBots
                   onSelectionChange={onSelectionChange}
                   canModify={canModify}
                   onMoveFolder={onMoveFolder}
+                  checkable={checkable}
+                  checkedFolderIds={checkedFolderIds}
+                  onCheck={onCheck}
                 />
               ))}
             </div>

@@ -170,9 +170,9 @@ export function KBManagerPanel({ selectedFolderId, files, bots, selectedFileIds,
                         <button 
                             onClick={onStartChat}
                             className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1 font-medium text-xs"
-                            title="使用已選文件對話"
+                            title="使用已選文件問答"
                         >
-                            <MessageSquare size={16} /> 對話
+                            <MessageSquare size={16} /> 問答
                         </button>
                     </div>
                 ) : (

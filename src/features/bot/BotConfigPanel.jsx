@@ -143,10 +143,29 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
           
           {/* 2. 第一區塊：基本設定 Basic Settings */}
           <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-              <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-100 pb-2">基本設定</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                  {/* Name Input & Settings */}
-                  <div className="md:col-span-2 space-y-1">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-4">
+                  <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">基本設定</h3>
+                  {/* Status Toggle moved to Header */}
+                  <div className="flex items-center">
+                       <span className="mr-3 text-sm font-medium text-slate-700">運作狀態</span>
+                       <label className="relative inline-flex items-center cursor-pointer">
+                         <input 
+                             type="checkbox" 
+                             className="sr-only peer"
+                             checked={formData.status === 'active'}
+                             onChange={() => handleChange({ status: formData.status === 'active' ? 'inactive' : 'active' })}
+                         />
+                         <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                         <span className="ml-2 text-sm font-medium text-slate-700">
+                             {formData.status === 'active' ? '啟用' : '停用'}
+                         </span>
+                       </label>
+                  </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  {/* Left Column: Name Input & Settings */}
+                  <div className="space-y-1">
                       <label className="block text-sm font-medium text-slate-700">機器人名稱</label>
                       <div className="flex gap-2">
                           <input 
@@ -165,23 +184,36 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
                       </div>
                   </div>
 
-                  {/* Status Toggle */}
+                  {/* Right Column: Feature Toggles */}
                   <div className="space-y-1">
-                      <label className="block text-sm font-medium text-slate-700">運作狀態</label>
-                      <div className="flex items-center h-[42px]">
-                          <label className="relative inline-flex items-center cursor-pointer">
+                     <label className="block text-sm font-medium text-slate-700">功能開關</label>
+                     <div className="flex gap-4 h-[42px] items-center">
+                        <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
+                            <div className={`w-5 h-5 rounded border flex items-center justify-center ${formData.showInstructions ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300'}`}>
+                                {formData.showInstructions && <Check size={14} />}
+                            </div>
                             <input 
                                 type="checkbox" 
-                                className="sr-only peer"
-                                checked={formData.status === 'active'}
-                                onChange={() => handleChange({ status: formData.status === 'active' ? 'inactive' : 'active' })}
+                                className="hidden"
+                                checked={!!formData.showInstructions}
+                                onChange={(e) => handleChange({ showInstructions: e.target.checked })}
                             />
-                            <div className="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
-                            <span className="ml-3 text-sm font-medium text-slate-700">
-                                {formData.status === 'active' ? '已啟用' : '已停用'}
-                            </span>
-                          </label>
-                      </div>
+                            <span className="text-sm font-medium text-slate-700">顯示使用文件</span>
+                        </label>
+
+                        <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
+                            <div className={`w-5 h-5 rounded border flex items-center justify-center ${formData.allowUpload ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300'}`}>
+                                {formData.allowUpload && <Check size={14} />}
+                            </div>
+                            <input 
+                                type="checkbox" 
+                                className="hidden"
+                                checked={!!formData.allowUpload}
+                                onChange={(e) => handleChange({ allowUpload: e.target.checked })}
+                            />
+                            <span className="text-sm font-medium text-slate-700">允許上傳文件</span>
+                        </label>
+                     </div>
                   </div>
               </div>
 

@@ -82,6 +82,9 @@ export default function App() {
       }
     }
   }, [selectedBotId, currentFeature.mode, bots]);
+  
+  // New State for Bot Manager Folder Checkboxes
+  const [botMgrCheckedFolderIds, setBotMgrCheckedFolderIds] = useState([]);
 
   // 當切換功能時，重置 KB mode
   const handleFeatureSelect = (key) => {
@@ -100,9 +103,14 @@ export default function App() {
   }, [checkedNodes, currentFeature.mode, selectedBotId, selectedFolderId, files]);
 
   // For Bot Manager: Calculate files in current folder separately for the left panel
-  const filesInSelectedFolder = useMemo(() => {
-      return files.filter(f => f.folderId === selectedFolderId);
-  }, [files, selectedFolderId]);
+  // Now modified to aggregate files from ALL checked folders
+  const filesInCheckedFolders = useMemo(() => {
+      // If no folders checked, maybe default to current selected folder? 
+      // User request implies "checkboxes" drive the list.
+      // Let's include both: files in currently selected folder AND checked folders
+      const allSourceFolderIds = new Set([...botMgrCheckedFolderIds, selectedFolderId]);
+      return files.filter(f => allSourceFolderIds.has(f.folderId));
+  }, [files, selectedFolderId, botMgrCheckedFolderIds]);
 
   const updateBot = (id, newConfig) => {
     setBots(prev => prev.map(b => b.id === id ? { ...b, ...newConfig } : b));
@@ -148,6 +156,17 @@ export default function App() {
 
   // 共用的打開 LLM 設定函數
   const openLLMSettings = () => setIsLLMModalOpen(true);
+
+  // Folder Check Handler for Bot Manager
+  const handleBotFolderCheck = (folderId, isChecked) => {
+      setBotMgrCheckedFolderIds(prev => {
+          if (isChecked) {
+              return [...prev, folderId];
+          } else {
+              return prev.filter(id => id !== folderId);
+          }
+      });
+  };
   
   // 檢查是否應該隱藏 Prompt Template 選項 (僅在 Prompt Optimizer 模式下隱藏)
   const shouldHideTemplateInSettings = currentFeature.mode === MODES.PROMPT;
@@ -282,6 +301,9 @@ export default function App() {
               onSelectBot={setSelectedBotId}
               onCreateBot={() => setSelectedBotId('NEW_BOT')}
               userRole="admin" // Bot manager usually admin
+              checkable={true}
+              checkedFolderIds={botMgrCheckedFolderIds}
+              onCheck={handleBotFolderCheck}
             />
           ) : (
             <CommonHistorySidebar currentFeatureId={currentFeature.id} />
@@ -303,7 +325,7 @@ export default function App() {
             <MainDropdown currentFeature={currentFeature} onSelect={handleFeatureSelect} features={systemFeatures} />
             
             <div className="h-6 w-[1px] bg-slate-200 mx-1 hidden md:block"></div>
-            <span className="text-sm text-slate-500 font-medium hidden md:block animate-in fade-in">
+            <span className="text-lg text-slate-800 font-bold hidden md:block animate-in fade-in">
               {currentFeature.label}
             </span>
 
@@ -404,7 +426,7 @@ export default function App() {
                    bot={selectedBotId === 'NEW_BOT' ? { name: '', welcomeMessage: '', files: [], accessibleUsers: [] } : bots.find(b => b.id === selectedBotId)}
                    isCreating={selectedBotId === 'NEW_BOT'}
                    associatedFiles={displayFiles} // These are the files ALREADY associated with the bot
-                   folderFiles={filesInSelectedFolder} // These are files in the currently selected folder
+                   folderFiles={filesInCheckedFolders} // Source files from checked folders
                    selectedFolderName={findNodeById(KB_TREE_DATA, selectedFolderId)?.label || '選定資料夾'}
                    users={MOCK_USERS}
                    onUpdateBot={updateBot}
