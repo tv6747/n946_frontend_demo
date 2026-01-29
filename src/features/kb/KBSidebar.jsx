@@ -2,7 +2,7 @@ import { Plus, UploadCloud, ChevronDown, Bot, Circle, FolderPlus, FolderMinus, F
 import { TreeNode } from '../../components/common/TreeNode';
 import { useMemo, useState } from 'react';
 
-export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBotsSection, bots, selectedBotId, onSelectBot, onUpload, files, selectedFileIds, onSelectionChange, onCreateBot, userRole = 'user', onMoveFolder, checkable, checkedFolderIds, onCheck }) {
+export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBotsSection, bots, selectedBotId, onSelectBot, onUpload, files, selectedFileIds, onSelectionChange, onCreateBot, userRole = 'user', onMoveFolder, onMoveFile, checkable, checkedFolderIds, onCheck }) {
   const [isSectionExpanded, setIsSectionExpanded] = useState(true);
   const [isBotSectionExpanded, setIsBotSectionExpanded] = useState(true);
 
@@ -37,24 +37,22 @@ export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBots
         </button>
       )}
 
-      {/* Admin Folder Actions */}
-      {userRole === 'admin' && !onCreateBot && (
+      {/* Folder Actions */}
+      {!onCreateBot && (
           <div className="grid grid-cols-3 gap-2 mb-3">
-              <button onClick={() => alert("新增資料夾 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors" title="新增資料夾">
+              <button disabled={!canModify} onClick={() => alert("新增資料夾 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500" title="新增資料夾">
                   <FolderPlus size={16} className="mb-1 text-blue-500"/>
                   <span className="text-[10px]">新增</span>
               </button>
-              <button onClick={() => alert("刪除資料夾 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors" title="刪除資料夾">
+              <button disabled={!canModify} onClick={() => alert("刪除資料夾 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500" title="刪除資料夾">
                   <FolderMinus size={16} className="mb-1 text-red-500"/>
                   <span className="text-[10px]">刪除</span>
               </button>
-              <button 
-                  onClick={() => alert("查看已刪除檔案 (Demo)")} 
-                  className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors" 
-                  title="垃圾桶"
+              <button disabled={!canModify} onClick={() => alert("查看已刪除檔案 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500" 
+                  title="回收桶"
               >
                   <Trash2 size={16} className="mb-1 text-slate-500"/>
-                  <span className="text-[10px]">垃圾桶</span>
+                  <span className="text-[10px]">回收桶</span>
               </button>
           </div>
       )}
@@ -127,6 +125,7 @@ export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBots
                   onSelectionChange={onSelectionChange}
                   canModify={canModify}
                   onMoveFolder={onMoveFolder}
+                  onMoveFile={onMoveFile}
                   checkable={checkable}
                   checkedFolderIds={checkedFolderIds}
                   onCheck={onCheck}

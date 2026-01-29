@@ -21,6 +21,7 @@ export const FEATURES = {
   DRAFT_HILL: { id: 'draft_hill', label: '例行函稿 - 山坡地社區點監測', mode: MODES.CHAT, placeholder: '輸入監測數據...' },
   DRAFT_AREA: { id: 'draft_area', label: '例行函稿 - 禁建限區', mode: MODES.CHAT, placeholder: '輸入管制區號...' },
   DRAFT_DECOR: { id: 'draft_decor', label: '例行函稿 - 室內裝修', mode: MODES.CHAT, placeholder: '輸入申請案號...' },
+  DRAFT_DOC_GEN: { id: 'draft_doc_gen', label: '公文檔案上傳生成案件歷程', mode: MODES.CHAT, placeholder: '請上傳公文檔案...', allowUpload: true, hideLLMSettings: true },
 };
 
 export const LANGUAGES = [
@@ -63,6 +64,11 @@ export const WELCOME_CONFIG = {
     title: '你好，今天想聊些什麼？',
     sub: '我可以協助你撰寫文章、規劃行程或解答疑問。',
     suggestions: ['如何撰寫一份正式的道歉信？', '比較 React 和 Vue 的優缺點', '幫我規劃三天兩夜的東京自由行']
+  },
+  draft_doc_gen: {
+    title: '公文檔案上傳生成案件歷程',
+    sub: '上傳公文檔案以自動生成案件歷程摘要及時間軸。',
+    suggestions: ['上傳 PDF 檔案開始分析', '生成案件歷程摘要']
   },
   ppt_gen: {
     title: '快速生成專業簡報',

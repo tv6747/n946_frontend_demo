@@ -130,6 +130,22 @@ export default function App() {
       setSelectedBotId(newBot.id); // Switch to the new bot
   };
 
+   const handleMoveFile = (fileIds, targetFolderId) => {
+     if (userRole !== 'admin' && !targetFolderId.startsWith('personal')) {
+         alert("權限不足：您只能移動文件到個人資料夾");
+         return;
+     }
+     
+     if (confirm(`確定要移動 ${fileIds.length} 個文件到目標資料夾嗎？`)) {
+       setFiles(prev => prev.map(f => {
+           if (fileIds.includes(f.id)) {
+               return { ...f, folderId: targetFolderId };
+           }
+           return f;
+       }));
+     }
+   };
+
   const handleRemoveFile = (fileIds) => {
     if (currentFeature.mode === MODES.BOT_MGR && selectedBotId) {
         const newFiles = checkedNodes.filter(nodeId => !fileIds.includes(nodeId));
@@ -179,7 +195,7 @@ export default function App() {
   // Filter Features based on System
   const systemFeatures = useMemo(() => {
      if (currentSystem === 'DOC') {
-         // Return only Draft features
+         // Return Draft features and the new Doc Gen feature
          return Object.keys(FEATURES).filter(key => key.startsWith('DRAFT_'));
      } else {
          // Return everything else
@@ -222,7 +238,7 @@ export default function App() {
                 </div>
                 <div className="flex-1 min-w-0">
                     <h1 className="font-bold text-base text-slate-800 tracking-tight truncate leading-tight">
-                        公務輔助應用系統
+                        {currentSystem === 'GAI' ? 'GAI 互動平台' : '智慧公文輔助系統'}
                     </h1>
                 </div>
                 <div className="text-slate-400">
@@ -290,6 +306,7 @@ export default function App() {
                       alert(`移動資料夾 ${sourceId} 到 ${targetId} (State Update TODO)`);
                       // TODO: Implement actual move logic
                   }}
+                  onMoveFile={handleMoveFile}
                 />
              )
           ) : currentFeature.mode === MODES.BOT_MGR ? (
@@ -429,6 +446,7 @@ export default function App() {
                    isCreating={selectedBotId === 'NEW_BOT'}
                    associatedFiles={displayFiles} // These are the files ALREADY associated with the bot
                    folderFiles={filesInCheckedFolders} // Source files from checked folders
+                   allFiles={files} // Pass all files to lookup associated files for NEW bots
                    selectedFolderName={findNodeById(KB_TREE_DATA, selectedFolderId)?.label || '選定資料夾'}
                    users={MOCK_USERS}
                    onUpdateBot={updateBot}

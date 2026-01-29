@@ -18,7 +18,7 @@ function ActionButton({ icon, label, onClick }) {
 
 export function ChatInterface({ currentFeature, onExport, onSave, ragContext, onOpenLLMSettings }) {
   const [messages, setMessages] = useState([]);
-  const isDraftMode = currentFeature.id.startsWith('draft_');
+  const isDraftMode = currentFeature.id.startsWith('draft_') && !currentFeature.id.startsWith('draft_doc_gen');
   // Default to 50% for drafts, 70% otherwise
   const { leftWidth, startResizing } = useResizable(isDraftMode ? 50 : 50);
 
@@ -132,13 +132,16 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
                 <input className="flex-1 outline-none text-sm" placeholder={currentFeature.placeholder || "輸入您的問題..."} />
                 
                 {/* Conditionally render LLM settings button */}
-                {showLLMSettings && (
+                {showLLMSettings && !currentFeature.hideLLMSettings && (
                   <button onClick={onOpenLLMSettings} className="p-2 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-colors" title="LLM 參數設定">
                     <Settings size={20} />
                   </button>
                 )}
                 
                 <button className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><Send size={18}/></button>
+              </div>
+              <div className="text-center mt-2">
+                 <span className="text-xs text-slate-400">此回答為大型語言模型產出，僅供參考，請務必核對重要資訊的準確性。</span>
               </div>
             </div>
            </div>
@@ -241,6 +244,9 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
               )}
 
               <button className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><Send size={18}/></button>
+            </div>
+            <div className="text-center mt-2">
+               <span className="text-xs text-slate-400">此回答為大型語言模型產出，僅供參考，請務必核對重要資訊的準確性。</span>
             </div>
          </div>
       </div>

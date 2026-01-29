@@ -4,7 +4,7 @@ import {
     CheckSquare, FolderOpen, ArrowRight, ArrowLeft, ChevronsRight, FileCode, Check, File 
 } from 'lucide-react';
 
-export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, selectedFolderName, users, onUpdateBot, onCreateBot, onRemoveFile, onDeleteBot, onOpenLLMSettings }) {
+export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, allFiles, selectedFolderName, users, onUpdateBot, onCreateBot, onRemoveFile, onDeleteBot, onOpenLLMSettings }) {
   if (!bot) return null;
   
   // Use local state for the form data to support creation mode and edits
@@ -34,6 +34,15 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
   const [selectedAvailableUserIds, setSelectedAvailableUserIds] = useState([]);
 
   const filteredUsers = users.filter(u => u.name.includes(userSearch));
+
+  // Determine which files to show in "Associated Files" list
+  // If creating, we must derive from formData.files because prop 'associatedFiles' relies on parent state which might be empty/stale for NEW_BOT
+  const displayAssociatedFiles = React.useMemo(() => {
+     if (isCreating) {
+        return (allFiles || []).filter(f => (formData.files || []).includes(f.id));
+     }
+     return associatedFiles;
+  }, [isCreating, formData.files, associatedFiles, allFiles]);
 
   // Handler: Select/Deselect available user (Left Panel)
   const toggleAvailableUserSelection = (id) => {
@@ -386,16 +395,16 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
                   <div className="flex-1 flex flex-col min-w-0">
                       <div className="p-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                           <span className="text-sm font-semibold text-slate-700">已關聯文件</span>
-                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{associatedFiles.length}</span>
+                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">{displayAssociatedFiles.length}</span>
                       </div>
                       <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
                           <div className="space-y-1">
-                               {associatedFiles.length === 0 ? (
+                               {displayAssociatedFiles.length === 0 ? (
                                    <div className="flex flex-col items-center justify-center h-full text-slate-400">
                                        <FileCode size={32} className="mb-2 opacity-50" />
                                        <p className="text-xs">尚未關聯任何文件</p>
                                    </div>
-                               ) : associatedFiles.map(file => (
+                               ) : displayAssociatedFiles.map(file => (
                                    <div key={file.id} className="flex items-center p-2 rounded-lg bg-white border border-slate-100 hover:border-blue-200 transition-colors group">
                                        <div className="w-8 h-8 rounded bg-blue-50 text-blue-600 flex items-center justify-center mr-3 font-bold text-xs">
                                           FILE

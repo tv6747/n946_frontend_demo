@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ChevronRight, FolderOpen, Folder } from 'lucide-react';
 import { getAllFileIds } from '../../utils/helpers';
 
-export function TreeNode({ node, level = 0, selectedFolderId, onSelectFolder, files, selectedFileIds, onSelectionChange, canModify, onMoveFolder, checkable, checkedFolderIds, onCheck }) {
+export function TreeNode({ node, level = 0, selectedFolderId, onSelectFolder, files, selectedFileIds, onSelectionChange, canModify, onMoveFolder, onMoveFile, checkable, checkedFolderIds, onCheck }) {
   const [expanded, setExpanded] = useState(true);
   const isSelected = selectedFolderId === node.id;
   const hasChildren = node.children && node.children.length > 0;
@@ -72,7 +72,20 @@ export function TreeNode({ node, level = 0, selectedFolderId, onSelectFolder, fi
       if (!canModify || !onMoveFolder) return;
       e.preventDefault();
       const sourceId = e.dataTransfer.getData('text/plain');
-      if (sourceId && sourceId !== node.id) {
+      // If dropping a file (starts with 'file_'), handle separately or use a distinct mime type
+      // But standard dragstart uses text/plain usually. Let's assume folder IDs don't look like JSON array.
+      
+      try {
+           const data = JSON.parse(e.dataTransfer.getData('application/json'));
+           if (data.type === 'files' && onMoveFile) {
+               onMoveFile(data.ids, node.id);
+               return;
+           }
+      } catch (err) {
+          // Not JSON, likely folder move
+      }
+
+      if (sourceId && sourceId !== node.id && onMoveFolder) {
           onMoveFolder(sourceId, node.id);
       }
   };
@@ -137,6 +150,7 @@ export function TreeNode({ node, level = 0, selectedFolderId, onSelectFolder, fi
               onSelectionChange={onSelectionChange}
               canModify={canModify}
               onMoveFolder={onMoveFolder}
+              onMoveFile={onMoveFile}
               checkable={checkable}
               checkedFolderIds={checkedFolderIds}
               onCheck={onCheck}

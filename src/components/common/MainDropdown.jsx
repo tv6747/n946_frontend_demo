@@ -15,7 +15,8 @@ const ICON_MAP = {
     DRAFT_MAIL: <Mail size={16} />,
     DRAFT_HILL: <AlertTriangle size={16} />,
     DRAFT_AREA: <FileText size={16} />,
-    DRAFT_DECOR: <Hammer size={16} />
+    DRAFT_DECOR: <Hammer size={16} />,
+    DRAFT_DOC_GEN: <FileText size={16} />,
 };
 
 export function MainDropdown({ currentFeature, onSelect, features }) {
@@ -44,7 +45,8 @@ export function MainDropdown({ currentFeature, onSelect, features }) {
   const groups = {
       general: availableFeatures.filter(k => ['INTERACTIVE', 'DOC_TRANS', 'PPT_GEN', 'PROMPT_OPT', 'KB_MANAGEMENT', 'BOT_MANAGEMENT'].includes(k)),
       bots: availableFeatures.filter(k => ['BOT_CS', 'BOT_DATA'].includes(k)),
-      drafts: availableFeatures.filter(k => k.startsWith('DRAFT_'))
+      doc_gen: availableFeatures.filter(k => ['DRAFT_DOC_GEN'].includes(k)),
+      drafts: availableFeatures.filter(k => k.startsWith('DRAFT_') && !['DRAFT_DOC_GEN'].includes(k)),
   };
 
   const isDocSystem = availableFeatures.some(k => k.startsWith('DRAFT_'));
@@ -56,11 +58,7 @@ export function MainDropdown({ currentFeature, onSelect, features }) {
         className={`flex items-center gap-2 px-3 py-2 text-white rounded-lg shadow-md transition-all active:scale-95 ${isDocSystem ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}
       >
         <span className="font-semibold tracking-wide flex items-center gap-2">
-            {currentFeature.id === "draft_mail" ? <Mail size={16}/> : 
-             currentFeature.id === "draft_hill" ? <AlertTriangle size={16}/> : 
-             currentFeature.id === "draft_area" ? <FileText size={16}/> : 
-             currentFeature.id === "draft_decor" ? <Hammer size={16}/> : 
-             isDocSystem ? <Folder size={16}/> : 
+            {isDocSystem ? <Folder size={16}/> : 
              currentFeature.id === "interactive" ? <MessageSquare size={16}/> :
              currentFeature.id === "ppt_gen" ? <Presentation size={16}/> :
              currentFeature.id === "prompt_opt" ? <Sparkles size={16}/> :
@@ -109,7 +107,6 @@ export function MainDropdown({ currentFeature, onSelect, features }) {
                     ))}
                 </>
             )}
-
             {groups.drafts.length > 0 && (
                 <>
                     {groups.general.length > 0 && <div className="my-1 border-t border-slate-100"></div>}
@@ -125,7 +122,21 @@ export function MainDropdown({ currentFeature, onSelect, features }) {
                     ))}
                 </>
             )}
-            
+            {groups.doc_gen.length > 0 && (
+                <>
+                    {groups.general.length > 0 && <div className="my-1 border-t border-slate-100"></div>}
+                    <div className="px-4 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider sticky top-0 bg-white">文檔生成</div>
+                    {groups.doc_gen.map(key => (
+                        <MenuItem 
+                            key={key}
+                            label={FEATURES[key].label} 
+                            active={currentFeature.id === FEATURES[key].id} 
+                            onClick={() => handleItemClick(key)} 
+                            indent
+                        />
+                    ))}
+                </>
+            )}
             {availableFeatures.length === 0 && (
                 <div className="p-4 text-center text-slate-400 text-sm">無可用功能</div>
             )}

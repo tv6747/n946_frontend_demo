@@ -36,6 +36,9 @@ export function PromptOptimizerInterface({ onSaveSystemPrompt, onOpenLLMSettings
             />
             <button className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><Send size={18}/></button>
           </div>
+          <div className="text-center mt-2">
+             <span className="text-xs text-slate-400">此回答為大型語言模型產出，僅供參考，請務必核對重要資訊的準確性。</span>
+          </div>
         </div>
       </div>
     </div>

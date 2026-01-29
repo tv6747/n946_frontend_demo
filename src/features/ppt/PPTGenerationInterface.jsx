@@ -113,31 +113,31 @@ export function PPTGenerationInterface({ currentFeature, onOpenLLMSettings }) {
                                {LOCAL_PPT_TEMPLATES.map(tpl => (
                                  <div 
                                    key={tpl.id} 
-                                   onClick={() => setSelectedTemplate(tpl)}
-                                   className={`group relative cursor-pointer rounded-lg overflow-hidden border transition-all ${selectedTemplate.id === tpl.id ? 'ring-2 ring-blue-500 border-transparent' : 'border-slate-200 hover:shadow-md'}`}
+                                   onClick={() => {
+                                        if(!window.confirm("確定要下載此範本嗎？")) return;
+                                        // Trigger Download
+                                        const link = document.createElement('a');
+                                        link.href = tpl.image;
+                                        link.download = `template_${tpl.id}.jpg`;
+                                        document.body.appendChild(link);
+                                        link.click();
+                                        document.body.removeChild(link);
+                                        
+                                        setSelectedTemplate(tpl);
+                                   }}
+                                   className={`group relative cursor-pointer rounded-lg overflow-hidden border transition-all border-slate-200 hover:shadow-md`}
                                  >
                                     <div className={`aspect-video bg-slate-100 flex items-center justify-center overflow-hidden relative`}>
                                        <img src={tpl.image} alt={tpl.name} className="w-full h-full object-cover" />
-                                       {/* Download Button */}
-                                       <button 
-                                          onClick={(e) => {
-                                              e.stopPropagation();
-                                              const link = document.createElement('a');
-                                              link.href = tpl.image;
-                                              link.download = `template_${tpl.id}.jpg`;
-                                              document.body.appendChild(link);
-                                              link.click();
-                                              document.body.removeChild(link);
-                                          }}
-                                          className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-black/70 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                                          title="下載範本"
-                                       >
-                                           <Download size={14} />
-                                       </button>
-                                    </div>
+                                        {/* Hover Overlay with Download Icon */}
+                                        <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                           <div className="bg-white/20 p-3 rounded-full backdrop-blur-sm border border-white/30 text-white shadow-xl transform scale-90 group-hover:scale-100 transition-transform duration-300">
+                                              <Download size={32} strokeWidth={1.5} />
+                                           </div>
+                                        </div>
+                                     </div>
                                     <div className="p-2 bg-white flex justify-between items-center">
                                        <span className="text-xs font-medium text-slate-600 truncate">{tpl.name}</span>
-                                       {selectedTemplate.id === tpl.id && <Check size={14} className="text-blue-500"/>}
                                     </div>
                                  </div>
                                ))}
@@ -189,6 +189,9 @@ export function PPTGenerationInterface({ currentFeature, onOpenLLMSettings }) {
             <Settings size={20} />
           </button>
           <button className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><Send size={16}/></button>
+        </div>
+        <div className="text-center mt-2">
+           <span className="text-xs text-slate-400">此回答為大型語言模型產出，僅供參考，請務必核對重要資訊的準確性。</span>
         </div>
         </div>
       </div>

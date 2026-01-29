@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, Sparkles, Languages } from 'lucide-react';
+import { FileText, Sparkles, Languages, X } from 'lucide-react';
 import { LANGUAGES } from '../../data/constants';
 
 export function DocumentTranslationInterface() {
@@ -16,15 +16,22 @@ export function DocumentTranslationInterface() {
              <div className="flex items-center gap-2 font-semibold text-slate-700">
                <FileText size={18} className="text-slate-400"/> 來源文件 (PDF)
              </div>
-             <select 
-               value={sourceLang}
-               onChange={(e) => setSourceLang(e.target.value)}
-               className="text-xs bg-slate-200 px-2 py-1 rounded text-slate-700 border-none outline-none cursor-pointer hover:bg-slate-300 transition-colors"
-             >
-               {sourceOptions.map(lang => (
-                 <option key={lang.id} value={lang.id}>{lang.label}</option>
-               ))}
-             </select>
+             <div className="flex items-center gap-2">
+                 <select 
+                   value={sourceLang}
+                   onChange={(e) => setSourceLang(e.target.value)}
+                   className="text-xs bg-slate-200 px-2 py-1 rounded text-slate-700 border-none outline-none cursor-pointer hover:bg-slate-300 transition-colors"
+                 >
+                   {sourceOptions.map(lang => (
+                     <option key={lang.id} value={lang.id}>{lang.label}</option>
+                   ))}
+                 </select>
+                 
+                  {/* Remove Button (Simulated File state) */}
+                  <button onClick={() => alert("清除文件 (Demo)")} className="p-1 hover:bg-red-50 text-slate-400 hover:text-red-500 rounded transition-colors" title="移除文件">
+                     <X size={16} />
+                  </button>
+             </div>
           </div>
           <div className="flex-1 bg-slate-100 m-4 rounded border border-dashed border-slate-300 flex items-center justify-center flex-col text-slate-400 gap-2">
              <FileText size={48} /> <p>PDF Viewer (Source)</p>

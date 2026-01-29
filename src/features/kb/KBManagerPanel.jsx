@@ -143,7 +143,7 @@ export function KBManagerPanel({ selectedFolderId, files, bots, selectedFileIds,
                         <div className="w-px h-4 bg-slate-200 mx-1"></div>
 
                         {/* Actions */}
-                        {!isSharedFolder && (
+                        {!isSharedFolder && (userRole === 'admin' || selectedFolderId.startsWith('personal')) && (
                           <button onClick={onShare} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="分享">
                              <Users size={16} />
                           </button>
@@ -151,13 +151,6 @@ export function KBManagerPanel({ selectedFolderId, files, bots, selectedFileIds,
                         <button onClick={() => alert(`下載 ${selectedFileIds.length} 個檔案`)} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="下載">
                              <Download size={16} />
                         </button>
-                        
-                        {/* Move Button (Admin/Personal only) */}
-                        {(userRole === 'admin' || selectedFolderId.startsWith('personal')) && (
-                             <button onClick={() => alert("移動檔案功能 (Demo)")} className="p-1.5 text-slate-500 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors" title="移動">
-                                 <ArrowLeftRight size={16} />
-                             </button>
-                        )}
 
                         {!isSharedFolder && (userRole === 'admin' || selectedFolderId.startsWith('personal')) && (
                           <button onClick={() => onRemove(selectedFileIds)} className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="刪除">
@@ -224,8 +217,18 @@ export function KBManagerPanel({ selectedFolderId, files, bots, selectedFileIds,
                 const isRowSelected = selectedFileIds.includes(file.id);
                 const isShared = file.sharedWith && file.sharedWith.length > 0;
                 
+                const handleFileDragStart = (e, fileId) => {
+                    e.dataTransfer.setData('application/json', JSON.stringify({ type: 'files', ids: [fileId] }));
+                    e.dataTransfer.effectAllowed = 'move';
+                };
+
                 return (
-                  <div key={file.id} className={`grid grid-cols-12 gap-4 px-6 py-4 border-b border-slate-50 transition-colors items-center animate-in fade-in duration-200 ${isRowSelected ? 'bg-blue-50/40' : 'hover:bg-slate-50/50'}`}>
+                  <div 
+                    key={file.id} 
+                    draggable={!isReadOnly && (userRole === 'admin' || selectedFolderId.startsWith('personal'))}
+                    onDragStart={(e) => handleFileDragStart(e, file.id)}
+                    className={`grid grid-cols-12 gap-4 px-6 py-4 border-b border-slate-50 transition-colors items-center animate-in fade-in duration-200 ${isRowSelected ? 'bg-blue-50/40' : 'hover:bg-slate-50/50'}`}
+                  >
                      <div className="col-span-1 flex items-center justify-center">
                        {!isReadOnly && (
                          <input 

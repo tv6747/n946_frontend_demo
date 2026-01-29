@@ -15,7 +15,18 @@ export const KB_TREE_DATA = [
     label: '個人知識庫',
     type: 'folder',
     isDefault: true,
-    children: []
+    children: [
+        { 
+            id: 'personal_work', 
+            label: '工作文件', 
+            type: 'folder', 
+            children: [
+                { id: 'personal_work_daily', label: '日報', type: 'folder', children: [] },
+                { id: 'personal_work_meeting', label: '會議資料', type: 'folder', children: [] }
+            ] 
+        },
+        { id: 'personal_misc', label: '雜項', type: 'folder', children: [] }
+    ]
   },
   {
     id: 'shared_root',
@@ -30,10 +41,15 @@ export const KB_TREE_DATA = [
 
 export const MASTER_FILES = Array.from({ length: 45 }).map((_, i) => ({
   id: `file_${i + 1}`,
-  name: i < 5 ? ['專案規格書_v1.pdf', '會議記錄_2024.docx', '我的筆記.txt', '員工請假辦法.pdf', 'Q1行銷檢討.pptx'][i] : `測試文件_${i + 1}.pdf`,
+  name: i < 5 ? ['專案規格書_v1.pdf', '會議記錄_2024.docx', '我的筆記.txt', '員工請假辦法.pdf', 'Q1行銷檢討.pptx'][i] : 
+        i === 40 ? '20240129_工作日報.docx' : 
+        i === 41 ? '20240128_工作日報.docx' : 
+        i === 42 ? '每週例會簡報.pptx' : 
+        i === 43 ? '個人工作計畫.xlsx' :
+        `測試文件_${i + 1}.pdf`,
   size: `${(Math.random() * 10 + 0.1).toFixed(1)} MB`,
   date: `2024-0${Math.ceil(Math.random() * 9)}-${Math.ceil(Math.random() * 28)}`,
-  folderId: i === 0 || i === 1 ? 'org_projects' : i === 2 ? 'personal' : i === 3 ? 'org_rules' : i === 4 ? 'shared_dept' : 'org_projects',
+  folderId: i === 0 || i === 1 ? 'org_projects' : i === 2 ? 'personal' : i === 3 ? 'org_rules' : i === 4 ? 'shared_dept' :  i === 40 ? 'personal_work_daily' : i === 41 ? 'personal_work_daily' : i === 42 ? 'personal_work_meeting' : i === 43 ? 'personal_work' : 'org_projects',
   sharedWith: i === 0 ? ['u2'] : [],
   isSharedByOthers: i >= 4 && i <= 5
 }));
