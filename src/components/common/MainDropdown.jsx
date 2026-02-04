@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, MessageSquare, Languages, Presentation, Sparkles, Database, Bot, Mail, FileText, AlertTriangle, Hammer, LayoutGrid, Folder } from 'lucide-react';
+import { ChevronDown, MessageSquare, Languages, Presentation, Sparkles, Database, Bot, Mail, FileText, AlertTriangle, Hammer, LayoutGrid, Folder, FileSpreadsheet } from 'lucide-react';
 import { MenuItem } from './MenuItem';
 import { FEATURES } from '../../data/constants';
 
@@ -10,6 +10,7 @@ const ICON_MAP = {
     PROMPT_OPT: <Sparkles size={16} />,
     KB_MANAGEMENT: <Database size={16} />,
     BOT_MANAGEMENT: <Bot size={16} />,
+    CORPUS_MANAGEMENT: <FileSpreadsheet size={16} />,
     BOT_CS: <Bot size={16} />, 
     BOT_DATA: <Bot size={16} />,
     DRAFT_MAIL: <Mail size={16} />,
@@ -43,7 +44,7 @@ export function MainDropdown({ currentFeature, onSelect, features }) {
 
   // Grouping Logic
   const groups = {
-      general: availableFeatures.filter(k => ['INTERACTIVE', 'DOC_TRANS', 'PPT_GEN', 'PROMPT_OPT', 'KB_MANAGEMENT', 'BOT_MANAGEMENT'].includes(k)),
+      general: availableFeatures.filter(k => ['INTERACTIVE', 'DOC_TRANS', 'PPT_GEN', 'PROMPT_OPT', 'KB_MANAGEMENT', 'BOT_MANAGEMENT', 'CORPUS_MANAGEMENT'].includes(k)),
       bots: availableFeatures.filter(k => ['BOT_CS', 'BOT_DATA'].includes(k)),
       doc_gen: availableFeatures.filter(k => ['DRAFT_DOC_GEN'].includes(k)),
       drafts: availableFeatures.filter(k => k.startsWith('DRAFT_') && !['DRAFT_DOC_GEN'].includes(k)),
@@ -64,6 +65,7 @@ export function MainDropdown({ currentFeature, onSelect, features }) {
              currentFeature.id === "prompt_opt" ? <Sparkles size={16}/> :
              currentFeature.id === "kb_manage" ? <Database size={16}/> :
              currentFeature.id === "bot_manage" ? <Bot size={16}/> :
+             currentFeature.id === "corpus_manage" ? <FileSpreadsheet size={16}/> :
              currentFeature.id === "doc_trans" ? <Languages size={16}/> :
              <LayoutGrid size={16}/>}
             {currentFeature.label.includes('例行函稿 - ') ? currentFeature.label.replace('例行函稿 - ', '') : 

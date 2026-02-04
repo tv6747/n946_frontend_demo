@@ -39,6 +39,102 @@ export const KB_TREE_DATA = [
   }
 ];
 
+
+export const CORPUS_PAGES = [
+    { id: 'proper_noun', label: '專有名詞語料庫' },
+    { id: 'synonym_mgr', label: '近似用語管理' },
+];
+
+export const MOCK_GLOSSARIES = [
+    { id: 1, main_term: '行動電話', description: '可隨身攜帶之無線通訊設備', category: '電子產品', created_at: '2023-01-01' },
+    { id: 2, main_term: '人工智慧', description: '由機器展示的智慧', category: '科技', created_at: '2023-02-15' },
+    { id: 3, main_term: '筆記型電腦', description: '包含螢幕與鍵盤的可攜式電腦', category: '電子產品', created_at: '2023-03-10' },
+];
+
+export const MOCK_SYNONYMS = [
+    { id: 1, glossary_id: 1, synonym_term: '手機', remark: '一般口語' },
+    { id: 2, glossary_id: 1, synonym_term: '手提電話', remark: '港澳用語' },
+    { id: 3, glossary_id: 2, synonym_term: 'AI', remark: '英文縮寫' },
+    { id: 4, glossary_id: 2, synonym_term: '機器智慧', remark: '學術用語' },
+    { id: 5, glossary_id: 3, synonym_term: '筆電', remark: '台灣縮寫' },
+    { id: 6, glossary_id: 3, synonym_term: 'Laptop', remark: '英文' },
+];
+
+// --- New NLMA Terminology Mock Data ---
+
+export const MOCK_TERM_CATEGORIES = [
+    { id: 1, name: '國土計畫組', description: '掌理國土規劃、土地使用分區等' },
+    { id: 2, name: '建築管理組', description: '掌理建築法規、營建管理等' },
+    { id: 3, name: '都市更新組', description: '掌理都市更新政策、危老重建等' },
+];
+
+export const MOCK_TERM_DEFINITIONS = [
+    { 
+        id: 't1', 
+        term_name: '容積率', 
+        definition: '指基地內建築物總樓地板面積與基地面積之比。', 
+        source_type: '法律',
+        source_title: '建築技術規則建築設計施工編第161條',
+        is_legal_binding: true,
+        is_current: true,
+        version_tag: '113年修訂',
+        categories: [2] // Linked by ID to Categories
+    },
+    { 
+        id: 't2', 
+        term_name: '第一種農業發展地區', 
+        definition: '指具優良農業生產環境、維持糧食安全功能或曾經投資建設重大農業改良設施之地區。', 
+        source_type: '法律',
+        source_title: '國土計畫法第20條',
+        is_legal_binding: true,
+        is_current: true,
+        version_tag: '114年通檢版',
+        categories: [1]
+    },
+    { 
+        id: 't3', 
+        term_name: '建蔽率', 
+        definition: '指建築面積占基地面積之比率。', 
+        source_type: '法律', 
+        source_title: '建築技術規則建築設計施工編第1條', 
+        is_legal_binding: true,
+        is_current: true, 
+        version_tag: '現行版',
+        categories: [2]
+    },
+    {
+        id: 't4',
+        term_name: '都市更新單元',
+        definition: '指依本條例規定劃定應實施都市更新之地區。',
+        source_type: '法律',
+        source_title: '都市更新條例第3條',
+        is_legal_binding: true,
+        is_current: true,
+        version_tag: '108年修訂',
+        categories: [3]
+    }
+];
+
+export const MOCK_TERM_ANNOTATIONS = [
+    {
+        id: 'a1',
+        term_id: 't1',
+        doc_number: '內授營字第112081XXXX號',
+        annotation_content: '關於容積率計算之補充說明：免計容積項目應包含...',
+        effective_date: '2023-05-12',
+        is_active: true
+    },
+    {
+        id: 'a2',
+        term_id: 't2',
+        doc_number: '台內營字第113008XXXX號',
+        annotation_content: '針對第一種農業發展地區之劃設原則，補充說明如下：...',
+        effective_date: '2024-01-20',
+        is_active: true
+    }
+];
+
+
 export const MASTER_FILES = Array.from({ length: 45 }).map((_, i) => ({
   id: `file_${i + 1}`,
   name: i < 5 ? ['專案規格書_v1.pdf', '會議記錄_2024.docx', '我的筆記.txt', '員工請假辦法.pdf', 'Q1行銷檢討.pptx'][i] : 

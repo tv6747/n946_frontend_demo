@@ -5,16 +5,18 @@ export const MODES = {
   PROMPT: 'prompt_opt',
   TRANS: 'translation',
   PPT: 'ppt_generation',
-  BOT_MGR: 'bot_management'
+  BOT_MGR: 'bot_management',
+  CORPUS_MGR: 'corpus_management',
 };
 
 export const FEATURES = {
   INTERACTIVE: { id: 'interactive', label: '互動問答', mode: MODES.CHAT, placeholder: '輸入您的問題...' },
   KB_MANAGEMENT: { id: 'kb_manage', label: '知識庫', mode: MODES.KB, placeholder: '' },
+  CORPUS_MANAGEMENT: { id: 'corpus_manage', label: '語料庫管理', mode: MODES.CORPUS_MGR, placeholder: '' },
   DOC_TRANS: { id: 'doc_trans', label: '文件翻譯', mode: MODES.TRANS, placeholder: '' },
   PPT_GEN: { id: 'ppt_gen', label: 'PPT 互動產出', mode: MODES.PPT, placeholder: '描述您想要製作的簡報主題...' },
   PROMPT_OPT: { id: 'prompt_opt', label: '提示詞優化', mode: MODES.PROMPT, placeholder: '輸入測試案例...' },
-  BOT_MANAGEMENT: { id: 'bot_manage', label: '管理答詢機器人', mode: MODES.BOT_MGR, placeholder: '' },
+  BOT_MANAGEMENT: { id: 'bot_manage', label: '答詢機器人管理', mode: MODES.BOT_MGR, placeholder: '' },
   BOT_CS: { id: 'bot_cs', label: '答詢機器人 - 客服小幫手', mode: MODES.CHAT, placeholder: '詢問客服相關...' },
   BOT_DATA: { id: 'bot_data', label: '答詢機器人 - 數據分析師', mode: MODES.CHAT, placeholder: '請上傳數據...' },
   DRAFT_MAIL: { id: 'draft_mail', label: '例行函稿 - 署長信箱', mode: MODES.CHAT, placeholder: '輸入民眾來信內容...' },

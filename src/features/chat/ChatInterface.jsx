@@ -1,20 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  BrainCircuit, FileText, Bot, Download, Save, Paperclip, 
-  Settings, Send, GripVertical, Maximize2, ArrowUpRight, FolderDown,
-  ThumbsUp, ThumbsDown, BookOpen
+  BrainCircuit, FileText, Bot, Download, Save, 
+  GripVertical, Maximize2, ArrowUpRight, FolderDown
 } from 'lucide-react';
 import { useResizable } from '../../hooks/useResizable';
 import { WelcomeScreen } from './WelcomeScreen';
 import { CanvasPreview } from '../ppt/CanvasPreview';
-
-function ActionButton({ icon, label, onClick }) {
-    return (
-        <button onClick={onClick} className="flex items-center gap-1 text-xs bg-white border border-slate-200 px-2 py-1 rounded-md text-slate-600 hover:text-blue-600 hover:bg-slate-50 transition-colors shadow-sm">
-            {icon} {label}
-        </button>
-    );
-}
+import { ChatMessage } from '../../components/common/ChatMessage';
+import { ChatInput } from '../../components/common/ChatInput';
 
 export function ChatInterface({ currentFeature, onExport, onSave, ragContext, onOpenLLMSettings }) {
   const [messages, setMessages] = useState([]);
@@ -24,6 +17,7 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
 
   // Check if we should show the LLM settings button (Only for Interactive Chat)
   const showLLMSettings = currentFeature.id === 'interactive';
+  const shouldHideLLMSettings = currentFeature.hideLLMSettings;
 
   useEffect(() => {
     if (currentFeature.id === 'draft_mail') {
@@ -54,97 +48,66 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
   const lastAIResponse = messages.filter(m => m.role === 'ai').pop()?.content;
   const userRequest = messages.filter(m => m.role === 'user').pop()?.content;
 
+  const renderChatArea = () => (
+    <>
+       {ragContext && (
+         <div className="bg-indigo-50 border-b border-indigo-100 px-4 py-2 flex items-center justify-between text-xs text-indigo-700 z-10 flex-shrink-0">
+            <div className="flex items-center gap-2">
+               <BrainCircuit size={14} className="text-indigo-500" />
+               <span className="font-medium flex items-center gap-1">
+                  基於勾選的 
+                  <span className="relative group cursor-help underline decoration-dotted underline-offset-4 decoration-indigo-400 font-bold">
+                     {ragContext.length} 個檔案
+                      {/* Light Theme Tooltip (Read Only) */}
+                     <div className="absolute top-full left-1/2 -translate-x-1/2 w-64 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                         <div className="bg-white text-slate-700 border border-slate-200 rounded-xl p-3 shadow-xl">
+                             <div className="font-bold border-b border-slate-100 pb-2 mb-2 text-xs text-slate-400 uppercase tracking-wider">已選文件清單</div>
+                             {ragContext.length === 0 ? (
+                               <div className="text-slate-400 py-2 text-center text-xs italic">未選擇任何文件</div>
+                             ) : (
+                               <ul className="space-y-1 max-h-40 overflow-y-auto custom-scrollbar">
+                                  {ragContext.map(f => (
+                                     <li key={f.id} className="flex items-center gap-2 text-xs py-1 px-1 hover:bg-slate-50 rounded">
+                                        <FileText size={12} className="text-indigo-400 flex-shrink-0" />
+                                        <span className="truncate font-medium" title={f.name}>{f.name}</span>
+                                     </li>
+                                  ))}
+                               </ul>
+                             )}
+                         </div>
+                     </div>
+                  </span>
+                  進行回答
+               </span>
+            </div>
+         </div>
+       )}
+       {messages.length === 0 ? (
+         <WelcomeScreen featureId={currentFeature.id} onSuggestionClick={handleSuggestionClick} />
+       ) : (
+         <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar bg-slate-50/50">
+           {messages.map(msg => (
+              <ChatMessage key={msg.id} message={msg} />
+           ))}
+         </div>
+       )}
+    </>
+  );
+
+  const commonInputProps = {
+     placeholder: currentFeature.placeholder,
+     showLLMSettings: showLLMSettings && !shouldHideLLMSettings,
+     onOpenLLMSettings,
+     allowUpload: currentFeature.id === 'interactive' || currentFeature.allowUpload,
+     showInstructions: currentFeature.showInstructions
+  };
+
   // 如果不是草稿模式 (例如一般問答)，直接回傳單欄介面
   if (!isDraftMode) {
      return (
         <div className="flex flex-col h-full bg-slate-50">
-           {ragContext && (
-             <div className="bg-indigo-50 border-b border-indigo-100 px-4 py-2 flex items-center justify-between text-xs text-indigo-700 z-30">
-                <div className="flex items-center gap-2">
-                   <BrainCircuit size={14} className="text-indigo-500" />
-                   <span className="font-medium flex items-center gap-1">
-                      基於勾選的 
-                      <span className="relative group cursor-help underline decoration-dotted underline-offset-4 decoration-indigo-400 font-bold">
-                         {ragContext.length} 個檔案
-                          {/* Light Theme Tooltip (Read Only) */}
-                         <div className="absolute top-full left-1/2 -translate-x-1/2 w-64 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
-                             <div className="bg-white text-slate-700 border border-slate-200 rounded-xl p-3 shadow-xl">
-                                 <div className="font-bold border-b border-slate-100 pb-2 mb-2 text-xs text-slate-400 uppercase tracking-wider">已選文件清單</div>
-                                 {ragContext.length === 0 ? (
-                                   <div className="text-slate-400 py-2 text-center text-xs italic">未選擇任何文件</div>
-                                 ) : (
-                                   <ul className="space-y-1 max-h-40 overflow-y-auto custom-scrollbar">
-                                      {ragContext.map(f => (
-                                         <li key={f.id} className="flex items-center gap-2 text-xs py-1 px-1 hover:bg-slate-50 rounded">
-                                            <FileText size={12} className="text-indigo-400 flex-shrink-0" />
-                                            <span className="truncate font-medium" title={f.name}>{f.name}</span>
-                                         </li>
-                                      ))}
-                                   </ul>
-                                 )}
-                             </div>
-                         </div>
-                      </span>
-                      進行回答
-                   </span>
-                </div>
-             </div>
-           )}
-           {messages.length === 0 ? (
-             <WelcomeScreen featureId={currentFeature.id} onSuggestionClick={handleSuggestionClick} />
-           ) : (
-             <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar bg-slate-50/50">
-               {messages.map(msg => (
-                 <div key={msg.id} className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                   {msg.role === 'ai' && (
-                     <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white mt-1 flex-shrink-0">
-                       <Bot size={16} />
-                     </div>
-                   )}
-                   <div className="flex flex-col max-w-[85%] gap-2">
-                     <div className={`px-5 py-3.5 rounded-2xl text-sm leading-relaxed shadow-sm whitespace-pre-line ${
-                       msg.role === 'user' 
-                         ? 'bg-blue-600 text-white rounded-tr-sm' 
-                         : 'bg-white border border-slate-200 text-slate-700 rounded-tl-sm'
-                     }`}>
-                       {msg.content}
-                     </div>
-                     {msg.role === 'ai' && (
-                        <div className="flex gap-2 flex-wrap animate-in fade-in duration-300">
-                           <ActionButton icon={<ThumbsUp size={14}/>} onClick={() => {}} />
-                           <ActionButton icon={<ThumbsDown size={14}/>} onClick={() => {}} />
-                        </div>
-                     )}
-                   </div>
-                 </div>
-               ))}
-             </div>
-           )}
-           <div className="p-4 bg-white border-t border-slate-200">         
-            <div className="max-w-5xl mx-auto">
-              <div className="relative border border-slate-300 rounded-lg flex items-center p-2 gap-2 bg-white">
-                {(currentFeature.id === 'interactive' || currentFeature.allowUpload) && (
-                   <button className="p-2 text-slate-400 hover:bg-slate-100 rounded-full" title="上傳檔案"><Paperclip size={20}/></button>
-                )}
-                {currentFeature.showInstructions && (
-                   <button className="p-2 text-slate-400 hover:bg-slate-100 rounded-full" title="使用說明"><BookOpen size={20}/></button>
-                )}
-                <input className="flex-1 outline-none text-sm" placeholder={currentFeature.placeholder || "輸入您的問題..."} />
-                
-                {/* Conditionally render LLM settings button */}
-                {showLLMSettings && !currentFeature.hideLLMSettings && (
-                  <button onClick={onOpenLLMSettings} className="p-2 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-colors" title="LLM 參數設定">
-                    <Settings size={20} />
-                  </button>
-                )}
-                
-                <button className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><Send size={18}/></button>
-              </div>
-              <div className="text-center mt-2">
-                 <span className="text-xs text-slate-400">此回答為大型語言模型產出，僅供參考，請務必核對重要資訊的準確性。</span>
-              </div>
-            </div>
-           </div>
+           {renderChatArea()}
+           <ChatInput {...commonInputProps} />
         </div>
      );
   }
@@ -157,30 +120,7 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
       <div className="flex-1 flex overflow-hidden">
           {/* Chat Column (Resizable) */}
           <div className="flex flex-col border-r border-slate-200 bg-white" style={{ width: `${leftWidth}%`, minWidth: '350px' }}>
-               {messages.length === 0 ? (
-                 <WelcomeScreen featureId={currentFeature.id} onSuggestionClick={handleSuggestionClick} />
-               ) : (
-                 <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar bg-slate-50/50">
-                   {messages.map(msg => (
-                     <div key={msg.id} className={`flex gap-4 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                       {msg.role === 'ai' && (
-                         <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white mt-1 flex-shrink-0">
-                           <Bot size={16} />
-                         </div>
-                       )}
-                       <div className="flex flex-col max-w-[85%] gap-2">
-                         <div className={`px-5 py-3.5 rounded-2xl text-sm leading-relaxed shadow-sm whitespace-pre-line ${
-                           msg.role === 'user' 
-                             ? 'bg-blue-600 text-white rounded-tr-sm' 
-                             : 'bg-white border border-slate-200 text-slate-700 rounded-tl-sm'
-                         }`}>
-                           {msg.content}
-                         </div>
-                       </div>
-                     </div>
-                   ))}
-                 </div>
-               )}
+               {renderChatArea()}
           </div>
 
           {/* Resizer */}
@@ -230,26 +170,7 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
       </div>
 
       {/* 2. Full Width Input Bar at Bottom */}
-      <div className="flex-shrink-0 p-4 bg-white border-t border-slate-200 z-10 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-         <div className="max-w-5xl mx-auto">
-            <div className="relative border border-slate-300 rounded-lg flex items-center p-2 gap-2 bg-white">
-              <button className="p-2 text-slate-400 hover:bg-slate-100 rounded-full"><Paperclip size={20}/></button>
-              <input className="flex-1 outline-none text-sm" placeholder={currentFeature.placeholder || "輸入您的問題..."} />
-              
-              {/* Conditionally render LLM settings button */}
-              {showLLMSettings && (
-                <button onClick={onOpenLLMSettings} className="p-2 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded-lg transition-colors" title="LLM 參數設定">
-                  <Settings size={20} />
-                </button>
-              )}
-
-              <button className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"><Send size={18}/></button>
-            </div>
-            <div className="text-center mt-2">
-               <span className="text-xs text-slate-400">此回答為大型語言模型產出，僅供參考，請務必核對重要資訊的準確性。</span>
-            </div>
-         </div>
-      </div>
+      <ChatInput {...commonInputProps} />
 
     </div>
   );

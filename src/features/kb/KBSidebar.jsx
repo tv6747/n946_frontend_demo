@@ -2,7 +2,7 @@ import { Plus, UploadCloud, ChevronDown, Bot, Circle, FolderPlus, FolderMinus, F
 import { TreeNode } from '../../components/common/TreeNode';
 import { useMemo, useState } from 'react';
 
-export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBotsSection, bots, selectedBotId, onSelectBot, onUpload, files, selectedFileIds, onSelectionChange, onCreateBot, userRole = 'user', onMoveFolder, onMoveFile, checkable, checkedFolderIds, onCheck }) {
+export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBotsSection, bots, selectedBotId, onSelectBot, onUpload, files, selectedFileIds, onSelectionChange, onCreateBot, userRole = 'user', onMoveFolder, onMoveFile, checkable, checkedFolderIds, onCheck, customActionButton }) {
   const [isSectionExpanded, setIsSectionExpanded] = useState(true);
   const [isBotSectionExpanded, setIsBotSectionExpanded] = useState(true);
 
@@ -26,48 +26,53 @@ export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBots
 
   return (
     <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col p-3">
-      {/* Create Bot Button (Only for Bot Manager Mode) */}
-      {onCreateBot && (
-        <button 
-          onClick={onCreateBot}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-dashed border-slate-300 hover:border-blue-400 hover:text-blue-600 text-slate-500 rounded-lg transition-all text-sm font-medium mb-4 group shadow-sm flex-shrink-0"
-        >
-          <Plus size={16} className="group-hover:scale-110 transition-transform"/>
-          新增答詢機器人
-        </button>
-      )}
+      {/* Custom Action Button (Override) */}
+      {customActionButton ? customActionButton : (
+        <>
+        {/* Create Bot Button (Only for Bot Manager Mode) */}
+        {onCreateBot && (
+          <button 
+            onClick={onCreateBot}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-dashed border-slate-300 hover:border-blue-400 hover:text-blue-600 text-slate-500 rounded-lg transition-all text-sm font-medium mb-4 group shadow-sm flex-shrink-0"
+          >
+            <Plus size={16} className="group-hover:scale-110 transition-transform"/>
+            新增答詢機器人
+          </button>
+        )}
 
-      {/* Folder Actions */}
-      {!onCreateBot && (
-          <div className="grid grid-cols-3 gap-2 mb-3">
-              <button disabled={!canModify} onClick={() => alert("新增資料夾 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500" title="新增資料夾">
-                  <FolderPlus size={16} className="mb-1 text-blue-500"/>
-                  <span className="text-[10px]">新增</span>
-              </button>
-              <button disabled={!canModify} onClick={() => alert("刪除資料夾 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500" title="刪除資料夾">
-                  <FolderMinus size={16} className="mb-1 text-red-500"/>
-                  <span className="text-[10px]">刪除</span>
-              </button>
-              <button disabled={!canModify} onClick={() => alert("查看已刪除檔案 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500" 
-                  title="回收桶"
-              >
-                  <Trash2 size={16} className="mb-1 text-slate-500"/>
-                  <span className="text-[10px]">回收桶</span>
-              </button>
-          </div>
-      )}
+        {/* Folder Actions */}
+        {!onCreateBot && (
+            <div className="grid grid-cols-3 gap-2 mb-3">
+                <button disabled={!canModify} onClick={() => alert("新增資料夾 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500" title="新增資料夾">
+                    <FolderPlus size={16} className="mb-1 text-blue-500"/>
+                    <span className="text-[10px]">新增</span>
+                </button>
+                <button disabled={!canModify} onClick={() => alert("刪除資料夾 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500" title="刪除資料夾">
+                    <FolderMinus size={16} className="mb-1 text-red-500"/>
+                    <span className="text-[10px]">刪除</span>
+                </button>
+                <button disabled={!canModify} onClick={() => alert("查看已刪除檔案 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500" 
+                    title="回收桶"
+                >
+                    <Trash2 size={16} className="mb-1 text-slate-500"/>
+                    <span className="text-[10px]">回收桶</span>
+                </button>
+            </div>
+        )}
 
-      {/* Upload Button for KB Manage Mode */}
-      {onUpload && (
-        <button 
-          onClick={onUpload}
-          disabled={!canModify}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-dashed border-slate-300 hover:border-blue-400 hover:text-blue-600 text-slate-500 rounded-lg transition-all text-sm font-medium mb-4 group shadow-sm flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500"
-          title={!canModify ? "僅限於個人知識庫中操作" : "上傳檔案"}
-        >
-          <UploadCloud size={16} className="group-hover:scale-110 transition-transform"/>
-          上傳檔案
-        </button>
+        {/* Upload Button for KB Manage Mode */}
+        {onUpload && (
+          <button 
+            onClick={onUpload}
+            disabled={!canModify}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-dashed border-slate-300 hover:border-blue-400 hover:text-blue-600 text-slate-500 rounded-lg transition-all text-sm font-medium mb-4 group shadow-sm flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500"
+            title={!canModify ? "僅限於個人知識庫中操作" : "上傳檔案"}
+          >
+            <UploadCloud size={16} className="group-hover:scale-110 transition-transform"/>
+            上傳檔案
+          </button>
+        )}
+        </>
       )}
 
       {/* Bot Section */}
