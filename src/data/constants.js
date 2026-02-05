@@ -8,6 +8,12 @@ export const MODES = {
   BOT_MGR: 'bot_management',
   CORPUS_MGR: 'corpus_management',
   ADMIN_SERVICE: 'admin_service_management',
+  ADMIN_PROPER_NOUN: 'admin_proper_noun',
+  ADMIN_SYNONYM: 'admin_synonym',
+  ADMIN_MODELS: 'admin_models',
+  ADMIN_PARAMS: 'admin_params',
+  ADMIN_PROMPTS: 'admin_prompts',
+  ADMIN_APIS: 'admin_apis',
   ADMIN_LLM: 'admin_llm_management',
   ADMIN_AUDIT: 'admin_audit_management',
 };
@@ -30,6 +36,12 @@ export const FEATURES = {
   
   // Admin Features
   ADMIN_SERVICE: { id: 'admin_service', label: '服務管理', mode: MODES.ADMIN_SERVICE, placeholder: '' },
+  ADMIN_PROPER_NOUN: { id: 'admin_proper_noun', label: '專有名詞語料庫', mode: MODES.ADMIN_PROPER_NOUN, placeholder: '' },
+  ADMIN_SYNONYM: { id: 'admin_synonym', label: '近似詞語料庫', mode: MODES.ADMIN_SYNONYM, placeholder: '' },
+  ADMIN_MODELS: { id: 'admin_models', label: '模型管理', mode: MODES.ADMIN_MODELS, placeholder: '' },
+  ADMIN_PARAMS: { id: 'admin_params', label: '模型參數管理', mode: MODES.ADMIN_PARAMS, placeholder: '' },
+  ADMIN_PROMPTS: { id: 'admin_prompts', label: '提示詞管理', mode: MODES.ADMIN_PROMPTS, placeholder: '' },
+  ADMIN_APIS: { id: 'admin_apis', label: 'API 管理', mode: MODES.ADMIN_APIS, placeholder: '' },
   ADMIN_LLM: { id: 'admin_llm', label: '語言模型管理', mode: MODES.ADMIN_LLM, placeholder: '' },
   ADMIN_AUDIT: { id: 'admin_audit', label: '稽核管理', mode: MODES.ADMIN_AUDIT, placeholder: '' },
 };

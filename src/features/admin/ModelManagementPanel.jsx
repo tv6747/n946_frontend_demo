@@ -40,22 +40,8 @@ export function ModelManagementPanel() {
   return (
     <div className="flex flex-col h-full bg-slate-50 w-full animate-in fade-in duration-300">
       {/* Header */}
-      <header className="px-6 py-5 bg-white border-b border-slate-200 flex flex-col gap-4 flex-shrink-0 sticky top-0 shadow-sm z-10">
-         <div className="flex items-center justify-between">
-            <div>
-               <h1 className="text-xl font-bold text-slate-800 leading-tight">模型管理</h1>
-               <p className="text-xs text-slate-500 mt-1">設定 LLM 模型連線資訊</p>
-            </div>
-            <button 
-               onClick={handleAddNew}
-               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm text-sm font-bold"
-            >
-                <Plus size={16} /> 新增模型
-            </button>
-         </div>
-         
-         {/* Search Filters */}
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <header className="px-6 py-5 bg-white border-b border-slate-200 flex items-center justify-between gap-4 flex-shrink-0 sticky top-0 shadow-sm z-10">
+         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3 max-w-2xl">
             <div className="relative">
                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                <input 
@@ -82,6 +68,14 @@ export function ModelManagementPanel() {
                   </svg>
                </div>
             </div>
+         </div>
+         <div className="flex-shrink-0">
+             <button 
+                onClick={handleAddNew}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm text-sm font-bold"
+             >
+                 <Plus size={16} /> 新增模型
+             </button>
          </div>
       </header>
 

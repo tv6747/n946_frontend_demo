@@ -8,7 +8,7 @@ export function AuditManagement({ activeView = 'kb_logs' }) { // Accept prop
       {/* Main Content Rendered Directly based on Prop */}
       <div className="flex-1 overflow-hidden h-full flex flex-col">
           {activeView === 'kb_logs' && <KBLogView />}
-          {activeView === 'chat_logs' && <ChatLogView />}
+          {activeView === 'chat_records' && <ChatLogView />}
           {activeView === 'stats' && <StatsView />}
       </div>
     </div>
@@ -19,12 +19,8 @@ function KBLogView() {
     const [expandedRow, setExpandedRow] = useState(null);
     return (
         <div className="flex flex-col h-full">
-            <header className="px-6 py-5 bg-white border-b border-slate-200 sticky top-0 z-10 flex items-center justify-between">
-                <div>
-                     <h2 className="text-xl font-bold text-slate-800 leading-tight">知識庫紀錄</h2>
-                     <p className="text-xs text-slate-500 mt-1">追蹤知識庫的增刪改查紀錄</p>
-                </div>
-                <div className="flex gap-3">
+            <header className="px-6 py-5 bg-white border-b border-slate-200 sticky top-0 z-10 flex items-center justify-between gap-4">
+                <div className="flex gap-3 flex-1">
                      <div className="relative w-48">
                         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input type="text" placeholder="搜尋..." className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors" />
@@ -107,12 +103,8 @@ function ChatLogView() {
     const [expandedRow, setExpandedRow] = useState(null);
     return (
         <div className="flex flex-col h-full">
-            <header className="px-6 py-5 bg-white border-b border-slate-200 sticky top-0 z-10 flex items-center justify-between">
-                <div>
-                     <h2 className="text-xl font-bold text-slate-800 leading-tight">對話紀錄</h2>
-                     <p className="text-xs text-slate-500 mt-1">檢視所有使用者的對話歷程</p>
-                </div>
-                <div className="flex gap-3">
+            <header className="px-6 py-5 bg-white border-b border-slate-200 sticky top-0 z-10 flex items-center justify-between gap-4">
+                <div className="flex gap-3 flex-1">
                      <div className="relative w-48">
                         <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                         <input type="text" placeholder="搜尋..." className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors" />
@@ -184,11 +176,7 @@ function ChatLogView() {
 function StatsView() {
     return (
         <div className="flex flex-col h-full overflow-y-auto">
-             <header className="px-6 py-5 bg-white border-b border-slate-200 sticky top-0 z-10 flex items-center justify-between">
-                 <div>
-                    <h2 className="text-xl font-bold text-slate-800 leading-tight">系統分析</h2>
-                    <p className="text-xs text-slate-500 mt-1">檢視系統使用量與效能指標</p>
-                 </div>
+             <header className="px-6 py-5 bg-white border-b border-slate-200 sticky top-0 z-10 flex items-center justify-between gap-4">
                  <div className="flex gap-2">
                     <select className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
                         <option>過去 7 天</option>

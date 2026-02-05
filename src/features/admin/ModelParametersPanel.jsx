@@ -24,22 +24,8 @@ export function ModelParametersPanel() {
   return (
     <div className="flex flex-col h-full bg-slate-50 w-full animate-in fade-in duration-300">
       {/* Header */}
-      <header className="px-6 py-5 bg-white border-b border-slate-200 flex flex-col gap-4 flex-shrink-0 sticky top-0 shadow-sm z-10">
-         <div className="flex items-center justify-between">
-            <div>
-               <h1 className="text-xl font-bold text-slate-800 leading-tight">模型參數</h1>
-               <p className="text-xs text-slate-500 mt-1">管理預設參數組合</p>
-            </div>
-            <button 
-               onClick={handleAddNew}
-               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm text-sm font-bold"
-            >
-                <Plus size={16} /> 新增參數
-            </button>
-         </div>
-         
-         {/* Search Filter */}
-         <div className="relative max-w-md">
+      <header className="px-6 py-5 bg-white border-b border-slate-200 flex items-center justify-between gap-4 flex-shrink-0 sticky top-0 shadow-sm z-10">
+         <div className="relative flex-1 max-w-md">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input 
                type="text" 
@@ -48,6 +34,14 @@ export function ModelParametersPanel() {
                onChange={(e) => setSearchTerm(e.target.value)}
                className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-colors" 
             />
+         </div>
+         <div className="flex-shrink-0">
+             <button 
+                onClick={handleAddNew}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm text-sm font-bold"
+             >
+                 <Plus size={16} /> 新增參數
+             </button>
          </div>
       </header>
 

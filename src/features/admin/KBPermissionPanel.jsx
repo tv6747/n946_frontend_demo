@@ -211,16 +211,9 @@ export function KBPermissionPanel() {
   return (
     <div className="flex flex-col h-full bg-slate-50 w-full animate-in fade-in duration-300">
       {/* Header */}
-      <header className="px-6 py-5 bg-white border-b border-slate-200 flex flex-col gap-4 flex-shrink-0 sticky top-0 shadow-sm z-10">
-         <div className="flex items-center justify-between">
-            <div>
-               <h1 className="text-xl font-bold text-slate-800 leading-tight">知識庫權限管理</h1>
-               <p className="text-xs text-slate-500 mt-1">管理知識庫資料夾的使用權限</p>
-            </div>
-         </div>
-         
+      <header className="px-6 py-5 bg-white border-b border-slate-200 flex items-center justify-between gap-4 flex-shrink-0 sticky top-0 shadow-sm z-10">
          {/* Search Filter */}
-         <div className="relative">
+         <div className="relative flex-1">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input 
                type="text" 

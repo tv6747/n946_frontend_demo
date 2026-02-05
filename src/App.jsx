@@ -39,10 +39,17 @@ import { CorpusFeature } from './features/corpus/CorpusFeature';
 import { AddTermModal } from './components/modals/AddTermModal';
 
 
-import { LLMManagement } from './features/admin/LLMManagement';
 import { ServiceManagement } from './features/admin/ServiceManagement';
 import { AuditManagement } from './features/admin/AuditManagement';
-import { AdminSidebar } from './features/admin/AdminSidebar';
+import { UnifiedBackendSidebar } from './features/admin/UnifiedBackendSidebar';
+
+import { ProperNounPanel } from './features/corpus/ProperNounPanel';
+import { SynonymPanel } from './features/corpus/SynonymPanel';
+import { ModelManagementPanel } from './features/admin/ModelManagementPanel';
+import { ModelParametersPanel } from './features/admin/ModelParametersPanel';
+import { PromptManagementPanel } from './features/admin/PromptManagementPanel';
+import { APIManagementPanel } from './features/admin/APIManagementPanel';
+import { BotManagementPanel } from './features/admin/BotManagementPanel';
 
 import { UploadCloud, Plus } from 'lucide-react';
 
@@ -61,8 +68,8 @@ export default function App() {
   // -- Admin State --
   const [adminAppSystem, setAdminAppSystem] = useState('ALL');
   const [adminAuditView, setAdminAuditView] = useState('kb_logs');
-  const [llmSubModule, setLLMSubModule] = useState('models');
   const [serviceSubModule, setServiceSubModule] = useState('apps');
+  const [llmSubModule, setLLMSubModule] = useState('models');
 
   // Corpus Management State
   const [selectedCorpusId, setSelectedCorpusId] = useState('proper_noun');
@@ -113,9 +120,14 @@ export default function App() {
       const allowedFeatures = [
           FEATURES.KB_MANAGEMENT.id, 
           FEATURES.BOT_MANAGEMENT.id, 
-          FEATURES.CORPUS_MANAGEMENT.id,
           FEATURES.ADMIN_SERVICE.id,
           FEATURES.ADMIN_LLM.id,
+          FEATURES.ADMIN_MODELS.id,
+          FEATURES.ADMIN_PARAMS.id,
+          FEATURES.ADMIN_PROMPTS.id,
+          FEATURES.ADMIN_APIS.id,
+          FEATURES.ADMIN_PROPER_NOUN.id,
+          FEATURES.ADMIN_SYNONYM.id,
           FEATURES.ADMIN_AUDIT.id
       ];
       if (!allowedFeatures.includes(currentFeature.id)) {
@@ -145,7 +157,7 @@ export default function App() {
   // 當切換功能時，重置 KB mode
   const handleFeatureSelect = (key) => {
     setCurrentFeature(FEATURES[key]);
-    if(FEATURES[key].mode === MODES.BOT_MGR) setSelectedBotId('NEW_BOT'); // Default to create mode
+    if(FEATURES[key].mode === MODES.BOT_MGR) setSelectedBotId(null); // Default to list view
     if(FEATURES[key].mode === MODES.KB) setKbMode('qa'); // Default to QA when switching to KB
   };
 
@@ -248,7 +260,7 @@ export default function App() {
         if (currentSystem === 'GAI') {
             return ['KB_MANAGEMENT'];
         } else if (currentSystem === 'BACKEND') {
-            return ['ADMIN_SERVICE', 'BOT_MANAGEMENT', 'CORPUS_MANAGEMENT', 'ADMIN_LLM', 'ADMIN_AUDIT'];
+            return ['ADMIN_SERVICE', 'BOT_MANAGEMENT', 'ADMIN_PROPER_NOUN', 'ADMIN_SYNONYM', 'ADMIN_MODELS', 'ADMIN_PROMPTS', 'ADMIN_APIS', 'ADMIN_AUDIT'];
         }
      }
 
@@ -364,27 +376,26 @@ export default function App() {
 
       </div>
 
+      {currentSystem !== 'BACKEND' && (
       <div className="p-4 border-b border-slate-100 flex-shrink-0 bg-white">
          <div className="relative w-full">
            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
            <input type="text" placeholder="搜尋..." className="w-full bg-slate-50 border border-slate-200 rounded-md pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400 focus:bg-white placeholder:text-slate-400 transition-all" />
          </div>
       </div>
+      )}
 
       <div className="flex-1 overflow-hidden flex flex-col">
-         {(currentSystem === 'BACKEND' && 
-           currentFeature.mode !== MODES.BOT_MGR && 
-           currentFeature.mode !== MODES.CORPUS_MGR) ? (
-             <AdminSidebar 
-                currentMode={currentFeature.mode}
-                appSystemFilter={adminAppSystem}
-                onAppSystemFilterChange={setAdminAppSystem}
-                auditView={adminAuditView}
-                onAuditViewChange={setAdminAuditView}
-                llmSubModule={llmSubModule}
-                onLLMSubModuleChange={setLLMSubModule}
+         {currentSystem === 'BACKEND' ? (
+             <UnifiedBackendSidebar 
+                currentFeature={currentFeature}
+                onFeatureChange={handleFeatureSelect}
                 serviceSubModule={serviceSubModule}
                 onServiceSubModuleChange={setServiceSubModule}
+                llmSubModule={llmSubModule}
+                onLLMSubModuleChange={setLLMSubModule}
+                auditView={adminAuditView}
+                onAuditViewChange={setAdminAuditView}
              />
         ) : currentFeature.mode === MODES.KB ? (
            kbMode === 'qa' ? (
@@ -406,38 +417,8 @@ export default function App() {
                 onMoveFile={handleMoveFile}
               />
            )
-        ) : currentFeature.mode === MODES.BOT_MGR ? (
-           <KBSidebar 
-            treeData={kbTreeData}
-            selectedFolderId={selectedFolderId}
-            onSelectFolder={handleFolderSelect}
-            showBotsSection={true}
-            bots={bots}
-            selectedBotId={selectedBotId}
-            onSelectBot={setSelectedBotId}
-            onCreateBot={() => setSelectedBotId('NEW_BOT')}
-            userRole="admin" // Bot manager usually admin
-            checkable={true}
-            checkedFolderIds={botMgrCheckedFolderIds}
-            onCheck={handleBotFolderCheck}
-          />
-        ) : currentFeature.mode === MODES.CORPUS_MGR ? (
-           <CorpusSidebar
-              pages={CORPUS_PAGES}
-              selectedPageId={selectedCorpusId}
-              onSelectPage={setSelectedCorpusId}
-              // Dynamic Action Props
-              actionLabel={selectedCorpusId === 'synonym_mgr' ? '新增標準詞' : '上傳語料'}
-              actionIcon={selectedCorpusId === 'synonym_mgr' ? Plus : UploadCloud}
-              onAction={() => {
-                  if (selectedCorpusId === 'synonym_mgr') {
-                      setIsAddTermModalOpen(true);
-                  } else {
-                      // Keep original Upload logic for Proper Noun (can be changed to Import Flow later)
-                      setIsUploadModalOpen(true);
-                  }
-              }}
-           />
+
+
         ) : (
           <CommonHistorySidebar currentFeatureId={currentFeature.id} />
         )}
@@ -445,17 +426,55 @@ export default function App() {
     </aside>
   );
 
+  const getAdminHeaderInfo = () => {
+      if (currentSystem !== 'BACKEND') return null;
+
+      const { mode } = currentFeature;
+      switch(mode) {
+          case MODES.ADMIN_SERVICE:
+              if (serviceSubModule === 'apps') return { title: '應用管理', desc: '管理系統應用設定與權限' };
+              if (serviceSubModule === 'kb_permission') return { title: '知識庫權限', desc: '設定知識庫存取權限' };
+              if (serviceSubModule === 'bot_management') return { title: '答詢機器人管理', desc: '建立與管理專屬的 AI 答詢機器人' };
+              return { title: '服務管理', desc: '' };
+          case MODES.ADMIN_LLM:
+              if (llmSubModule === 'models') return { title: '模型管理', desc: '管理系統可用的語言模型' };
+              if (llmSubModule === 'params') return { title: '模型參數管理', desc: '設定模型的運作參數與限制' };
+              return { title: '語言模型管理', desc: '' };
+          case MODES.ADMIN_PROPER_NOUN: return { title: '專有名詞語料庫', desc: '維護專有名詞與定義語料庫' };
+          case MODES.ADMIN_SYNONYM: return { title: '近似詞語料庫', desc: '維護標準名詞及其對應的同義詞與變體' };
+          case MODES.ADMIN_PROMPTS: return { title: '提示詞管理', desc: '管理與優化系統提示詞' };
+          case MODES.ADMIN_APIS: return { title: 'API 管理', desc: '管理外部服務 API 連接' };
+          case MODES.ADMIN_AUDIT:
+              if (adminAuditView === 'kb_logs') return { title: '知識庫紀錄', desc: '查看知識庫變更與存取紀錄' };
+              if (adminAuditView === 'chat_records') return { title: '對話紀錄', desc: '查看系統對話歷程' };
+              if (adminAuditView === 'stats') return { title: '統計圖表', desc: '系統使用數據統計' };
+              return { title: '稽核管理', desc: '系統活動紀錄與報表' };
+          default: return null;
+      }
+  };
+
+  const headerInfo = getAdminHeaderInfo();
+
   const renderHeader = () => (
     <header className="h-16 bg-white border-b border-slate-200 px-4 flex items-center justify-between shadow-sm z-20 flex-shrink-0">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-1 min-w-0">
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-          className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors focus:outline-none"
+          className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors focus:outline-none flex-shrink-0"
         >
           {isSidebarOpen ? <PanelLeftClose size={20} /> : <PanelLeftOpen size={20} />}
         </button>
 
-        <MainDropdown currentFeature={currentFeature} onSelect={handleFeatureSelect} features={systemFeatures} />
+        {currentSystem !== 'BACKEND' && (
+           <MainDropdown currentFeature={currentFeature} onSelect={handleFeatureSelect} features={systemFeatures} />
+        )}
+        
+        {headerInfo && (
+            <div className="flex flex-col ml-2 animate-in fade-in slide-in-from-left-2 duration-300">
+                <h2 className="text-base font-bold text-slate-800">{headerInfo.title}</h2>
+                <p className="text-xs text-slate-500">{headerInfo.desc}</p>
+            </div>
+        )}
 
         {/* KB Toggle Switch: Only show in KB Mode */}
         {currentFeature.mode === MODES.KB && (
@@ -577,28 +596,7 @@ export default function App() {
             )
           )}
           
-          {currentFeature.mode === MODES.BOT_MGR && (
-             selectedBotId ? (
-                <BotConfigPanel 
-                   bot={selectedBotId === 'NEW_BOT' ? { name: '', welcomeMessage: '', files: [], accessibleUsers: [] } : bots.find(b => b.id === selectedBotId)}
-                   isCreating={selectedBotId === 'NEW_BOT'}
-                   associatedFiles={displayFiles} // These are the files ALREADY associated with the bot
-                   folderFiles={filesInCheckedFolders} // Source files from checked folders
-                   allFiles={files} // Pass all files to lookup associated files for NEW bots
-                   selectedFolderName={findNodeById(KB_TREE_DATA, selectedFolderId)?.label || '選定資料夾'}
-                   users={MOCK_USERS}
-                   onUpdateBot={updateBot}
-                   onCreateBot={createBot}
-                   onRemoveFile={(id) => handleRemoveFile([id])}
-                   onDeleteBot={handleDeleteBot}
-                   onOpenLLMSettings={openLLMSettings} // Pass LLM settings trigger
-                />
-             ) : (
-                <div className="flex-1 flex items-center justify-center text-slate-400">
-                    請選擇或建立一個機器人
-                </div>
-             )
-          )}
+
           {currentFeature.mode === MODES.CHAT && (
             <ChatInterface 
               currentFeature={currentFeature} 
@@ -625,8 +623,45 @@ export default function App() {
            {currentFeature.mode === MODES.CORPUS_MGR && (
               <CorpusFeature selectedCorpusId={selectedCorpusId} />
            )}
-           {currentFeature.mode === MODES.ADMIN_SERVICE && <ServiceManagement selectedSubModule={serviceSubModule} />}
-           {currentFeature.mode === MODES.ADMIN_LLM && <LLMManagement selectedSubModule={llmSubModule} />}
+           {currentFeature.mode === MODES.ADMIN_SERVICE && (
+              serviceSubModule === 'bot_management' ? (
+                selectedBotId ? (
+                    <BotConfigPanel 
+                      bot={selectedBotId === 'NEW_BOT' ? { name: '', welcomeMessage: '', files: [], accessibleUsers: [] } : bots.find(b => b.id === selectedBotId)}
+                      isCreating={selectedBotId === 'NEW_BOT'}
+                      associatedFiles={displayFiles}
+                      folderFiles={filesInCheckedFolders}
+                      allFiles={files}
+                      selectedFolderName={findNodeById(KB_TREE_DATA, selectedFolderId)?.label || '選定資料夾'}
+                      users={MOCK_USERS}
+                      onUpdateBot={updateBot}
+                      onCreateBot={createBot}
+                      onRemoveFile={(id) => handleRemoveFile([id])}
+                      onDeleteBot={handleDeleteBot}
+                      onOpenLLMSettings={openLLMSettings}
+                      onBack={() => setSelectedBotId(null)}
+                    />
+                ) : (
+                    <BotManagementPanel 
+                      bots={bots}
+                      onSelectBot={setSelectedBotId}
+                      onCreate={() => setSelectedBotId('NEW_BOT')}
+                      onDeleteBot={handleDeleteBot}
+                      onUpdateBot={updateBot}
+                    />
+                )
+              ) : (
+                <ServiceManagement selectedSubModule={serviceSubModule} />
+              )
+           )}
+           {currentFeature.mode === MODES.ADMIN_PROPER_NOUN && <ProperNounPanel />}
+           {currentFeature.mode === MODES.ADMIN_SYNONYM && <SynonymPanel />}
+           {currentFeature.mode === MODES.ADMIN_LLM && (
+              llmSubModule === 'models' ? <ModelManagementPanel /> :
+              llmSubModule === 'params' ? <ModelParametersPanel /> : <ModelManagementPanel />
+           )}
+           {currentFeature.mode === MODES.ADMIN_PROMPTS && <PromptManagementPanel />}
+           {currentFeature.mode === MODES.ADMIN_APIS && <APIManagementPanel />}
            {currentFeature.mode === MODES.ADMIN_AUDIT && <AuditManagement activeView={adminAuditView} />}
     </MainLayout>
   );

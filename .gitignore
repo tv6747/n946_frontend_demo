@@ -126,6 +126,7 @@ dist-ssr
 # Editor directories and files
 .idea
 .vscode
+.agent
 *.suo
 *.ntvs*
 *.njsproj
