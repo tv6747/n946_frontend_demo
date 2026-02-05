@@ -5,7 +5,8 @@ import {
   PanelLeftClose, 
   PanelLeftOpen, 
   MessageSquare, 
-  Folder
+  Folder,
+  Settings
 } from 'lucide-react';
 
 import { MODES, FEATURES } from './data/constants';
@@ -36,6 +37,13 @@ import { SynonymManager } from './features/corpus/SynonymManager';
 import { TermDefinitionManager } from './features/corpus/TermDefinitionManager';
 import { CorpusFeature } from './features/corpus/CorpusFeature';
 import { AddTermModal } from './components/modals/AddTermModal';
+
+
+import { LLMManagement } from './features/admin/LLMManagement';
+import { ServiceManagement } from './features/admin/ServiceManagement';
+import { AuditManagement } from './features/admin/AuditManagement';
+import { AdminSidebar } from './features/admin/AdminSidebar';
+
 import { UploadCloud, Plus } from 'lucide-react';
 
 import nlmaLogo from './assets/nlma_logo.jpg';
@@ -50,6 +58,12 @@ export default function App() {
   const [bots, setBots] = useState(MOCK_BOTS);
   const [selectedBotId, setSelectedBotId] = useState(null); 
   
+  // -- Admin State --
+  const [adminAppSystem, setAdminAppSystem] = useState('ALL');
+  const [adminAuditView, setAdminAuditView] = useState('kb_logs');
+  const [llmSubModule, setLLMSubModule] = useState('models');
+  const [serviceSubModule, setServiceSubModule] = useState('apps');
+
   // Corpus Management State
   const [selectedCorpusId, setSelectedCorpusId] = useState('proper_noun');
 
@@ -89,17 +103,29 @@ export default function App() {
         setSelectedFolderId('org');
       }
       
-      // Force switch to GAI system if not already
-      if (currentSystem !== 'GAI') {
+      // Force switch to GAI system if not already and not in allowed systems
+      if (currentSystem !== 'GAI' && currentSystem !== 'BACKEND') {
           setCurrentSystem('GAI');
       }
 
       // Force switch to allowed feature if current is restricted
-      // KB_MANAGEMENT, BOT_MANAGEMENT, or CORPUS_MANAGEMENT
-      const allowedFeatures = [FEATURES.KB_MANAGEMENT.id, FEATURES.BOT_MANAGEMENT.id, FEATURES.CORPUS_MANAGEMENT.id];
+      // KB_MANAGEMENT, BOT_MANAGEMENT, CORPUS_MANAGEMENT, or ADMIN features
+      const allowedFeatures = [
+          FEATURES.KB_MANAGEMENT.id, 
+          FEATURES.BOT_MANAGEMENT.id, 
+          FEATURES.CORPUS_MANAGEMENT.id,
+          FEATURES.ADMIN_SERVICE.id,
+          FEATURES.ADMIN_LLM.id,
+          FEATURES.ADMIN_AUDIT.id
+      ];
       if (!allowedFeatures.includes(currentFeature.id)) {
-          setCurrentFeature(FEATURES.KB_MANAGEMENT);
-          setKbMode('manage'); // Default admin to manage mode for KB
+          // If in Backend mode, default to LLM Management
+          if (currentSystem === 'BACKEND') {
+             setCurrentFeature(FEATURES.ADMIN_SERVICE);
+          } else {
+             setCurrentFeature(FEATURES.KB_MANAGEMENT);
+             setKbMode('qa'); // Default to QA mode for KB
+          }
       }
     }
   }, [userRole, currentSystem, currentFeature.id, selectedFolderId]);
@@ -220,9 +246,9 @@ export default function App() {
   const systemFeatures = useMemo(() => {
      if (userRole === 'admin') {
         if (currentSystem === 'GAI') {
-            return ['KB_MANAGEMENT', 'BOT_MANAGEMENT', 'CORPUS_MANAGEMENT'];
-        } else {
-            return []; 
+            return ['KB_MANAGEMENT'];
+        } else if (currentSystem === 'BACKEND') {
+            return ['ADMIN_SERVICE', 'BOT_MANAGEMENT', 'CORPUS_MANAGEMENT', 'ADMIN_LLM', 'ADMIN_AUDIT'];
         }
      }
 
@@ -231,13 +257,13 @@ export default function App() {
          return Object.keys(FEATURES).filter(key => key.startsWith('DRAFT_'));
      } else {
          // Return everything else, but exclude BOT_MANAGEMENT for regular users
-         return Object.keys(FEATURES).filter(key => !key.startsWith('DRAFT_') && key !== 'BOT_MANAGEMENT' && key !== 'CORPUS_MANAGEMENT');
+         return Object.keys(FEATURES).filter(key => !key.startsWith('DRAFT_') && key !== 'BOT_MANAGEMENT' && key !== 'CORPUS_MANAGEMENT' && !key.startsWith('ADMIN_'));
      }
   }, [currentSystem, userRole]);
 
   const handleSystemSelect = (system) => {
     if (userRole === 'admin' && system === 'DOC') {
-        alert("權限不足：管理員僅能存取 GAI 互動平台");
+        alert("權限不足：管理員僅能存取 GAI 互動平台與後台管理");
         return;
     }
 
@@ -247,7 +273,8 @@ export default function App() {
     // Reset to first feature of new system
     let firstFeatureKey;
     if (userRole === 'admin') {
-        firstFeatureKey = 'KB_MANAGEMENT';
+        if (system === 'GAI') firstFeatureKey = 'KB_MANAGEMENT';
+        if (system === 'BACKEND') firstFeatureKey = 'ADMIN_SERVICE';
     } else {
         firstFeatureKey = Object.keys(FEATURES).find(key => 
             system === 'DOC' ? key.startsWith('DRAFT_') : !key.startsWith('DRAFT_')
@@ -279,7 +306,7 @@ export default function App() {
               </div>
               <div className="flex-1 min-w-0">
                   <h1 className="font-bold text-base text-slate-800 tracking-tight truncate leading-tight">
-                      {currentSystem === 'GAI' ? 'GAI 互動平台' : '智慧公文輔助系統'}
+                      {currentSystem === 'GAI' ? 'GAI 互動平台' : currentSystem === 'BACKEND' ? '後台管理' : '智慧公文輔助系統'}
                   </h1>
               </div>
               <div className="text-slate-400">
@@ -305,6 +332,19 @@ export default function App() {
                           <div className={`font-bold text-sm ${currentSystem === 'GAI' ? 'text-blue-700' : 'text-slate-700'}`}>GAI 互動平台</div>
                       </div>
                  </div>
+                 {userRole === 'admin' && (
+                  <div 
+                    className={`px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition-colors ${currentSystem === 'BACKEND' ? 'bg-blue-50/50' : ''}`}
+                    onClick={() => handleSystemSelect('BACKEND')}
+                  >
+                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${currentSystem === 'BACKEND' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-500'}`}>
+                           <Settings size={18} />
+                       </div>
+                       <div>
+                           <div className={`font-bold text-sm ${currentSystem === 'BACKEND' ? 'text-blue-700' : 'text-slate-700'}`}>後台管理</div>
+                       </div>
+                  </div>
+                 )}
                  {userRole !== 'admin' && (
                   <div 
                     className={`px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition-colors ${currentSystem === 'DOC' ? 'bg-blue-50/50' : ''}`}
@@ -332,7 +372,21 @@ export default function App() {
       </div>
 
       <div className="flex-1 overflow-hidden flex flex-col">
-        {currentFeature.mode === MODES.KB ? (
+         {(currentSystem === 'BACKEND' && 
+           currentFeature.mode !== MODES.BOT_MGR && 
+           currentFeature.mode !== MODES.CORPUS_MGR) ? (
+             <AdminSidebar 
+                currentMode={currentFeature.mode}
+                appSystemFilter={adminAppSystem}
+                onAppSystemFilterChange={setAdminAppSystem}
+                auditView={adminAuditView}
+                onAuditViewChange={setAdminAuditView}
+                llmSubModule={llmSubModule}
+                onLLMSubModuleChange={setLLMSubModule}
+                serviceSubModule={serviceSubModule}
+                onServiceSubModuleChange={setServiceSubModule}
+             />
+        ) : currentFeature.mode === MODES.KB ? (
            kbMode === 'qa' ? (
               <CommonHistorySidebar currentFeatureId="kb_qa" />
            ) : (
@@ -571,6 +625,9 @@ export default function App() {
            {currentFeature.mode === MODES.CORPUS_MGR && (
               <CorpusFeature selectedCorpusId={selectedCorpusId} />
            )}
+           {currentFeature.mode === MODES.ADMIN_SERVICE && <ServiceManagement selectedSubModule={serviceSubModule} />}
+           {currentFeature.mode === MODES.ADMIN_LLM && <LLMManagement selectedSubModule={llmSubModule} />}
+           {currentFeature.mode === MODES.ADMIN_AUDIT && <AuditManagement activeView={adminAuditView} />}
     </MainLayout>
   );
 }

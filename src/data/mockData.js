@@ -207,3 +207,159 @@ export const MOCK_VERSIONS = [
   { id: 'v1.1', label: 'v1.1 - 增加語氣限制', content: '你是一個專業的公文撰寫助理，請使用正式且精確的語氣。請避免使用過於情緒化的字眼。' },
   { id: 'v2.0', label: 'v2.0 - 針對長度優化', content: '你是一個專業的公文撰寫助理。請精簡摘要內容，重點條列式呈現，適合高層快速閱讀。' },
 ];
+
+// --- Admin Mock Data ---
+
+export const MOCK_ADMIN_APPS = [
+  { 
+      id: 'app_gai_qa', 
+      system: 'GAI', 
+      name: '互動問答', 
+      description: '通用型 AI 助手，提供問答、寫作協助。',
+      departments: ['u1', 'u5'],
+      users: ['u2', 'u3', 'u4'],
+      model: 'gpt-4o',
+      template: 'default',
+      settings: {
+          systemPrompt: 'You are a helpful assistant.',
+          temperature: 0.7,
+          topP: 0.9,
+          topK: 40
+      }
+  },
+  { 
+      id: 'app_gai_trans', 
+      system: 'GAI', 
+      name: '文件翻譯', 
+      description: '多國語言文件翻譯服務。',
+      departments: ['u1'],
+      users: [],
+      model: 'claude-3.5',
+      template: 'default',
+      settings: {
+          systemPrompt: 'You are a professional translator.',
+          temperature: 0.2,
+          topP: 0.8,
+          topK: 20
+      }
+  },
+  {
+      id: 'app_doc_draft',
+      system: 'DOC',
+      name: '例行函稿 - 署長信箱',
+      description: '協助回覆民眾陳情案件。',
+      departments: ['u5'],
+      users: ['u3'],
+      model: 'gpt-4o',
+      template: 'formal_tw',
+      settings: {
+          systemPrompt: '你是一個專業的公文撰寫助理，請使用正式且精確的語氣。',
+          temperature: 0.5,
+          topP: 0.85,
+          topK: 30
+      }
+  },
+  {
+      id: 'app_hr_helper',
+      system: 'GAI',
+      name: '人資規章小幫手',
+      description: '解答員工關於請假、福利等規章問題。',
+      departments: ['u1', 'u5'],
+      users: [],
+      model: 'gpt-4o',
+      template: 'default',
+      settings: {
+          systemPrompt: '你是人資助手，請依據公司規章回答問題。',
+          temperature: 0.3,
+          topP: 0.8,
+          topK: 20
+      }
+  },
+  {
+      id: 'app_code_assist',
+      system: 'GAI',
+      name: '程式碼審查員',
+      description: '協助開發人員進行 Code Review 與優化建議。',
+      departments: ['u1'],
+      users: ['u2'],
+      model: 'claude-3.5',
+      template: 'default',
+      settings: {
+          systemPrompt: 'You are an expert code reviewer.',
+          temperature: 0.1,
+          topP: 0.9,
+          topK: 40
+      }
+  },
+  {
+      id: 'app_news_summary',
+      system: 'GAI',
+      name: '每日新聞摘要',
+      description: '自動彙整並摘要每日產業新聞。',
+      departments: ['u4'],
+      users: [],
+      model: 'gpt-4o',
+      template: 'default',
+      settings: {
+          systemPrompt: 'Please summarize the news articles.',
+          temperature: 0.5,
+          topP: 0.9,
+          topK: 40
+      }
+  }
+];
+
+export const MOCK_ADMIN_MODELS = [
+  { id: 'm1', name: 'GPT-4o', provider: 'OpenAI', status: 'active', url: 'https://api.openai.com/v1', key: 'sk-proj-****************' },
+  { id: 'm2', name: 'Claude 3.5 Sonnet', provider: 'Anthropic', status: 'active', url: 'https://api.anthropic.com/v1', key: 'sk-ant-****************' },
+  { id: 'm3', name: 'Gemini 1.5 Pro', provider: 'Google', status: 'inactive', url: 'https://generativelanguage.googleapis.com', key: 'AIzaSy*****************' },
+  { id: 'm4', name: 'Llama 3 70B (Local)', provider: 'Local', status: 'active', url: 'http://192.168.1.100:11434', key: 'N/A' },
+];
+
+export const MOCK_AUDIT_KB_LOGS = [
+    { id: 'kbl1', action: 'upload', target: '專案規格書_v2.pdf', targetType: 'file', user: '王小明', dept: '資訊室', time: '2024-02-05 09:30', details: 'Uploaded new version of specs.' },
+    { id: 'kbl2', action: 'delete', target: '舊版規章.pdf', targetType: 'file', user: '王小明', dept: '資訊室', time: '2024-02-05 10:00', details: 'Removed outdated document.' },
+    { id: 'kbl3', action: 'create', target: '2024 年度計畫', targetType: 'folder', user: '李大華', dept: '人事室', time: '2024-02-04 14:15', details: 'Created new project folder.' },
+    { id: 'kbl4', action: 'view', target: '員工手冊.pdf', targetType: 'file', user: '陳小美', dept: '行銷部', time: '2024-02-05 11:20', details: 'Viewed document content.' },
+];
+
+export const MOCK_AUDIT_CHAT_LOGS = [
+    { id: 'cl1', appType: 'GAI - 互動問答', title: 'Python 教學', user: '李大華', dept: '人事室', time: '2024-02-05 09:45', content: 'User: 如何使用 Python 讀取 CSV?\nAI: 您可以使用 pandas 庫...' },
+    { id: 'cl2', appType: 'DOC - 署長信箱', title: '陳情回覆草稿', user: '王小明', dept: '資訊室', time: '2024-02-04 16:30', content: 'User: 幫我擬一份關於噪音的陳情回覆\nAI: 好的，這是草稿...' },
+    { id: 'cl3', appType: 'GAI - 文件翻譯', title: '規格書翻譯', user: '陳小美', dept: '行銷部', time: '2024-02-05 10:15', content: 'User: 翻譯這份文件\nAI: 翻譯完成，請下載。' },
+];
+
+export const MOCK_ADMIN_STATS = {
+    modelUsage: [
+        { name: 'GPT-4o', value: 4500 },
+        { name: 'Claude 3.5', value: 3200 },
+        { name: 'Llama 3', value: 1200 },
+    ],
+    appUsage: [
+        { name: '互動問答', value: 5000 },
+        { name: '文件翻譯', value: 1500 },
+        { name: '公文生成', value: 800 },
+    ],
+    deptUsage: [
+        { name: '資訊室', value: 3500 },
+        { name: '人事室', value: 2100 },
+        { name: '行銷部', value: 1800 },
+    ],
+    kbTrend: [
+        { date: '1/29', count: 120 },
+        { date: '1/30', count: 125 },
+        { date: '1/31', count: 132 },
+        { date: '2/01', count: 135 },
+        { date: '2/02', count: 140 },
+        { date: '2/03', count: 142 },
+        { date: '2/04', count: 150 },
+    ],
+    activity: [
+        { hour: '08:00', value: 50 },
+        { hour: '10:00', value: 200 },
+        { hour: '12:00', value: 80 },
+        { hour: '14:00', value: 250 },
+        { hour: '16:00', value: 180 },
+        { hour: '18:00', value: 60 },
+    ]
+};

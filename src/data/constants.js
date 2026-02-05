@@ -7,6 +7,9 @@ export const MODES = {
   PPT: 'ppt_generation',
   BOT_MGR: 'bot_management',
   CORPUS_MGR: 'corpus_management',
+  ADMIN_SERVICE: 'admin_service_management',
+  ADMIN_LLM: 'admin_llm_management',
+  ADMIN_AUDIT: 'admin_audit_management',
 };
 
 export const FEATURES = {
@@ -24,6 +27,11 @@ export const FEATURES = {
   DRAFT_AREA: { id: 'draft_area', label: '例行函稿 - 禁建限區', mode: MODES.CHAT, placeholder: '輸入管制區號...' },
   DRAFT_DECOR: { id: 'draft_decor', label: '例行函稿 - 室內裝修', mode: MODES.CHAT, placeholder: '輸入申請案號...' },
   DRAFT_DOC_GEN: { id: 'draft_doc_gen', label: '公文檔案上傳生成案件歷程', mode: MODES.CHAT, placeholder: '請上傳公文檔案...', allowUpload: true, hideLLMSettings: true },
+  
+  // Admin Features
+  ADMIN_SERVICE: { id: 'admin_service', label: '服務管理', mode: MODES.ADMIN_SERVICE, placeholder: '' },
+  ADMIN_LLM: { id: 'admin_llm', label: '語言模型管理', mode: MODES.ADMIN_LLM, placeholder: '' },
+  ADMIN_AUDIT: { id: 'admin_audit', label: '稽核管理', mode: MODES.ADMIN_AUDIT, placeholder: '' },
 };
 
 export const LANGUAGES = [
@@ -54,11 +62,31 @@ export const LLM_MODELS = [
 ];
 
 export const PROMPT_TEMPLATES = [
-  { id: 'default', label: '通用預設' },
-  { id: 'formal_tw', label: '台灣公文正式語氣' },
-  { id: 'summary', label: '重點摘要專家' },
-  { id: 'creative_writer', label: '創意文案寫手' },
-  { id: 'code_helper', label: '資深程式架構師' },
+  { 
+    id: 'default', 
+    label: '通用預設', 
+    content: 'You are a helpful AI assistant. Answer the user\'s questions clearly and concisely.' 
+  },
+  { 
+    id: 'formal_tw', 
+    label: '台灣公文正式語氣', 
+    content: '你是一個專業的公文撰寫助理。請使用標準的台灣公文格式與用字遣詞 (如：函、簽、公告等)。語氣需正式、精確、不帶情緒。' 
+  },
+  { 
+    id: 'summary', 
+    label: '重點摘要專家', 
+    content: '你是一個擅長歸納重點的助手。請閱讀使用者的輸入內容，列點式 (Bullet points) 整理出關鍵摘要。' 
+  },
+  { 
+    id: 'creative_writer', 
+    label: '創意文案寫手', 
+    content: '你是一個充滿創意的行銷文案寫手。請使用生動活潑、引人入勝的語氣，為產品或主題撰寫吸引人的文案。' 
+  },
+  { 
+    id: 'code_helper', 
+    label: '資深程式架構師', 
+    content: 'You are an expert software architect and senior developer. Provide clean, efficient, and well-documented code. Explain your design decisions.' 
+  },
 ];
 
 export const WELCOME_CONFIG = {
