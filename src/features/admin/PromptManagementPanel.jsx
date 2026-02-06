@@ -51,34 +51,38 @@ export function PromptManagementPanel() {
       <div className="p-6 overflow-y-auto">
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <table className="w-full">
-                  <thead className="bg-slate-50 border-b border-slate-200">
-                      <tr>
-                          <th className="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase w-1/5">提示詞名稱</th>
-                          <th className="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase w-2/5">提示詞內容</th>
-                          <th className="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase">建立者</th>
-                          <th className="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase">建立日期</th>
-                          <th className="px-4 py-3 text-center text-xs font-bold text-slate-600 uppercase">操作</th>
+                  <thead>
+                      <tr className="bg-slate-50 border-b border-slate-200 text-slate-500">
+                          <th className="px-6 py-3 font-medium w-1/5">提示詞名稱</th>
+                          <th className="px-6 py-3 font-medium w-2/5">提示詞內容</th>
+                          <th className="px-6 py-3 font-medium">建立者</th>
+                          <th className="px-6 py-3 font-medium">建立日期</th>
+                          <th className="px-6 py-3 font-medium text-right">操作</th>
                       </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-slate-100">
                       {filteredPrompts.map(prompt => (
-                          <tr key={prompt.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                              <td className="px-4 py-3 text-sm font-medium text-slate-800">{prompt.name}</td>
-                              <td className="px-4 py-3 text-sm text-slate-600">
+                          <tr key={prompt.id} className="group hover:bg-slate-50 transition-colors">
+                              <td className="px-6 py-4 align-top text-sm font-medium text-slate-800">{prompt.name}</td>
+                              <td className="px-6 py-4 align-top text-sm text-slate-600">
                                   <div className="line-clamp-2">{prompt.content}</div>
                               </td>
-                              <td className="px-4 py-3 text-sm text-slate-600">{prompt.creator}</td>
-                              <td className="px-4 py-3 text-sm text-slate-600">{prompt.createdAt}</td>
-                              <td className="px-4 py-3">
-                                  <div className="flex items-center justify-center gap-2">
+                              <td className="px-6 py-4 align-top text-sm text-slate-600">{prompt.creator}</td>
+                              <td className="px-6 py-4 align-top text-sm text-slate-600">{prompt.createdAt}</td>
+                              <td className="px-6 py-4 align-top text-right">
+                                  <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                       <button 
                                         onClick={() => handleEdit(prompt)}
-                                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                                        title="編輯"
                                       >
-                                          <Edit2 size={16} />
+                                          <Edit2 size={14} />
                                       </button>
-                                      <button className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                                          <Trash2 size={16} />
+                                      <button 
+                                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                        title="刪除"
+                                      >
+                                          <Trash2 size={14} />
                                       </button>
                                   </div>
                               </td>

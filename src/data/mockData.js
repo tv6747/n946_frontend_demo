@@ -5,11 +5,337 @@ export const KB_TREE_DATA = [
     label: '組織/單位公用',
     type: 'folder',
     children: [
-      { id: 'org_rules', label: '規章文件', type: 'folder', children: [] },
-      { id: 'org_projects', label: '專案文件', type: 'folder', children: [] },
+      { 
+        id: 'org_rules', 
+        label: '規章文件', 
+        type: 'folder', 
+        children: [
+          { 
+            id: 'org_rules_internal', 
+            label: '內部規章', 
+            type: 'folder', 
+            children: [
+              { id: 'doc_001', label: '員工手冊_2024.pdf', type: 'file', size: '2.3 MB', folderId: 'org_rules_internal' },
+              { id: 'doc_002', label: '差旅費報支規定.pdf', type: 'file', size: '856 KB', folderId: 'org_rules_internal' },
+              { id: 'doc_003', label: '資訊安全管理辦法.docx', type: 'file', size: '1.2 MB', folderId: 'org_rules_internal' }
+            ] 
+          },
+          { 
+            id: 'org_rules_external', 
+            label: '外部法規', 
+            type: 'folder', 
+            children: [
+              { id: 'doc_004', label: '勞動基準法彙編.pdf', type: 'file', size: '5.1 MB', folderId: 'org_rules_external' },
+              { id: 'doc_005', label: '個資法施行細則.pdf', type: 'file', size: '1.8 MB', folderId: 'org_rules_external' }
+            ] 
+          }
+        ] 
+      },
+      { 
+        id: 'org_projects', 
+        label: '專案文件', 
+        type: 'folder', 
+        children: [
+          { 
+            id: 'org_projects_2024', 
+            label: '2024年度專案', 
+            type: 'folder', 
+            children: [
+              { id: 'doc_006', label: '數位轉型計畫書.pptx', type: 'file', size: '8.5 MB', folderId: 'org_projects_2024' },
+              { id: 'doc_007', label: '智慧辦公室建置規劃.xlsx', type: 'file', size: '3.2 MB', folderId: 'org_projects_2024' }
+            ] 
+          }
+        ] 
+      }
     ]
   },
-  { id: 'dept_hr', label: '人事室', type: 'folder', children: [] },
+  { 
+    id: 'dept_hr', 
+    label: '人事室', 
+    type: 'folder', 
+    children: [
+      {
+        id: 'dept_hr_recruit',
+        label: '招募任用',
+        type: 'folder',
+        children: [
+          {
+            id: 'dept_hr_recruit_process',
+            label: '招募流程',
+            type: 'folder',
+            children: [
+              { id: 'doc_101', label: '招募作業流程圖.pdf', type: 'file', size: '1.5 MB', folderId: 'dept_hr_recruit_process' },
+              { id: 'doc_102', label: '面試評核表範本.docx', type: 'file', size: '456 KB', folderId: 'dept_hr_recruit_process' },
+              { id: 'doc_103', label: '新人報到檢核清單.xlsx', type: 'file', size: '234 KB', folderId: 'dept_hr_recruit_process' }
+            ]
+          },
+          {
+            id: 'dept_hr_recruit_templates',
+            label: '職缺範本',
+            type: 'folder',
+            children: [
+              { id: 'doc_104', label: '軟體工程師職缺說明.docx', type: 'file', size: '678 KB', folderId: 'dept_hr_recruit_templates' },
+              { id: 'doc_105', label: '專案經理職缺說明.docx', type: 'file', size: '645 KB', folderId: 'dept_hr_recruit_templates' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'dept_hr_training',
+        label: '教育訓練',
+        type: 'folder',
+        children: [
+          {
+            id: 'dept_hr_training_annual',
+            label: '年度訓練計畫',
+            type: 'folder',
+            children: [
+              { id: 'doc_106', label: '2024年度訓練計畫.pptx', type: 'file', size: '4.2 MB', folderId: 'dept_hr_training_annual' },
+              { id: 'doc_107', label: '訓練預算規劃.xlsx', type: 'file', size: '892 KB', folderId: 'dept_hr_training_annual' }
+            ]
+          },
+          {
+            id: 'dept_hr_training_materials',
+            label: '訓練教材',
+            type: 'folder',
+            children: [
+              { id: 'doc_108', label: '新人訓練簡報.pptx', type: 'file', size: '12.3 MB', folderId: 'dept_hr_training_materials' },
+              { id: 'doc_109', label: '資安教育訓練手冊.pdf', type: 'file', size: '3.7 MB', folderId: 'dept_hr_training_materials' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'dept_hr_performance',
+        label: '績效考核',
+        type: 'folder',
+        children: [
+          {
+            id: 'dept_hr_performance_forms',
+            label: '考核表單',
+            type: 'folder',
+            children: [
+              { id: 'doc_110', label: '年度績效考核表.xlsx', type: 'file', size: '567 KB', folderId: 'dept_hr_performance_forms' },
+              { id: 'doc_111', label: '試用期考核表.docx', type: 'file', size: '423 KB', folderId: 'dept_hr_performance_forms' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'dept_finance',
+    label: '財務部',
+    type: 'folder',
+    children: [
+      {
+        id: 'dept_finance_accounting',
+        label: '會計作業',
+        type: 'folder',
+        children: [
+          {
+            id: 'dept_finance_accounting_monthly',
+            label: '月結作業',
+            type: 'folder',
+            children: [
+              { id: 'doc_201', label: '2024年1月結算報表.xlsx', type: 'file', size: '2.8 MB', folderId: 'dept_finance_accounting_monthly' },
+              { id: 'doc_202', label: '2024年2月結算報表.xlsx', type: 'file', size: '2.9 MB', folderId: 'dept_finance_accounting_monthly' },
+              { id: 'doc_203', label: '月結作業檢核表.docx', type: 'file', size: '345 KB', folderId: 'dept_finance_accounting_monthly' }
+            ]
+          },
+          {
+            id: 'dept_finance_accounting_annual',
+            label: '年度決算',
+            type: 'folder',
+            children: [
+              { id: 'doc_204', label: '2023年度財務報表.pdf', type: 'file', size: '5.6 MB', folderId: 'dept_finance_accounting_annual' },
+              { id: 'doc_205', label: '決算說明文件.docx', type: 'file', size: '1.2 MB', folderId: 'dept_finance_accounting_annual' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'dept_finance_budget',
+        label: '預算管理',
+        type: 'folder',
+        children: [
+          {
+            id: 'dept_finance_budget_allocation',
+            label: '預算分配',
+            type: 'folder',
+            children: [
+              { id: 'doc_206', label: '2024年度總預算.xlsx', type: 'file', size: '4.3 MB', folderId: 'dept_finance_budget_allocation' },
+              { id: 'doc_207', label: '各部門預算配置表.xlsx', type: 'file', size: '1.8 MB', folderId: 'dept_finance_budget_allocation' }
+            ]
+          },
+          {
+            id: 'dept_finance_budget_control',
+            label: '預算控管',
+            type: 'folder',
+            children: [
+              { id: 'doc_208', label: '預算執行進度報告.pptx', type: 'file', size: '3.4 MB', folderId: 'dept_finance_budget_control' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'dept_finance_tax',
+        label: '稅務申報',
+        type: 'folder',
+        children: [
+          {
+            id: 'dept_finance_tax_monthly',
+            label: '月報',
+            type: 'folder',
+            children: [
+              { id: 'doc_209', label: '營業稅申報表_202401.pdf', type: 'file', size: '876 KB', folderId: 'dept_finance_tax_monthly' },
+              { id: 'doc_210', label: '營業稅申報表_202402.pdf', type: 'file', size: '892 KB', folderId: 'dept_finance_tax_monthly' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'dept_it',
+    label: '資訊部',
+    type: 'folder',
+    children: [
+      {
+        id: 'dept_it_infrastructure',
+        label: '基礎設施',
+        type: 'folder',
+        children: [
+          {
+            id: 'dept_it_infrastructure_network',
+            label: '網路架構',
+            type: 'folder',
+            children: [
+              { id: 'doc_301', label: '網路拓撲圖.vsdx', type: 'file', size: '3.2 MB', folderId: 'dept_it_infrastructure_network' },
+              { id: 'doc_302', label: 'IP位址配置表.xlsx', type: 'file', size: '567 KB', folderId: 'dept_it_infrastructure_network' },
+              { id: 'doc_303', label: '防火牆設定文件.pdf', type: 'file', size: '2.1 MB', folderId: 'dept_it_infrastructure_network' }
+            ]
+          },
+          {
+            id: 'dept_it_infrastructure_server',
+            label: '伺服器管理',
+            type: 'folder',
+            children: [
+              { id: 'doc_304', label: '伺服器清單.xlsx', type: 'file', size: '445 KB', folderId: 'dept_it_infrastructure_server' },
+              { id: 'doc_305', label: '備份還原程序.docx', type: 'file', size: '1.3 MB', folderId: 'dept_it_infrastructure_server' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'dept_it_development',
+        label: '系統開發',
+        type: 'folder',
+        children: [
+          {
+            id: 'dept_it_development_standards',
+            label: '開發規範',
+            type: 'folder',
+            children: [
+              { id: 'doc_306', label: '程式碼撰寫規範.md', type: 'file', size: '123 KB', folderId: 'dept_it_development_standards' },
+              { id: 'doc_307', label: 'Git使用指南.pdf', type: 'file', size: '2.4 MB', folderId: 'dept_it_development_standards' },
+              { id: 'doc_308', label: 'API設計原則.docx', type: 'file', size: '876 KB', folderId: 'dept_it_development_standards' }
+            ]
+          },
+          {
+            id: 'dept_it_development_docs',
+            label: '技術文件',
+            type: 'folder',
+            children: [
+              { id: 'doc_309', label: '系統架構說明.pptx', type: 'file', size: '6.7 MB', folderId: 'dept_it_development_docs' },
+              { id: 'doc_310', label: '資料庫Schema設計.pdf', type: 'file', size: '1.9 MB', folderId: 'dept_it_development_docs' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'dept_it_security',
+        label: '資訊安全',
+        type: 'folder',
+        children: [
+          {
+            id: 'dept_it_security_policy',
+            label: '安全政策',
+            type: 'folder',
+            children: [
+              { id: 'doc_311', label: '資安政策白皮書.pdf', type: 'file', size: '3.8 MB', folderId: 'dept_it_security_policy' },
+              { id: 'doc_312', label: '存取控制管理辦法.docx', type: 'file', size: '1.1 MB', folderId: 'dept_it_security_policy' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'dept_legal',
+    label: '法務部',
+    type: 'folder',
+    children: [
+      {
+        id: 'dept_legal_contracts',
+        label: '合約管理',
+        type: 'folder',
+        children: [
+          {
+            id: 'dept_legal_contracts_templates',
+            label: '合約範本',
+            type: 'folder',
+            children: [
+              { id: 'doc_401', label: '採購合約範本.docx', type: 'file', size: '678 KB', folderId: 'dept_legal_contracts_templates' },
+              { id: 'doc_402', label: '保密協議範本.docx', type: 'file', size: '456 KB', folderId: 'dept_legal_contracts_templates' },
+              { id: 'doc_403', label: '勞動契約範本.docx', type: 'file', size: '534 KB', folderId: 'dept_legal_contracts_templates' }
+            ]
+          },
+          {
+            id: 'dept_legal_contracts_review',
+            label: '合約審閱',
+            type: 'folder',
+            children: [
+              { id: 'doc_404', label: '合約審閱指引.pdf', type: 'file', size: '2.3 MB', folderId: 'dept_legal_contracts_review' },
+              { id: 'doc_405', label: '風險評估檢核表.xlsx', type: 'file', size: '345 KB', folderId: 'dept_legal_contracts_review' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'dept_legal_compliance',
+        label: '法規遵循',
+        type: 'folder',
+        children: [
+          {
+            id: 'dept_legal_compliance_gdpr',
+            label: '個資保護',
+            type: 'folder',
+            children: [
+              { id: 'doc_406', label: 'GDPR遵循指南.pdf', type: 'file', size: '4.5 MB', folderId: 'dept_legal_compliance_gdpr' },
+              { id: 'doc_407', label: '個資盤點清冊.xlsx', type: 'file', size: '1.2 MB', folderId: 'dept_legal_compliance_gdpr' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'dept_legal_intellectual',
+        label: '智慧財產',
+        type: 'folder',
+        children: [
+          {
+            id: 'dept_legal_intellectual_patents',
+            label: '專利管理',
+            type: 'folder',
+            children: [
+              { id: 'doc_408', label: '專利申請流程.pdf', type: 'file', size: '1.7 MB', folderId: 'dept_legal_intellectual_patents' },
+              { id: 'doc_409', label: '專利清單.xlsx', type: 'file', size: '678 KB', folderId: 'dept_legal_intellectual_patents' }
+            ]
+          }
+        ]
+      }
+    ]
+  },
   { 
     id: 'personal', 
     label: '個人知識庫',
@@ -38,6 +364,7 @@ export const KB_TREE_DATA = [
     ]
   }
 ];
+
 
 
 export const CORPUS_PAGES = [

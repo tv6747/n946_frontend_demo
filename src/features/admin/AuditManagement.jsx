@@ -34,8 +34,8 @@ function KBLogView() {
             <div className="flex-1 overflow-y-auto p-6">
                 <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
                     <table className="w-full text-left text-sm">
-                        <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
-                            <tr>
+                        <thead>
+                            <tr className="bg-slate-50 border-b border-slate-200 text-slate-500">
                                 <th className="px-6 py-3 font-medium w-10"></th>
                                 <th className="px-6 py-3 font-medium">時間</th>
                                 <th className="px-6 py-3 font-medium">動作類型</th>
@@ -47,14 +47,14 @@ function KBLogView() {
                             {MOCK_AUDIT_KB_LOGS.map(log => (
                                 <React.Fragment key={log.id}>
                                     <tr 
-                                        className={`hover:bg-slate-50 cursor-pointer transition-colors ${expandedRow === log.id ? 'bg-slate-50' : ''}`}
+                                        className={`group hover:bg-slate-50 cursor-pointer transition-colors ${expandedRow === log.id ? 'bg-slate-50' : ''}`}
                                         onClick={() => setExpandedRow(expandedRow === log.id ? null : log.id)}
                                     >
-                                        <td className="px-6 py-3 text-slate-400">
+                                        <td className="px-6 py-4 align-top text-slate-400">
                                             <ChevronRight size={16} className={`transition-transform duration-200 ${expandedRow === log.id ? 'rotate-90' : ''}`} />
                                         </td>
-                                        <td className="px-6 py-3 font-mono text-slate-500 text-xs">{log.time}</td>
-                                        <td className="px-6 py-3 flex items-center gap-2">
+                                        <td className="px-6 py-4 align-top font-mono text-slate-500 text-xs">{log.time}</td>
+                                        <td className="px-6 py-4 align-top">
                                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border ${
                                                 log.action === 'upload' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
                                                 log.action === 'delete' ? 'bg-red-50 text-red-600 border-red-100' :
@@ -63,13 +63,13 @@ function KBLogView() {
                                                 {log.action}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-3 text-slate-700 font-medium">
+                                        <td className="px-6 py-4 align-top text-slate-700 font-medium">
                                             <div className="flex items-center gap-2">
                                                 {log.targetType === 'folder' ? <div className="text-yellow-500"><Database size={14} /></div> : <div className="text-slate-400"><FileText size={14} /></div>}
                                                 {log.target}
                                             </div>
                                         </td>
-                                        <td className="px-6 py-3 text-slate-600">
+                                        <td className="px-6 py-4 align-top text-slate-600">
                                             <div className="flex items-center gap-1.5">
                                                 <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">
                                                     {log.user.charAt(0)}
@@ -118,8 +118,8 @@ function ChatLogView() {
             <div className="flex-1 overflow-y-auto p-6">
                  <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
                     <table className="w-full text-left text-sm">
-                        <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
-                            <tr>
+                        <thead>
+                            <tr className="bg-slate-50 border-b border-slate-200 text-slate-500">
                                 <th className="px-6 py-3 font-medium w-10"></th>
                                 <th className="px-6 py-3 font-medium">時間</th>
                                 <th className="px-6 py-3 font-medium">應用類型</th>
@@ -131,22 +131,22 @@ function ChatLogView() {
                             {MOCK_AUDIT_CHAT_LOGS.map(log => (
                                 <React.Fragment key={log.id}>
                                     <tr 
-                                        className={`hover:bg-slate-50 cursor-pointer transition-colors ${expandedRow === log.id ? 'bg-slate-50' : ''}`}
+                                        className={`group hover:bg-slate-50 cursor-pointer transition-colors ${expandedRow === log.id ? 'bg-slate-50' : ''}`}
                                         onClick={() => setExpandedRow(expandedRow === log.id ? null : log.id)}
                                     >
-                                        <td className="px-6 py-3 text-slate-400">
+                                        <td className="px-6 py-4 align-top text-slate-400">
                                             <ChevronRight size={16} className={`transition-transform duration-200 ${expandedRow === log.id ? 'rotate-90' : ''}`} />
                                         </td>
-                                        <td className="px-6 py-3 font-mono text-slate-500 text-xs">{log.time}</td>
-                                        <td className="px-6 py-3">
+                                        <td className="px-6 py-4 align-top font-mono text-slate-500 text-xs">{log.time}</td>
+                                        <td className="px-6 py-4 align-top">
                                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold tracking-wide border ${
                                                 log.appType.includes('GAI') ? 'bg-blue-50 text-blue-600 border-blue-100' : 'bg-purple-50 text-purple-600 border-purple-100'
                                             }`}>
                                                 {log.appType}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-3 text-slate-700 font-medium">{log.title}</td>
-                                        <td className="px-6 py-3 text-slate-600">
+                                        <td className="px-6 py-4 align-top text-slate-700 font-medium">{log.title}</td>
+                                        <td className="px-6 py-4 align-top text-slate-600">
                                             <div className="flex items-center gap-1.5">
                                                 <User size={14} className="text-slate-400" />
                                                 {log.user}

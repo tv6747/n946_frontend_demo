@@ -38,17 +38,20 @@ export function BotManagementPanel({ bots, onSelectBot, onCreate, onDeleteBot, o
           {filteredBots.map(bot => (
               <div 
                 key={bot.id} 
-                className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 hover:shadow-md transition-all group relative flex flex-col h-full"
+                className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 hover:shadow-md transition-all group relative"
               >
+                  {/* Level Strip */}
+                  <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${bot.status === 'active' ? 'bg-blue-500' : 'bg-slate-300'}`}></div>
+                  
                   {/* Card Top: Icon, Name, Toggle */}
-                  <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${bot.status === 'active' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'}`}>
-                              <Bot size={24} />
+                  <div className="flex items-start justify-between mb-4 pl-2">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${bot.status === 'active' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'}`}>
+                              <Bot size={20} />
                           </div>
-                          <div>
-                              <h3 className="font-bold text-slate-800 line-clamp-1">{bot.name}</h3>
-                              <span className={`text-[10px] px-2 py-0.5 rounded-full inline-block mt-1 ${bot.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                          <div className="flex-1 min-w-0">
+                              <h3 className="font-bold text-slate-800 truncate">{bot.name}</h3>
+                              <span className={`text-xs px-2 py-0.5 rounded inline-block mt-1 ${bot.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
                                   {bot.status === 'active' ? '啟用中' : '已停用'}
                               </span>
                           </div>
@@ -68,19 +71,20 @@ export function BotManagementPanel({ bots, onSelectBot, onCreate, onDeleteBot, o
                       </div>
                   </div>
 
-                  <p className="text-sm text-slate-500 mb-6 line-clamp-2 flex-grow">
+                  {/* Description */}
+                  <p className="text-sm text-slate-600 mb-4 line-clamp-2 pl-2">
                       {bot.description || '這是一個自定義的答詢機器人，專門處理特定領域的問答任務。'}
                   </p>
                   
-                  {/* Card Footer: Metadata and Actions */}
-                  <div className="flex items-center justify-between pt-4 border-t border-slate-100 mt-auto">
+                  {/* Metadata and Actions */}
+                  <div className="flex items-center justify-between pt-3 border-t border-slate-100 pl-2">
                        <div className="flex items-center gap-4 text-xs text-slate-400">
                             <div className="flex items-center gap-1.5" title="關聯文件">
-                                <FileText size={14} />
+                                <FileText size={12} />
                                 <span>{bot.files ? bot.files.length : 0}</span>
                             </div>
                             <div className="flex items-center gap-1.5" title="授權用戶">
-                                <Users size={14} />
+                                <Users size={12} />
                                 <span>{bot.accessibleUsers ? bot.accessibleUsers.length : 0}</span>
                             </div>
                        </div>

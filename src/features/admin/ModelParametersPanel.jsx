@@ -49,40 +49,44 @@ export function ModelParametersPanel() {
       <div className="p-6 overflow-y-auto">
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <table className="w-full">
-                  <thead className="bg-slate-50 border-b border-slate-200">
-                      <tr>
-                          <th className="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase">參數名稱</th>
-                          <th className="px-4 py-3 text-center text-xs font-bold text-slate-600 uppercase">Temperature</th>
-                          <th className="px-4 py-3 text-center text-xs font-bold text-slate-600 uppercase">Top-P</th>
-                          <th className="px-4 py-3 text-center text-xs font-bold text-slate-600 uppercase">Top-K</th>
-                          <th className="px-4 py-3 text-left text-xs font-bold text-slate-600 uppercase">建立日期</th>
-                          <th className="px-4 py-3 text-center text-xs font-bold text-slate-600 uppercase">操作</th>
+                  <thead>
+                      <tr className="bg-slate-50 border-b border-slate-200 text-slate-500">
+                          <th className="px-6 py-3 font-medium text-left">參數名稱</th>
+                          <th className="px-6 py-3 font-medium text-center">Temperature</th>
+                          <th className="px-6 py-3 font-medium text-center">Top-P</th>
+                          <th className="px-6 py-3 font-medium text-center">Top-K</th>
+                          <th className="px-6 py-3 font-medium text-left">建立日期</th>
+                          <th className="px-6 py-3 font-medium text-right">操作</th>
                       </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-slate-100">
                       {filteredParams.map(param => (
-                          <tr key={param.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                              <td className="px-4 py-3 text-sm font-medium text-slate-800">{param.name}</td>
-                              <td className="px-4 py-3 text-center">
+                          <tr key={param.id} className="group hover:bg-slate-50 transition-colors">
+                              <td className="px-6 py-4 align-top text-sm font-medium text-slate-800">{param.name}</td>
+                              <td className="px-6 py-4 align-top text-center">
                                   <span className="text-sm font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded">{param.temperature}</span>
                               </td>
-                              <td className="px-4 py-3 text-center">
+                              <td className="px-6 py-4 align-top text-center">
                                   <span className="text-sm font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded">{param.topP}</span>
                               </td>
-                              <td className="px-4 py-3 text-center">
+                              <td className="px-6 py-4 align-top text-center">
                                   <span className="text-sm font-mono text-blue-600 bg-blue-50 px-2 py-1 rounded">{param.topK}</span>
                               </td>
-                              <td className="px-4 py-3 text-sm text-slate-600">{param.createdAt}</td>
-                              <td className="px-4 py-3">
-                                  <div className="flex items-center justify-center gap-2">
+                              <td className="px-6 py-4 align-top text-sm text-slate-600">{param.createdAt}</td>
+                              <td className="px-6 py-4 align-top text-right">
+                                  <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                       <button 
                                         onClick={() => handleEdit(param)}
-                                        className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                                        title="編輯"
                                       >
-                                          <Edit2 size={16} />
+                                          <Edit2 size={14} />
                                       </button>
-                                      <button className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                                          <Trash2 size={16} />
+                                      <button 
+                                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                                        title="刪除"
+                                      >
+                                          <Trash2 size={14} />
                                       </button>
                                   </div>
                               </td>

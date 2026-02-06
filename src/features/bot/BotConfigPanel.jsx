@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { TreeNode } from '../../components/common/TreeNode';
 import { KB_TREE_DATA } from '../../data/mockData';
+import { MOCK_LLM_MODELS, MOCK_LLM_PARAMS, MOCK_LLM_PROMPTS } from '../../data/mockLLMData';
 
 export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, allFiles, selectedFolderName, users, onUpdateBot, onCreateBot, onRemoveFile, onDeleteBot, onOpenLLMSettings, onBack }) {
   if (!bot) return null;
@@ -343,6 +344,61 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
                                </div>
                            )}
                        </div>
+                  </div>
+              </div>
+          </section>
+
+          {/* 2.5. Default Settings */}
+          <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-4">
+                  <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">預設設定</h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">模型</label>
+                      <select 
+                            value={formData.defaultSettings?.modelId || ''}
+                            onChange={(e) => handleChange({ defaultSettings: { ...formData.defaultSettings, modelId: e.target.value } })}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                        >
+                            <option value="">請選擇模型</option>
+                            {MOCK_LLM_MODELS.filter(m => m.status === 'active').map(model => (
+                                <option key={model.id} value={model.id}>
+                                    {model.name}
+                                </option>
+                            ))}
+                        </select>
+                  </div>
+                  <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">參數</label>
+                      <select 
+                            value={formData.defaultSettings?.paramId || ''}
+                            onChange={(e) => handleChange({ defaultSettings: { ...formData.defaultSettings, paramId: e.target.value } })}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                        >
+                            <option value="">請選擇參數組合</option>
+                            {MOCK_LLM_PARAMS.map(param => (
+                                <option key={param.id} value={param.id}>
+                                    {param.name}
+                                </option>
+                            ))}
+                        </select>
+                  </div>
+                  <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1.5">提示詞 (選填)</label>
+                      <select 
+                            value={formData.defaultSettings?.promptId || ''}
+                            onChange={(e) => handleChange({ defaultSettings: { ...formData.defaultSettings, promptId: e.target.value } })}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                        >
+                            <option value="">不使用提示詞</option>
+                            {MOCK_LLM_PROMPTS.map(prompt => (
+                                <option key={prompt.id} value={prompt.id}>
+                                    {prompt.name}
+                                </option>
+                            ))}
+                        </select>
                   </div>
               </div>
           </section>

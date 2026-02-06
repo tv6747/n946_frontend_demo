@@ -5,13 +5,14 @@ import { KB_TREE_DATA, MOCK_USERS } from '../../data/mockData';
 import { MOCK_KB_FOLDER_PERMISSIONS } from '../../data/mockServiceData';
 
 export function KBPermissionPanel() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [userSearch, setUserSearch] = useState('');
+  const [departmentFilter, setDepartmentFilter] = useState('all');
+  const [folderSearchTerm, setFolderSearchTerm] = useState('');
   
   const [selectedFolderId, setSelectedFolderId] = useState('org');
   
   // Transfer List states
   const [selectedAvailableIds, setSelectedAvailableIds] = useState([]);
-  const [userSearch, setUserSearch] = useState('');
 
   // Get folder permission data
   const getFolderPermission = (folderId) => {
@@ -42,7 +43,19 @@ export function KBPermissionPanel() {
     }, []);
   };
 
-  const filteredTreeData = useMemo(() => filterTreeData(KB_TREE_DATA, searchTerm), [searchTerm]);
+  const filteredTreeData = useMemo(() => {
+    // Filter out personal and shared folders for admin panel
+    const adminTreeData = KB_TREE_DATA.filter(node => 
+      node.id !== 'personal' && node.id !== 'shared_root'
+    );
+    return filterTreeData(adminTreeData, folderSearchTerm);
+  }, [folderSearchTerm]);
+
+  // Get unique departments
+  const departments = useMemo(() => {
+    const depts = MOCK_USERS.filter(u => u.type === 'dept');
+    return depts;
+  }, []);
 
   // Get folder by ID (recursive search)
   const getFolderById = (folderId, treeData = KB_TREE_DATA) => {
@@ -153,7 +166,8 @@ export function KBPermissionPanel() {
   const availableItems = MOCK_USERS.filter(u => {
     const isAssigned = [...selectedPermission.assignedUsers, ...selectedPermission.assignedDepartments].includes(u.id);
     const matchesSearch = u.name.includes(userSearch);
-    return !isAssigned && matchesSearch;
+    const matchesDept = departmentFilter === 'all' || u.type === 'dept' && u.id === departmentFilter || u.department === departmentFilter;
+    return !isAssigned && matchesSearch && matchesDept;
   });
 
   // Assigned users/departments
@@ -206,31 +220,57 @@ export function KBPermissionPanel() {
   const handleRemove = (id) => {
     selectedPermission.assignedUsers = selectedPermission.assignedUsers.filter(i => i !== id);
     selectedPermission.assignedDepartments = selectedPermission.assignedDepartments.filter(i => i !== id);
+    // Force re-render by updating state
+    setSelectedFolderId(selectedFolderId);
   };
+
 
   return (
     <div className="flex flex-col h-full bg-slate-50 w-full animate-in fade-in duration-300">
       {/* Header */}
-      <header className="px-6 py-5 bg-white border-b border-slate-200 flex items-center justify-between gap-4 flex-shrink-0 sticky top-0 shadow-sm z-10">
-         {/* Search Filter */}
-         <div className="relative flex-1">
+      <header className="px-6 py-5 bg-white border-b border-slate-200 flex items-center gap-4 flex-shrink-0 sticky top-0 shadow-sm z-10">
+         {/* User/Department Search */}
+         <div className="relative flex-1 max-w-md">
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input 
                type="text" 
-               placeholder="搜尋資料夾名稱、使用者或部門..." 
-               value={searchTerm}
-               onChange={(e) => setSearchTerm(e.target.value)}
+               placeholder="搜尋人名及部門..." 
+               value={userSearch}
+               onChange={(e) => setUserSearch(e.target.value)}
                className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-colors" 
             />
+         </div>
+         {/* Department Filter */}
+         <div className="min-w-[180px]">
+            <select 
+               value={departmentFilter}
+               onChange={(e) => setDepartmentFilter(e.target.value)}
+               className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+            >
+                <option value="all">篩選部門</option>
+                {departments.map(dept => (
+                    <option key={dept.id} value={dept.id}>{dept.name}</option>
+                ))}
+            </select>
          </div>
       </header>
 
       {/* Main Content - Split View */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Panel - Folder Tree (40%) */}
-        <div className="w-[40%] border-r border-slate-200 bg-white flex flex-col">
+        {/* Left Panel - Folder Tree (20%) */}
+        <div className="w-[20%] border-r border-slate-200 bg-white flex flex-col min-w-0 overflow-x-auto">
           <div className="px-4 py-3 border-b border-slate-200 bg-slate-50">
-            <h3 className="text-sm font-bold text-slate-700">資料夾結構</h3>
+            <h3 className="text-sm font-bold text-slate-700 mb-2">資料夾結構</h3>
+            <div className="relative">
+              <Search size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input 
+                type="text" 
+                placeholder="搜尋資料夾..." 
+                value={folderSearchTerm}
+                onChange={(e) => setFolderSearchTerm(e.target.value)}
+                className="w-full bg-white border border-slate-200 rounded-md pl-7 pr-2 py-1.5 text-xs focus:outline-none focus:border-blue-400 transition-colors" 
+              />
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto p-3">
             {filteredTreeData.length === 0 ? (
@@ -247,7 +287,7 @@ export function KBPermissionPanel() {
           </div>
         </div>
 
-        {/* Right Panel - Permission Settings (60%) */}
+        {/* Right Panel - Permission Settings (80%) */}
         <div className="flex-1 flex flex-col bg-slate-50 overflow-y-auto">
           <div className="p-6 space-y-5">
             {/* Folder Info */}
@@ -259,6 +299,23 @@ export function KBPermissionPanel() {
                   <p className="text-xs text-slate-500 mt-0.5">{folderPath.join(' > ')}</p>
                 </div>
               </div>
+              {/* Show folder structure */}
+              {selectedFolder && selectedFolder.children && selectedFolder.children.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-slate-100">
+                  <p className="text-xs font-semibold text-slate-600 mb-2">子資料夾:</p>
+                  <div className="space-y-1 pl-3">
+                    {selectedFolder.children.map(child => (
+                      <div key={child.id} className="text-xs text-slate-600 flex items-center gap-1.5">
+                        <div className="w-1 h-1 rounded-full bg-slate-400"></div>
+                        <span>{child.label}</span>
+                        {child.children && child.children.length > 0 && (
+                          <span className="text-slate-400">({child.children.length})</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Permission Assignment - Transfer List */}

@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { MOCK_GLOSSARIES, MOCK_SYNONYMS } from '../../data/mockData';
 
-export function SynonymManager({ searchTerm, selectedCategory }) {
+export function SynonymManager({ searchTerm, selectedCategory, onEdit, onAddSynonym }) {
   // const [searchTerm, setSearchTerm] = useState(''); // Removed internal state
   
   // Combine Glossaries with their Synonyms
@@ -63,7 +63,10 @@ export function SynonymManager({ searchTerm, selectedCategory }) {
                                             {syn.remark && <Info size={10} className="text-indigo-400 opacity-50" />}
                                         </div>
                                     ))}
-                                    <button className="inline-flex items-center justify-center w-6 h-6 rounded-md border border-dashed border-slate-300 text-slate-400 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50 transition-all">
+                                    <button 
+                                        onClick={() => onAddSynonym && onAddSynonym(item)}
+                                        className="inline-flex items-center justify-center w-6 h-6 rounded-md border border-dashed border-slate-300 text-slate-400 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50 transition-all"
+                                    >
                                         <Plus size={12} />
                                     </button>
                                 </div>
@@ -75,7 +78,11 @@ export function SynonymManager({ searchTerm, selectedCategory }) {
                             </td>
                             <td className="px-6 py-4 align-top text-right">
                                 <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="編輯">
+                                    <button 
+                                        onClick={() => onEdit && onEdit({id: item.id, term: item.main_term, synonyms: item.synonyms.map(s => s.synonym_term), category: item.category})}
+                                        className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" 
+                                        title="編輯"
+                                    >
                                         <Edit2 size={14} />
                                     </button>
                                     <button className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="刪除">
