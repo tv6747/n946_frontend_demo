@@ -325,6 +325,10 @@ kb_qa: {
 
 #### 視圖 A: 機器人列表 (`selectedBotId = null`)
 - **元件**: `BotManagementPanel`
+- **UI 設計**: 採用標準化卡片介面
+  - **狀態顯示**: 左側狀態顏色條 (藍色啟用/灰色停用)
+  - **操作區**: 右上角整合「啟用/停用」Switch、「編輯」、「刪除」按鈕
+  - **資訊預覽**: 預設模型設定 (參數/提示詞)、關聯文件標籤雲、歡迎詞摘要
 - **功能**:
   - 顯示所有機器人列表
   - 建立新機器人 (`onCreate` → `selectedBotId = 'NEW_BOT'`)
@@ -335,9 +339,10 @@ kb_qa: {
 #### 視圖 B: 機器人配置 (`selectedBotId !== null`)
 - **元件**: `BotConfigPanel`
 - **配置項目**:
-  - 機器人名稱
-  - 歡迎訊息
-  - 關聯檔案 (`files`)
+  - 機器人基本資訊 (名稱、描述)
+  - 預設設定 (模型、參數、提示詞)
+  - 歡迎訊息與預設問題
+  - 關聯檔案 (`files`) - **自動過濾僅顯示組織/單位資料夾**
   - 可存取使用者 (`accessibleUsers`)
 - **Mode**:
   - 建立模式: `isCreating = true` (當 `selectedBotId = 'NEW_BOT'`)
@@ -398,7 +403,7 @@ selectedCorpusId: 'proper_noun' | 'synonym'
 - 答詢機器人管理 (`bot_management`): `BotManagementPanel` + `BotConfigPanel`
 
 **語言模型管理** (`ADMIN_LLM`):
-- 模型管理 (`models`): `ModelManagementPanel`
+- 模型管理 (`models`): `ModelManagementPanel` (操作按鈕位於卡片右上角)
 - 模型參數管理 (`params`): `ModelParametersPanel`
 
 **其他管理模組**:
