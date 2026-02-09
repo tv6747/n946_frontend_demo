@@ -47,6 +47,9 @@ export function ApplicationManagementPanel() {
   }
 
   const filteredApps = MOCK_APPLICATIONS.filter(app => {
+      // Exclude chatbots (they are managed in Bot Management)
+      if (app.page && app.page.startsWith('bot_')) return false;
+
       const matchesSearch = app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            app.page.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesLevel = levelFilter === 'all' || app.level === levelFilter;
@@ -117,12 +120,12 @@ export function ApplicationManagementPanel() {
                   
                   {/* Details */}
                   <div className="space-y-3 pl-2">
-                      <div>
+                      {/* <div>
                           <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">功能頁</label>
                           <div className="text-xs font-mono text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100">
                               {app.page}
                           </div>
-                      </div>
+                      </div> */}
                       
                       {/* Default Settings */}
                       <div>

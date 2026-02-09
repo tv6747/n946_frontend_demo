@@ -182,6 +182,14 @@ function StatsView() {
                         <option>過去 7 天</option>
                         <option>過去 30 天</option>
                     </select>
+                    <select className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none">
+                        <option value="">所有科室</option>
+                        <option value="section1">一科</option>
+                        <option value="section2">二科</option>
+                        <option value="section3">三科</option>
+                        <option value="section4">四科</option>
+                        <option value="section5">五科</option>
+                    </select>
                 </div>
              </header>
              <div className="p-6 grid grid-cols-2 gap-6">

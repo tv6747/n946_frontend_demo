@@ -14,6 +14,7 @@ export const MOCK_APPLICATIONS = [
       promptId: '',
     },
     availableModels: ['model_1', 'model_2'],
+    defaultModelId: 'model_1', // Default model for the application
     welcomeMessage: '您好！我是智能助理，有什麼可以幫您的嗎？',
     defaultQuestions: [
       '如何使用知識庫功能？',
@@ -37,6 +38,7 @@ export const MOCK_APPLICATIONS = [
       promptId: 'prompt_1',
     },
     availableModels: ['model_1', 'model_2'],
+    defaultModelId: 'model_1',
     welcomeMessage: '歡迎使用知識庫管理系統！您可以上傳、管理文件，並進行智能問答。',
     defaultQuestions: [
       '如何上傳文件到知識庫？',
@@ -60,6 +62,7 @@ export const MOCK_APPLICATIONS = [
       promptId: 'prompt_4',
     },
     availableModels: ['model_1', 'model_2'],
+    defaultModelId: 'model_1',
     welcomeMessage: '讓我幫您製作精美的簡報！請描述您的需求。',
     defaultQuestions: [
       '如何生成商業提案簡報？',
@@ -83,6 +86,7 @@ export const MOCK_APPLICATIONS = [
       promptId: '',
     },
     availableModels: ['model_1', 'model_2'],
+    defaultModelId: 'model_1',
     welcomeMessage: '專業文件翻譯服務，支援多種語言。',
     defaultQuestions: [
       '支援哪些語言翻譯？',
@@ -96,21 +100,24 @@ export const MOCK_APPLICATIONS = [
     createdAt: '2024-02-01'
   },
   {
-    id: 'app_bot_cs',
-    name: '答詢機器人 - 客服小幫手',
+    id: 'app_bot_hr',
+    name: '答詢機器人 - 人事差勤機器人',
     level: 'GAI',
-    page: 'bot_cs',
+    page: 'bot_hr',
     defaultSettings: {
       modelId: 'model_2',
       paramId: 'param_3',
       promptId: 'prompt_2',
     },
     availableModels: ['model_1', 'model_2'],
-    welcomeMessage: '您好！我是客服小幫手，很高興為您服務！',
+    defaultModelId: 'model_1',
+    welcomeMessage: '你好！我是人事差勤小幫手。我可以協助你查詢假勤規定、申請流程、或查看你的出缺勤紀錄。請問今天有什麼可以幫你的嗎？',
     defaultQuestions: [
-      '營業時間是什麼時候？',
-      '如何聯繫客服？',
-      '退換貨政策是什麼？'
+      '請問特休假還有幾天？',
+      '如何申請加班費？',
+      '請假單送出後多久會核准？',
+      '遲到會有什麼影響？',
+      '婚假可以分開請嗎？'
     ],
     permissions: {
       allowedUsers: [],
@@ -119,24 +126,27 @@ export const MOCK_APPLICATIONS = [
     createdAt: '2024-02-05'
   },
   {
-    id: 'app_bot_data',
-    name: '答詢機器人 - 數據分析師',
+    id: 'app_bot_security',
+    name: '答詢機器人 - 資訊安全機器人',
     level: 'GAI',
-    page: 'bot_data',
+    page: 'bot_security',
     defaultSettings: {
       modelId: 'model_1',
       paramId: 'param_2',
       promptId: 'prompt_3',
     },
     availableModels: ['model_1'],
-    welcomeMessage: '我是您的數據分析助手，請上傳數據或提出分析需求。',
+    defaultModelId: 'model_1',
+    welcomeMessage: '您好，我是資訊安全防護機器人。請隨時保持警覺，勿點擊不明連結。若有任何資安疑慮、密碼設定或軟體安裝問題，歡迎隨時詢問！',
     defaultQuestions: [
-      '如何進行趨勢分析？',
-      '支援哪些圖表類型？',
-      '可以匯出分析報告嗎？'
+      '收到可疑郵件該如何處理？',
+      '如何設定高強度密碼？',
+      '公司電腦可以安裝私人軟體嗎？',
+      '發現電腦中毒了怎麼辦？',
+      '如何使用 VPN 安全連線？'
     ],
     permissions: {
-      allowedUsers: ['user_1', 'user_2', 'user_3'],
+      allowedUsers: ['user_me', 'user_admin'],
       isPublic: false
     },
     createdAt: '2024-02-08'

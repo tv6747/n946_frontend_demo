@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutGrid, Shield, Bot, FileSpreadsheet, FileText, Cpu, Link, Activity, ChevronDown, ChevronRight, Settings } from 'lucide-react';
+import { LayoutGrid, Shield, Bot, FileSpreadsheet, FileText, Cpu, Link, Activity, ChevronDown, ChevronRight, Settings, Sliders } from 'lucide-react';
 import { MODES, FEATURES } from '../../data/constants';
 
 export function UnifiedBackendSidebar({
@@ -7,14 +7,15 @@ export function UnifiedBackendSidebar({
   onFeatureChange,
   serviceSubModule,
   onServiceSubModuleChange,
-  llmSubModule,
-  onLLMSubModuleChange,
   auditView,
-  onAuditViewChange
+  onAuditViewChange,
+  llmSubModule,
+  onLLMSubModuleChange
 }) {
   const [expandedSections, setExpandedSections] = useState({
     service: true,
     llm: true,
+    corpus: true,
     audit: true
   });
 
@@ -50,7 +51,7 @@ export function UnifiedBackendSidebar({
 
       <div className="flex-1 overflow-y-auto p-3 space-y-1">
         
-        {/* Service Management - Collapsible */}
+        {/* Service Management - Collapsible (無知識庫權限) */}
         <div>
           <button
             onClick={() => toggleSection('service')}
@@ -86,20 +87,6 @@ export function UnifiedBackendSidebar({
               <button
                 onClick={() => {
                   onFeatureChange('ADMIN_SERVICE');
-                  onServiceSubModuleChange('kb_permission');
-                }}
-                className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-3 ${
-                  isServiceSubModuleActive('kb_permission')
-                    ? 'bg-white text-blue-700 shadow-sm border border-slate-200'
-                    : 'text-slate-600 hover:bg-slate-100'
-                }`}
-              >
-                <Shield size={16} />
-                知識庫權限
-              </button>
-              <button
-                onClick={() => {
-                  onFeatureChange('ADMIN_SERVICE');
                   onServiceSubModuleChange('bot_management');
                 }}
                 className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-3 ${
@@ -115,13 +102,13 @@ export function UnifiedBackendSidebar({
           )}
         </div>
 
-        {/* Language Model Management - Collapsible */}
+        {/* Language Model Management - Collapsible with sub-modules */}
         <div>
           <button
             onClick={() => toggleSection('llm')}
             className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-between ${
               currentFeature.mode === MODES.ADMIN_LLM
-                ? 'bg-blue-50 text-blue-700 border border-blue-200' 
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
                 : 'text-slate-600 hover:bg-slate-100'
             }`}
           >
@@ -131,13 +118,13 @@ export function UnifiedBackendSidebar({
             </div>
             {expandedSections.llm ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
           </button>
-          
+
           {expandedSections.llm && (
             <div className="ml-4 mt-1 space-y-1">
               <button
                 onClick={() => {
                   onFeatureChange('ADMIN_LLM');
-                  onLLMSubModuleChange('models');
+                  if (onLLMSubModuleChange) onLLMSubModuleChange('models');
                 }}
                 className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-3 ${
                   isLLMSubModuleActive('models')
@@ -151,7 +138,7 @@ export function UnifiedBackendSidebar({
               <button
                 onClick={() => {
                   onFeatureChange('ADMIN_LLM');
-                  onLLMSubModuleChange('params');
+                  if (onLLMSubModuleChange) onLLMSubModuleChange('params');
                 }}
                 className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-3 ${
                   isLLMSubModuleActive('params')
@@ -159,38 +146,57 @@ export function UnifiedBackendSidebar({
                     : 'text-slate-600 hover:bg-slate-100'
                 }`}
               >
-                <Settings size={16} />
+                <Sliders size={16} />
                 模型參數管理
               </button>
             </div>
           )}
         </div>
 
-        {/* Proper Noun Corpus - Flat */}
-        <button
-          onClick={() => onFeatureChange('ADMIN_PROPER_NOUN')}
-          className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center gap-3 ${
-            isActive('ADMIN_PROPER_NOUN')
-              ? 'bg-white text-blue-700 shadow-sm border border-slate-200'
-              : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          <FileSpreadsheet size={18} />
-          專有名詞語料庫
-        </button>
+        {/* Corpus Management - Collapsible with sub-modules */}
+        <div>
+          <button
+            onClick={() => toggleSection('corpus')}
+            className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-between ${
+              (isActive('ADMIN_PROPER_NOUN') || isActive('ADMIN_SYNONYM'))
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <FileSpreadsheet size={18} />
+              <span>語料庫管理</span>
+            </div>
+            {expandedSections.corpus ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          </button>
 
-        {/* Synonym Management - Flat */}
-        <button
-          onClick={() => onFeatureChange('ADMIN_SYNONYM')}
-          className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center gap-3 ${
-            isActive('ADMIN_SYNONYM')
-              ? 'bg-white text-blue-700 shadow-sm border border-slate-200'
-              : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          <FileText size={18} />
-          近似詞語料庫
-        </button>
+          {expandedSections.corpus && (
+            <div className="ml-4 mt-1 space-y-1">
+              <button
+                onClick={() => onFeatureChange('ADMIN_PROPER_NOUN')}
+                className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-3 ${
+                  isActive('ADMIN_PROPER_NOUN')
+                    ? 'bg-white text-blue-700 shadow-sm border border-slate-200'
+                    : 'text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                <FileSpreadsheet size={16} />
+                專有名詞
+              </button>
+              <button
+                onClick={() => onFeatureChange('ADMIN_SYNONYM')}
+                className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-3 ${
+                  isActive('ADMIN_SYNONYM')
+                    ? 'bg-white text-blue-700 shadow-sm border border-slate-200'
+                    : 'text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                <FileText size={16} />
+                近似詞
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Prompt Management - Flat */}
         <button

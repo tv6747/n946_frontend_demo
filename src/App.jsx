@@ -45,8 +45,7 @@ import { UnifiedBackendSidebar } from './features/admin/UnifiedBackendSidebar';
 
 import { ProperNounPanel } from './features/corpus/ProperNounPanel';
 import { SynonymPanel } from './features/corpus/SynonymPanel';
-import { ModelManagementPanel } from './features/admin/ModelManagementPanel';
-import { ModelParametersPanel } from './features/admin/ModelParametersPanel';
+import { LLMManagement } from './features/admin/LLMManagement'; // Use wrapper for sub-modules
 import { PromptManagementPanel } from './features/admin/PromptManagementPanel';
 import { APIManagementPanel } from './features/admin/APIManagementPanel';
 import { BotManagementPanel } from './features/admin/BotManagementPanel';
@@ -69,7 +68,7 @@ export default function App() {
   const [adminAppSystem, setAdminAppSystem] = useState('ALL');
   const [adminAuditView, setAdminAuditView] = useState('kb_logs');
   const [serviceSubModule, setServiceSubModule] = useState('apps');
-  const [llmSubModule, setLLMSubModule] = useState('models');
+  const [llmSubModule, setLLMSubModule] = useState('models'); // 'models' | 'params'
 
   // Corpus Management State
   const [selectedCorpusId, setSelectedCorpusId] = useState('proper_noun');
@@ -392,10 +391,10 @@ export default function App() {
                 onFeatureChange={handleFeatureSelect}
                 serviceSubModule={serviceSubModule}
                 onServiceSubModuleChange={setServiceSubModule}
-                llmSubModule={llmSubModule}
-                onLLMSubModuleChange={setLLMSubModule}
                 auditView={adminAuditView}
                 onAuditViewChange={setAdminAuditView}
+                llmSubModule={llmSubModule}
+                onLLMSubModuleChange={setLLMSubModule}
              />
         ) : currentFeature.mode === MODES.KB ? (
            kbMode === 'qa' ? (
@@ -656,10 +655,7 @@ export default function App() {
            )}
            {currentFeature.mode === MODES.ADMIN_PROPER_NOUN && <ProperNounPanel />}
            {currentFeature.mode === MODES.ADMIN_SYNONYM && <SynonymPanel />}
-           {currentFeature.mode === MODES.ADMIN_LLM && (
-              llmSubModule === 'models' ? <ModelManagementPanel /> :
-              llmSubModule === 'params' ? <ModelParametersPanel /> : <ModelManagementPanel />
-           )}
+           {currentFeature.mode === MODES.ADMIN_LLM && <LLMManagement selectedSubModule={llmSubModule} />}
            {currentFeature.mode === MODES.ADMIN_PROMPTS && <PromptManagementPanel />}
            {currentFeature.mode === MODES.ADMIN_APIS && <APIManagementPanel />}
            {currentFeature.mode === MODES.ADMIN_AUDIT && <AuditManagement activeView={adminAuditView} />}

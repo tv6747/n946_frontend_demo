@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Filter, ChevronDown, UploadCloud, X, Save } from 'lucide-react';
+import { Search, Filter, ChevronDown, UploadCloud, X, Save, Plus } from 'lucide-react';
 import { TermDefinitionManager } from './TermDefinitionManager';
 import { MOCK_TERM_CATEGORIES } from '../../data/mockData';
 
@@ -7,6 +7,7 @@ export function ProperNounPanel() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingTerm, setEditingTerm] = useState(null);
 
   const categoryOptions = MOCK_TERM_CATEGORIES.map(c => ({ value: c.id, label: c.name }));
@@ -25,11 +26,33 @@ export function ProperNounPanel() {
 
   const handleClose = () => {
       setIsEditModalOpen(false);
+      setIsAddModalOpen(false);
       setEditingTerm(null);
   };
 
   const handleFieldChange = (field, value) => {
       setEditingTerm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAddNew = () => {
+      setEditingTerm({
+        term_name: '',
+        definition: '',
+        source_type: '法律',
+        source_title: '',
+        is_legal_binding: false,
+        is_current: true,
+        version_tag: '',
+        categories: []
+      });
+      setIsAddModalOpen(true);
+  };
+
+  const handleSaveNew = () => {
+      // In a real app, this would call an API to save the new term
+      alert('新增專有名詞: ' + editingTerm.term_name);
+      setIsAddModalOpen(false);
+      setEditingTerm(null);
   };
 
   return (
@@ -64,6 +87,12 @@ export function ProperNounPanel() {
                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
              </div>
          </div>
+         <button
+            onClick={handleAddNew}
+            className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-colors shadow-sm"
+         >
+            <Plus size={16} /> 新增專有名詞
+         </button>
       </header>
 
       {/* Content Area Rendering */}
@@ -75,12 +104,12 @@ export function ProperNounPanel() {
           />
       </div>
 
-      {/* Edit Modal */}
-      {isEditModalOpen && editingTerm && (
+      {/* Edit/Add Modal */}
+      {(isEditModalOpen || isAddModalOpen) && editingTerm && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
               <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200">
                   <header className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                      <h3 className="font-bold text-slate-800 text-lg">編輯專有名詞</h3>
+                      <h3 className="font-bold text-slate-800 text-lg">{isAddModalOpen ? '新增專有名詞' : '編輯專有名詞'}</h3>
                       <button 
                         onClick={handleClose}
                         className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1 rounded-full transition-colors"
@@ -198,10 +227,10 @@ export function ProperNounPanel() {
                           取消
                       </button>
                       <button 
-                        onClick={handleSave}
+                        onClick={isAddModalOpen ? handleSaveNew : handleSave}
                         className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
                       >
-                          <Save size={16} /> 儲存變更
+                          <Save size={16} /> {isAddModalOpen ? '新增' : '儲存變更'}
                       </button>
                   </footer>
               </div>

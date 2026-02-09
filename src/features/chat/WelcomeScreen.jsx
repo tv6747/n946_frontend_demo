@@ -1,21 +1,37 @@
 import React from 'react';
 import { Sparkles, Lightbulb } from 'lucide-react';
 import { WELCOME_CONFIG } from '../../data/constants';
+import { MOCK_BOTS } from '../../data/mockData';
 
 export function WelcomeScreen({ featureId, onSuggestionClick }) {
-  const configKey = Object.keys(WELCOME_CONFIG).find(key => featureId.startsWith(key)) || 'default';
-  const config = WELCOME_CONFIG[configKey] || WELCOME_CONFIG.default;
+  // 1. Try to find dynamic bot config
+  const botConfig = MOCK_BOTS.find(b => b.id === featureId);
+  
+  let title, sub, suggestions;
+
+  if (botConfig) {
+      title = `我是${botConfig.name}`;
+      sub = botConfig.welcomeMessage;
+      suggestions = botConfig.defaultQuestions || [];
+  } else {
+      // 2. Fallback to static config
+      const configKey = Object.keys(WELCOME_CONFIG).find(key => featureId.startsWith(key)) || 'default';
+      const config = WELCOME_CONFIG[configKey] || WELCOME_CONFIG.default;
+      title = config.title;
+      sub = config.sub;
+      suggestions = config.suggestions;
+  }
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500 overflow-y-auto">
       <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg mb-6 text-white shrink-0">
         <Sparkles size={32} />
       </div>
-      <h1 className="text-3xl font-bold text-slate-800 mb-3">{config.title}</h1>
-      <p className="text-slate-500 max-w-md mb-10 text-lg leading-relaxed">{config.sub}</p>
+      <h1 className="text-3xl font-bold text-slate-800 mb-3">{title}</h1>
+      <p className="text-slate-500 max-w-md mb-10 text-lg leading-relaxed whitespace-pre-wrap">{sub}</p>
       
       <div className="flex flex-wrap justify-center gap-4 w-full max-w-5xl">
-        {config.suggestions.map((suggestion, index) => (
+        {suggestions.map((suggestion, index) => (
           <button 
             key={index}
             onClick={() => onSuggestionClick(suggestion)}

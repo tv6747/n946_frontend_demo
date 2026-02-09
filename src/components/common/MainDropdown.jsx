@@ -11,8 +11,8 @@ const ICON_MAP = {
     KB_MANAGEMENT: <Database size={16} />,
     BOT_MANAGEMENT: <Bot size={16} />,
     CORPUS_MANAGEMENT: <FileSpreadsheet size={16} />,
-    BOT_CS: <Bot size={16} />, 
-    BOT_DATA: <Bot size={16} />,
+    BOT_HR: <Bot size={16} />, 
+    BOT_SECURITY: <Bot size={16} />,
     DRAFT_MAIL: <Mail size={16} />,
     DRAFT_HILL: <AlertTriangle size={16} />,
     DRAFT_AREA: <FileText size={16} />,
@@ -51,7 +51,7 @@ export function MainDropdown({ currentFeature, onSelect, features }) {
   // Grouping Logic
   const groups = {
       general: availableFeatures.filter(k => ['INTERACTIVE', 'DOC_TRANS', 'PPT_GEN', 'PROMPT_OPT', 'KB_MANAGEMENT'].includes(k)),
-      bots: availableFeatures.filter(k => ['BOT_CS', 'BOT_DATA'].includes(k)),
+      bots: availableFeatures.filter(k => ['BOT_HR', 'BOT_SECURITY'].includes(k)),
       doc_gen: availableFeatures.filter(k => ['DRAFT_DOC_GEN'].includes(k)),
       drafts: availableFeatures.filter(k => k.startsWith('DRAFT_') && !['DRAFT_DOC_GEN'].includes(k)),
       admin: availableFeatures.filter(k => k.startsWith('ADMIN_') || k === 'BOT_MANAGEMENT' || k === 'CORPUS_MANAGEMENT'),

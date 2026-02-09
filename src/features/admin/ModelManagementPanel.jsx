@@ -128,23 +128,7 @@ export function ModelManagementPanel() {
                                    {model.apiKey || '(未設定)'}
                                </div>
                           </div>
-                          
-                          {/* Parameters */}
-                          <div className="grid grid-cols-3 gap-2 pt-2">
-                              <div className="text-center">
-                                  <div className="text-[10px] font-bold text-slate-400 uppercase">Temp</div>
-                                  <div className="text-sm font-semibold text-blue-600">{model.temperature}</div>
-                              </div>
-                              <div className="text-center">
-                                  <div className="text-[10px] font-bold text-slate-400 uppercase">Top-P</div>
-                                  <div className="text-sm font-semibold text-blue-600">{model.topP}</div>
-                              </div>
-                              <div className="text-center">
-                                  <div className="text-[10px] font-bold text-slate-400 uppercase">Top-K</div>
-                                  <div className="text-sm font-semibold text-blue-600">{model.topK}</div>
-                              </div>
                           </div>
-                      </div>
 
                       {/* Actions */}
                       <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 pl-2">
@@ -222,87 +206,6 @@ export function ModelManagementPanel() {
                             className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-colors font-mono" 
                             placeholder="sk-..." 
                           />
-                      </div>
-                      
-                      {/* Parameter Sliders */}
-                      <div className="border-t border-slate-200 pt-4 mt-4">
-                          <h4 className="text-sm font-bold text-slate-700 mb-3">模型參數</h4>
-                          <div className="space-y-4">
-                              {/* Temperature */}
-                              <div>
-                                  <div className="flex justify-between items-center mb-1.5">
-                                      <div className="flex items-center gap-1.5">
-                                          <label className="text-xs font-bold text-slate-500 uppercase">Temperature</label>
-                                          <div className="group relative">
-                                              <HelpCircle size={12} className="text-slate-400 cursor-help" />
-                                              <div className="absolute left-0 bottom-full mb-2 w-48 p-2 bg-slate-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all pointer-events-none z-10">
-                                                  控制輸出隨機性。值越高越有創意，越低越精確。
-                                              </div>
-                                          </div>
-                                      </div>
-                                      <span className="text-xs font-mono text-blue-600 bg-blue-50 px-1.5 rounded">{formData.temperature || 0.7}</span>
-                                  </div>
-                                  <input 
-                                    type="range" 
-                                    min="0" 
-                                    max="1" 
-                                    step="0.1" 
-                                    value={formData.temperature || 0.7}
-                                    onChange={(e) => setFormData({...formData, temperature: parseFloat(e.target.value)})}
-                                    className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" 
-                                  />
-                              </div>
-                              
-                              {/* Top P */}
-                              <div>
-                                  <div className="flex justify-between items-center mb-1.5">
-                                      <div className="flex items-center gap-1.5">
-                                          <label className="text-xs font-bold text-slate-500 uppercase">Top P</label>
-                                          <div className="group relative">
-                                              <HelpCircle size={12} className="text-slate-400 cursor-help" />
-                                              <div className="absolute left-0 bottom-full mb-2 w-48 p-2 bg-slate-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all pointer-events-none z-10">
-                                                  核採樣參數。控制候選詞彙範圍。
-                                              </div>
-                                          </div>
-                                      </div>
-                                      <span className="text-xs font-mono text-blue-600 bg-blue-50 px-1.5 rounded">{formData.topP || 0.9}</span>
-                                  </div>
-                                  <input 
-                                    type="range" 
-                                    min="0" 
-                                    max="1" 
-                                    step="0.05" 
-                                    value={formData.topP || 0.9}
-                                    onChange={(e) => setFormData({...formData, topP: parseFloat(e.target.value)})}
-                                    className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" 
-                                  />
-                              </div>
-                              
-                              {/* Top K */}
-                              <div>
-                                  <div className="flex justify-between items-center mb-1.5">
-                                      <div className="flex items-center gap-1.5">
-                                          <label className="text-xs font-bold text-slate-500 uppercase">Top K</label>
-                                          <div className="group relative">
-                                              <HelpCircle size={12} className="text-slate-400 cursor-help" />
-                                              <div className="absolute left-0 bottom-full mb-2 w-48 p-2 bg-slate-800 text-white text-xs rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all pointer-events-none z-10">
-                                                  限制每次預測時考慮的詞彙數量。
-                                              </div>
-                                          </div>
-                                      </div>
-                                      <span className="text-xs font-mono text-blue-600 bg-blue-50 px-1.5 rounded">{formData.topK || 40}</span>
-                                  </div>
-                                  <input 
-                                    type="range" 
-                                    min="0" 
-                                    max="100" 
-                                    step="5" 
-                                    value={formData.topK || 40}
-                                    onChange={(e) => setFormData({...formData, topK: parseInt(e.target.value)})}
-                                    className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" 
-                                  />
-                              </div>
-                          </div>
                       </div>
                   </div>
                   <footer className="px-5 py-4 bg-slate-50/50 border-t border-slate-100 flex justify-end gap-3">

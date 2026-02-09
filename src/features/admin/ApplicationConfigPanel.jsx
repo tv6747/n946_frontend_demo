@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { 
-    LayoutGrid, Trash2, Save, ArrowLeft, ChevronsRight, Check, Cpu, Users, Plus, X
+    LayoutGrid, Trash2, Save, ArrowLeft, ChevronsRight, Check, Cpu, Users, Plus, X, Star
 } from 'lucide-react';
 import { MOCK_LLM_MODELS, MOCK_LLM_PARAMS, MOCK_LLM_PROMPTS } from '../../data/mockLLMData';
 import { MOCK_USERS } from '../../data/mockData';
@@ -10,6 +10,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
   
   // Use local state for the form data
   const [formData, setFormData] = useState(app);
+  const [activeTab, setActiveTab] = useState('welcome'); // 'welcome', 'questions'
   
   // Sync with prop changes
   React.useEffect(() => {
@@ -62,7 +63,21 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
 
   const handleRemoveModel = (modelId) => {
     const currentModels = formData.availableModels || [];
-    handleChange({ availableModels: currentModels.filter(id => id !== modelId) });
+    const newModels = currentModels.filter(id => id !== modelId);
+    
+    // If removed model was the default, set the first remaining model as default
+    if (formData.defaultModelId === modelId && newModels.length > 0) {
+        handleChange({ 
+            availableModels: newModels,
+            defaultModelId: newModels[0]
+        });
+    } else {
+        handleChange({ availableModels: newModels });
+    }
+  };
+
+  const handleSetDefaultModel = (modelId) => {
+    handleChange({ defaultModelId: modelId });
   };
 
   // Transfer List Handlers for Users
@@ -177,15 +192,15 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
       
       <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
           
-          {/* 2. Basic Settings */}
-          <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-4">
+          {/* Basic Settings Block (Large Block) */}
+          <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-200 bg-slate-50">
                   <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">基本設定</h3>
               </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Left Column */}
-                  <div className="space-y-4">
+              
+              <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Left Side: Name, Page, Level */}
+                  <div className="space-y-6">
                       {/* Name */}
                       <div className="space-y-1">
                           <label className="block text-sm font-medium text-slate-700">應用名稱</label>
@@ -198,19 +213,19 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                       </div>
 
                       {/* Page */}
-                      <div className="space-y-1">
-                          <label className="block text-sm font-medium text-slate-700">功能頁</label>
+                      {/* <div className="space-y-1">
+                          <label className="block text-sm font-medium text-slate-700">功能頁 (原本的應用層級)</label>
                           <input 
                                 value={formData.page || ''}
                                 onChange={(e) => handleChange({ page: e.target.value })}
                                 placeholder="例如：/document-query"
                                 className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all font-mono"
                             />
-                      </div>
+                      </div> */}
 
                       {/* Level */}
                       <div className="space-y-1">
-                          <label className="block text-sm font-medium text-slate-700">應用層級</label>
+                          <label className="block text-sm font-medium text-slate-700">功能頁</label>
                           <select
                                 value={formData.level || 'GAI'}
                                 onChange={(e) => handleChange({ level: e.target.value })}
@@ -221,76 +236,94 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                             </select>
                       </div>
                   </div>
+                  
+                  {/* Right Side: Tabs (Welcome/Questions) */}
+                  <div className="flex flex-col h-full border border-slate-200 rounded-xl overflow-hidden bg-white">
+                      {/* Tab Navigation */}
+                      <div className="flex border-b border-slate-200 bg-slate-50">
+                          <button
+                            onClick={() => setActiveTab('welcome')}
+                            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors relative ${
+                              activeTab === 'welcome' 
+                                ? 'text-blue-600 bg-white border-b-2 border-blue-600' 
+                                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'
+                            }`}
+                          >
+                            歡迎語
+                          </button>
+                          <button
+                            onClick={() => setActiveTab('questions')}
+                            className={`flex-1 px-4 py-3 text-sm font-medium transition-colors relative ${
+                              activeTab === 'questions' 
+                                ? 'text-blue-600 bg-white border-b-2 border-blue-600' 
+                                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100'
+                            }`}
+                          >
+                            預設提問
+                          </button>
+                      </div>
 
-                  {/* Right Column */}
-                  <div className="space-y-4">
-                       {/* Welcome Message */}
-                       <div className="space-y-1">
-                           <label className="block text-sm font-medium text-slate-700">歡迎詞</label>
-                           <textarea 
-                                 value={formData.welcomeMessage || ''}
-                                 onChange={(e) => handleChange({ welcomeMessage: e.target.value })}
-                                 placeholder="輸入歡迎訊息..."
-                                 rows={6}
-                                 className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all resize-none"
-                             />
-                       </div>
-                  </div>
-              </div>
+                      {/* Tab Content */}
+                      <div className="flex-1 p-0 relative min-h-[300px]">
+                          {/* Welcome Message Tab */}
+                          {activeTab === 'welcome' && (
+                            <div className="absolute inset-0 p-4 animate-in fade-in duration-200 flex flex-col">
+                                <textarea 
+                                      value={formData.welcomeMessage || ''}
+                                      onChange={(e) => handleChange({ welcomeMessage: e.target.value })}
+                                      placeholder="輸入歡迎訊息..."
+                                      className="flex-1 w-full p-4 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all resize-none"
+                                  />
+                                <div className="mt-2 text-right text-xs text-slate-400">
+                                    {(formData.welcomeMessage || '').length} 字元
+                                </div>
+                            </div>
+                          )}
 
-              {/* Default Questions */}
-              <div className="mt-6 pt-6 border-t border-slate-200">
-                  <div className="flex items-center justify-between mb-3">
-                      <label className="block text-sm font-medium text-slate-700">預設問題</label>
-                      <button
-                            onClick={handleAddQuestion}
-                            className="flex items-center gap-1 px-3 py-1.5 text-xs bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors font-medium"
-                        >
-                            <Plus size={14} /> 新增問題
-                        </button>
-                  </div>
-                  <div className="space-y-2">
-                      {(formData.defaultQuestions || []).map((q, idx) => (
-                          <div key={idx} className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg group">
-                              <span className="text-blue-500 font-bold">•</span>
-                              <span className="flex-1 text-sm text-slate-700">{q}</span>
-                              <button
-                                    onClick={() => handleRemoveQuestion(idx)}
-                                    className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
-                                >
-                                    <X size={14} />
-                                </button>
-                          </div>
-                      ))}
-                      {(!formData.defaultQuestions || formData.defaultQuestions.length === 0) && (
-                          <div className="text-center py-8 text-slate-400 text-sm">尚無預設問題</div>
-                      )}
+                          {/* Default Questions Tab */}
+                          {activeTab === 'questions' && (
+                            <div className="absolute inset-0 p-4 animate-in fade-in duration-200 flex flex-col">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h4 className="text-sm font-medium text-slate-700">問題列表</h4>
+                                    <button
+                                          onClick={handleAddQuestion}
+                                          className="text-sm text-blue-600 font-medium hover:underline flex items-center gap-1"
+                                      >
+                                          <Plus size={14} /> 新增提問
+                                      </button>
+                                </div>
+                                <div className="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-2">
+                                    {(formData.defaultQuestions || []).map((q, idx) => (
+                                        <div key={idx} className="flex items-center justify-between px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg group hover:border-blue-200 transition-colors">
+                                            <span className="text-sm text-slate-700 truncate mr-2">{q}</span>
+                                            <button
+                                                  onClick={() => handleRemoveQuestion(idx)}
+                                                  className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
+                                              >
+                                                  <X size={14} />
+                                              </button>
+                                        </div>
+                                    ))}
+                                    {(!formData.defaultQuestions || formData.defaultQuestions.length === 0) && (
+                                        <div className="text-center py-10 text-slate-400 text-sm italic">
+                                            尚未設定預設提問
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                          )}
+                      </div>
                   </div>
               </div>
           </section>
 
-          {/* 3. Default Settings */}
+          {/* Default Settings Block (Separate) */}
           <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-4">
                   <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">預設設定</h3>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1.5">模型</label>
-                      <select 
-                            value={formData.defaultSettings?.modelId || ''}
-                            onChange={(e) => handleChange({ defaultSettings: { ...formData.defaultSettings, modelId: e.target.value } })}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-colors"
-                        >
-                            <option value="">請選擇模型</option>
-                            {MOCK_LLM_MODELS.filter(m => m.status === 'active').map(model => (
-                                <option key={model.id} value={model.id}>
-                                    {model.name}
-                                </option>
-                            ))}
-                        </select>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                       <label className="block text-xs font-bold text-slate-700 mb-1.5">參數</label>
                       <select 
@@ -323,6 +356,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                   </div>
               </div>
           </section>
+
 
           {/* 4. Available Models - Transfer List */}
           <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[400px]">
@@ -394,32 +428,55 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                           <span className="text-sm font-semibold text-slate-700">已選模型</span>
                           <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">{(formData.availableModels || []).length}</span>
                       </div>
-                      <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-                           <div className="space-y-1">
-                               {(!formData.availableModels || formData.availableModels.length === 0) ? (
-                                   <div className="text-center py-10 text-slate-400 text-sm">無已選模型</div>
-                               ) : formData.availableModels.map(modelId => {
-                                   const model = MOCK_LLM_MODELS.find(m => m.id === modelId);
-                                   if (!model) return null;
-                                   return (
-                                       <div key={modelId} className="flex items-center justify-between p-2 bg-blue-50 border border-blue-100 rounded-lg group hover:bg-blue-100 transition-colors">
-                                            <div className="flex items-center gap-2 min-w-0 flex-1">
-                                                <div className="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
-                                                     <Cpu size={12} />
-                                                </div>
-                                                <span className="text-sm font-medium text-slate-700 truncate">{model.name}</span>
-                                            </div>
-                                            <button 
-                                              onClick={() => handleRemoveModel(modelId)}
-                                              className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
-                                            >
-                                                <X size={14} />
-                                            </button>
-                                       </div>
-                                   );
-                               })}
-                           </div>
-                      </div>
+                       <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                            <div className="space-y-1">
+                                {(!formData.availableModels || formData.availableModels.length === 0) ? (
+                                    <div className="text-center py-10 text-slate-400 text-sm">無已選模型</div>
+                                ) : formData.availableModels.map((modelId, index) => {
+                                    const model = MOCK_LLM_MODELS.find(m => m.id === modelId);
+                                    if (!model) return null;
+                                    
+                                    // Determine if this is the default model
+                                    // If no defaultModelId is set, the first model is default
+                                    const isDefault = formData.defaultModelId 
+                                        ? formData.defaultModelId === modelId 
+                                        : index === 0;
+                                    
+                                    return (
+                                        <div key={modelId} className={`flex items-center justify-between p-2 rounded-lg group hover:bg-blue-100 transition-colors ${isDefault ? 'bg-blue-100 border border-blue-200' : 'bg-blue-50 border border-blue-100'}`}>
+                                             <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                 <div className="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
+                                                      <Cpu size={12} />
+                                                 </div>
+                                                 <span className="text-sm font-medium text-slate-700 truncate">{model.name}</span>
+                                                 {isDefault && (
+                                                     <Star size={14} className="text-yellow-500 fill-yellow-500 flex-shrink-0" />
+                                                 )}
+                                             </div>
+                                             <div className="flex items-center gap-1">
+                                                 {/* Set as default button (only show if not already default) */}
+                                                 {!isDefault && (
+                                                     <button 
+                                                       onClick={() => handleSetDefaultModel(modelId)}
+                                                       className="p-1 text-slate-400 hover:text-yellow-500 hover:bg-yellow-50 rounded transition-all opacity-0 group-hover:opacity-100"
+                                                       title="設為預設模型"
+                                                     >
+                                                         <Star size={14} />
+                                                     </button>
+                                                 )}
+                                                 {/* Remove button */}
+                                                 <button 
+                                                   onClick={() => handleRemoveModel(modelId)}
+                                                   className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
+                                                 >
+                                                     <X size={14} />
+                                                 </button>
+                                             </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                       </div>
                   </div>
               </div>
           </section>
