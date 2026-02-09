@@ -42,12 +42,13 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
   const filteredUsers = users.filter(u => u.name.includes(userSearch));
 
   // Determine which files to show in "Associated Files" list (Right Panel)
+  // Determine which files to show in "Associated Files" list (Right Panel)
   const displayAssociatedFiles = React.useMemo(() => {
-     if (isCreating) {
-        return (allFiles || []).filter(f => (formData.files || []).includes(f.id));
-     }
-     return associatedFiles; // This comes from parent based on current Bot's files
-  }, [isCreating, formData.files, associatedFiles, allFiles]);
+     // Always derive from formData.files and allFiles to ensure immediate UI feedback
+     // This fixes the issue where adding files in Edit mode didn't update the list
+     const currentFileIds = formData.files || [];
+     return (allFiles || []).filter(f => currentFileIds.includes(f.id));
+  }, [formData.files, allFiles]);
 
   // Determine which files to show in "Source Files" list (Middle Panel)
   // Logic: Filter allFiles by localSelectedFolderId
@@ -403,10 +404,10 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
               </div>
           </section>
 
-          {/* 3. 第二區塊：知識庫管理 KB Management (Three Columns: Tree | Files | Selected) */}
+          {/* 3. 關聯文件設定 (Three Columns: Tree | Files | Selected) */}
           <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[500px]">
               <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                  <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">知識庫管理</h3>
+                  <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">關聯文件設定</h3>
                   {/* Local Folder Indicator */}
                   <div className="text-xs text-slate-500 bg-white px-2 py-1 rounded border border-slate-200">
                       瀏覽目錄中
@@ -421,7 +422,9 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
                           <span className="text-sm font-semibold text-slate-700">資料夾結構</span>
                       </div>
                       <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-                          {KB_TREE_DATA.map(node => (
+                          {KB_TREE_DATA
+                            .filter(node => !['personal', 'shared_root'].includes(node.id))
+                            .map(node => (
                              <TreeNode 
                                  key={node.id} 
                                  node={node} 
@@ -522,7 +525,10 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
                                             </div>
                                        </div>
                                        <button 
-                                         onClick={() => onRemoveFile(file.id)}
+                                         onClick={() => {
+                                             const currentFiles = formData.files || [];
+                                             handleChange({ files: currentFiles.filter(id => id !== file.id) });
+                                         }}
                                          className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors opacity-0 group-hover:opacity-100"
                                        >
                                            <X size={16} />

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Search, Plus, Bot, MoreHorizontal, Edit2, Trash2, Power, Users, MessageSquare, FileText } from 'lucide-react';
+import { Search, Plus, Bot, Edit2, Trash2, Users, LayoutGrid, FileText } from 'lucide-react';
+import { MASTER_FILES } from '../../data/mockData';
+import { MOCK_LLM_MODELS, MOCK_LLM_PARAMS, MOCK_LLM_PROMPTS } from '../../data/mockLLMData';
 
 export function BotManagementPanel({ bots, onSelectBot, onCreate, onDeleteBot, onUpdateBot }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -8,6 +10,17 @@ export function BotManagementPanel({ bots, onSelectBot, onCreate, onDeleteBot, o
       bot.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
       (bot.description && bot.description.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  // Helper functions
+  const getModelName = (id) => MOCK_LLM_MODELS.find(m => m.id === id)?.name || '(未設定)';
+  const getParamName = (id) => MOCK_LLM_PARAMS.find(p => p.id === id)?.name || '(未設定)';
+  const getPromptName = (id) => MOCK_LLM_PROMPTS.find(p => p.id === id)?.name || '(未設定)';
+  const getFileName = (id) => MASTER_FILES.find(f => f.id === id)?.name || id;
+
+  const formatDate = (dateString) => {
+      if (!dateString) return '剛剛';
+      return new Date(dateString).toLocaleDateString('zh-TW');
+  };
 
   return (
     <div className="flex flex-col h-full bg-slate-50 w-full animate-in fade-in duration-300">
@@ -40,10 +53,10 @@ export function BotManagementPanel({ bots, onSelectBot, onCreate, onDeleteBot, o
                 key={bot.id} 
                 className="bg-white border border-slate-200 rounded-xl shadow-sm p-5 hover:shadow-md transition-all group relative"
               >
-                  {/* Level Strip */}
+                  {/* Status Strip */}
                   <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-xl ${bot.status === 'active' ? 'bg-blue-500' : 'bg-slate-300'}`}></div>
                   
-                  {/* Card Top: Icon, Name, Toggle */}
+                  {/* Header */}
                   <div className="flex items-start justify-between mb-4 pl-2">
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                           <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${bot.status === 'active' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-400'}`}>
@@ -51,67 +64,133 @@ export function BotManagementPanel({ bots, onSelectBot, onCreate, onDeleteBot, o
                           </div>
                           <div className="flex-1 min-w-0">
                               <h3 className="font-bold text-slate-800 truncate">{bot.name}</h3>
-                              <span className={`text-xs px-2 py-0.5 rounded inline-block mt-1 ${bot.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
+                              <span className={`text-xs px-2 py-0.5 rounded inline-block mt-1 ${bot.status === 'active' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'}`}>
                                   {bot.status === 'active' ? '啟用中' : '已停用'}
                               </span>
                           </div>
                       </div>
                       
-                      {/* Status Toggle Switch */}
-                      <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
-                          <label className="relative inline-flex items-center cursor-pointer">
-                            <input 
-                                type="checkbox" 
-                                className="sr-only peer"
-                                checked={bot.status === 'active'}
-                                onChange={(e) => onUpdateBot && onUpdateBot(bot.id, { status: e.target.checked ? 'active' : 'inactive' })}
-                            />
-                            <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500"></div>
-                          </label>
+                      <div className="flex items-center gap-1">
+                        {/* Status Toggle Switch */}
+                        <div className="flex items-center mr-2" onClick={(e) => e.stopPropagation()}>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input 
+                                  type="checkbox" 
+                                  className="sr-only peer"
+                                  checked={bot.status === 'active'}
+                                  onChange={(e) => onUpdateBot && onUpdateBot(bot.id, { status: e.target.checked ? 'active' : 'inactive' })}
+                              />
+                              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500"></div>
+                            </label>
+                        </div>
+
+                        <button 
+                            onClick={() => onSelectBot(bot.id)}
+                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex-shrink-0"
+                            title="編輯"
+                        >
+                            <Edit2 size={16} />
+                        </button>
+                        <button 
+                             onClick={() => {
+                                 if(confirm('確定要刪除此機器人嗎？')) onDeleteBot && onDeleteBot(bot.id);
+                             }}
+                             className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                             title="刪除"
+                         >
+                             <Trash2 size={16} />
+                         </button>
                       </div>
                   </div>
-
-                  {/* Description */}
-                  <p className="text-sm text-slate-600 mb-4 line-clamp-2 pl-2">
-                      {bot.description || '這是一個自定義的答詢機器人，專門處理特定領域的問答任務。'}
-                  </p>
                   
-                  {/* Metadata and Actions */}
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-100 pl-2">
-                       <div className="flex items-center gap-4 text-xs text-slate-400">
-                            <div className="flex items-center gap-1.5" title="關聯文件">
-                                <FileText size={12} />
-                                <span>{bot.files ? bot.files.length : 0}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5" title="授權用戶">
-                                <Users size={12} />
-                                <span>{bot.accessibleUsers ? bot.accessibleUsers.length : 0}</span>
-                            </div>
-                       </div>
-                       
-                       <div className="flex items-center gap-1">
-                            <button 
-                                onClick={() => onSelectBot(bot.id)}
-                                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100"
-                                title="編輯機器人"
-                            >
-                                <Edit2 size={16} />
-                            </button>
-                            <button 
-                                onClick={() => {
-                                    if(confirm('確定要刪除此機器人嗎？')) onDeleteBot && onDeleteBot(bot.id);
-                                }}
-                                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-transparent hover:border-red-100"
-                                title="刪除機器人"
-                            >
-                                <Trash2 size={16} />
-                            </button>
-                       </div>
-                   </div>
+                  {/* Details Container */}
+                  <div className="space-y-3 pl-2">
+                      
+                      {/* Default Settings (Model/Param/Prompt) */}
+                      <div>
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">預設設定</label>
+                          <div className="space-y-1">
+                              <div className="flex items-center gap-1.5">
+                                  <span className="text-[10px] text-slate-500 w-12">模型:</span>
+                                  <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs font-medium truncate flex-1">
+                                      {getModelName(bot.defaultSettings?.modelId)}
+                                  </span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                  <span className="text-[10px] text-slate-500 w-12">參數:</span>
+                                  <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-medium truncate flex-1">
+                                      {getParamName(bot.defaultSettings?.paramId)}
+                                  </span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                  <span className="text-[10px] text-slate-500 w-12">提示詞:</span>
+                                  <span className="bg-cyan-100 text-cyan-700 px-2 py-0.5 rounded text-xs font-medium truncate flex-1">
+                                      {getPromptName(bot.defaultSettings?.promptId)}
+                                  </span>
+                              </div>
+                          </div>
+                      </div>
+
+                      {/* Associated Files */}
+                      <div>
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">關聯文件 ({bot.files ? bot.files.length : 0})</label>
+                          <div className="flex flex-wrap gap-1">
+                              {(bot.files || []).slice(0, 5).map(fileId => (
+                                  <span key={fileId} className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded text-xs font-medium truncate max-w-[150px]">
+                                      {getFileName(fileId)}
+                                  </span>
+                              ))}
+                              {(bot.files || []).length > 5 && (
+                                  <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-xs font-medium">+{bot.files.length - 5}</span>
+                              )}
+                              {(!bot.files || bot.files.length === 0) && (
+                                  <span className="text-xs text-slate-400 italic">無關聯文件</span>
+                              )}
+                          </div>
+                      </div>
+
+                      {/* Welcome Message */}
+                      <div>
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">歡迎詞</label>
+                          <div className="text-xs text-slate-600 bg-slate-50 p-2 rounded border border-slate-100 line-clamp-2 min-h-[34px]">
+                              {bot.welcomeMessage || '未設定歡迎詞'}
+                          </div>
+                      </div>
+
+                      {/* Default Questions */}
+                      <div>
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">預設問題</label>
+                          <div className="text-xs text-slate-600 space-y-0.5">
+                              {(bot.defaultQuestions || []).slice(0, 2).map((q, idx) => (
+                                  <div key={idx} className="flex items-start gap-1.5">
+                                      <span className="text-blue-500 mt-0.5">•</span>
+                                      <span className="line-clamp-1">{q}</span>
+                                  </div>
+                              ))}
+                              {(bot.defaultQuestions || []).length > 2 && (
+                                  <div className="text-[10px] text-slate-400 pl-3">+{bot.defaultQuestions.length - 2} 更多...</div>
+                              )}
+                              {(!bot.defaultQuestions || bot.defaultQuestions.length === 0) && (
+                                  <span className="text-slate-400 italic">無預設問題</span>
+                              )}
+                          </div>
+                      </div>
+
+                      {/* Permissions */}
+                      <div className="pt-2 border-t border-slate-100">
+                          <div className="flex items-center justify-between text-xs">
+                              <div className="flex items-center gap-1.5 text-slate-600">
+                                  <Users size={12} />
+                                  <span className="font-medium">
+                                      {bot.accessibleUsers ? `${bot.accessibleUsers.length} 位使用者` : '公開'}
+                                  </span>
+                              </div>
+                              <span className="text-[10px] text-slate-400">{formatDate(bot.updatedAt)}</span>
+                          </div>
+                      </div>
+                  </div>
               </div>
           ))}
-
-          {/* New Bot Card - REMOVED per requirements */}
       </div>
     </div>
   );

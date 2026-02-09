@@ -156,20 +156,59 @@ export const MOCK_TERM_ANNOTATIONS = [
 ];
 
 
-export const MASTER_FILES = Array.from({ length: 45 }).map((_, i) => ({
-  id: `file_${i + 1}`,
-  name: i < 5 ? ['專案規格書_v1.pdf', '會議記錄_2024.docx', '我的筆記.txt', '員工請假辦法.pdf', 'Q1行銷檢討.pptx'][i] : 
-        i === 40 ? '20240129_工作日報.docx' : 
-        i === 41 ? '20240128_工作日報.docx' : 
-        i === 42 ? '每週例會簡報.pptx' : 
-        i === 43 ? '個人工作計畫.xlsx' :
-        `測試文件_${i + 1}.pdf`,
-  size: `${(Math.random() * 10 + 0.1).toFixed(1)} MB`,
-  date: `2024-0${Math.ceil(Math.random() * 9)}-${Math.ceil(Math.random() * 28)}`,
-  folderId: i === 0 || i === 1 ? 'org_projects' : i === 2 ? 'personal' : i === 3 ? 'org_rules' : i === 4 ? 'shared_dept' :  i === 40 ? 'personal_work_daily' : i === 41 ? 'personal_work_daily' : i === 42 ? 'personal_work_meeting' : i === 43 ? 'personal_work' : 'org_projects',
-  sharedWith: i === 0 ? ['u2'] : [],
-  isSharedByOthers: i >= 4 && i <= 5
-}));
+const REALISTIC_FILES = [
+  { name: '員工差勤管理辦法.pdf', type: 'pdf', folder: 'org_section5_standard' },
+  { name: '2024年度資安宣導手冊.pdf', type: 'pdf', folder: 'org_section5_standard' },
+  { name: '資訊設備使用規範.pdf', type: 'pdf', folder: 'org_section5_standard' },
+  { name: '第10次專案會議記錄.docx', type: 'docx', folder: 'org_section5_business' },
+  { name: '需求訪談紀錄_20240215.docx', type: 'docx', folder: 'org_section5_business' },
+  { name: '系統測試計畫書.docx', type: 'docx', folder: 'org_section5_business' },
+  { name: '使用者操作手冊_v2.docx', type: 'docx', folder: 'shared_land_plan' },
+  { name: '異常狀況處理報告.docx', type: 'docx', folder: 'personal_a' },
+  { name: '勞工退休金提繳申報表.pdf', type: 'pdf', folder: 'shared_land_plan' },
+  { name: '供應商評鑑表.pdf', type: 'pdf', folder: 'org_section5_business' },
+  { name: '年度預算編列準則.pdf', type: 'pdf', folder: 'org_section5_standard' },
+  { name: '教育訓練計畫書.docx', type: 'docx', folder: 'shared_land_plan' },
+  { name: '資安事件通報單.docx', type: 'docx', folder: 'org_section5_standard' },
+  { name: '客戶滿意度調查報告.pdf', type: 'pdf', folder: 'org_section5_business' },
+  { name: '軟體授權清單.xlsx', type: 'lsx', folder: 'shared_land_plan' }
+];
+
+export const MASTER_FILES = Array.from({ length: 45 }).map((_, i) => {
+  let name, folderId;
+  
+  if (i < 5) {
+     name = ['專案規格書_v1.pdf', '會議記錄_2024.docx', '我的筆記.txt', '員工請假辦法.pdf', 'Q1行銷檢討.pptx'][i];
+     // Map these to valid folders
+     folderId = i === 0 || i === 1 ? 'org_section5_business' : i === 2 ? 'personal_a' : i === 3 ? 'org_section5_standard' : 'shared_land_plan';
+  } else if (i >= 40) {
+      if (i === 40) { name = '20240129_工作日報.docx'; folderId = 'personal_b'; }
+      else if (i === 41) { name = '20240128_工作日報.docx'; folderId = 'personal_b'; }
+      else if (i === 42) { name = '每週例會簡報.pptx'; folderId = 'personal_a'; }
+      else if (i === 43) { name = '個人工作計畫.xlsx'; folderId = 'personal_a'; }
+      else { name = `測試文件_${i + 1}.pdf`; folderId = 'personal_b'; }
+  } else {
+      // Use realistic files for indices 5 to 19 (approx)
+      const realisticIndex = i - 5;
+      if (realisticIndex < REALISTIC_FILES.length) {
+          name = REALISTIC_FILES[realisticIndex].name;
+          folderId = REALISTIC_FILES[realisticIndex].folder;
+      } else {
+          name = `歸檔文件_${i + 1}.pdf`; 
+          folderId = i % 2 === 0 ? 'org_section5_business' : 'org_building_method';
+      }
+  }
+
+  return {
+    id: `file_${i + 1}`,
+    name,
+    size: `${(Math.random() * 5 + 0.1).toFixed(1)} MB`,
+    date: `2024-0${Math.ceil(Math.random() * 9)}-${Math.ceil(Math.random() * 28)}`,
+    folderId,
+    sharedWith: i === 0 ? ['u2'] : [],
+    isSharedByOthers: i >= 4 && i <= 5
+  };
+});
 
 export const MOCK_USERS = [
   { id: 'user_me', name: '陳小華', dept: '國土署建管組五科', role: 'user', type: 'user' },

@@ -82,7 +82,7 @@ export function ApplicationManagementPanel() {
                onChange={(e) => setLevelFilter(e.target.value)}
                className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-colors"
             >
-                <option value="all">所有層級</option>
+                <option value="all">所有功能頁</option>
                 <option value="GAI">GAI 互動平台</option>
                 <option value="DOC">智慧公文系統</option>
             </select>
@@ -143,14 +143,12 @@ export function ApplicationManagementPanel() {
                                       {getParamName(app.defaultSettings.paramId)}
                                   </span>
                               </div>
-                              {app.defaultSettings.promptId && (
-                                  <div className="flex items-center gap-1.5">
-                                      <span className="text-[10px] text-slate-500 w-12">提示:</span>
-                                      <span className="bg-cyan-100 text-cyan-700 px-2 py-0.5 rounded text-xs font-medium truncate flex-1">
-                                          {getPromptName(app.defaultSettings.promptId)}
-                                      </span>
-                                  </div>
-                              )}
+                              <div className="flex items-center gap-1.5">
+                                  <span className="text-[10px] text-slate-500 w-12">提示詞:</span>
+                                  <span className="bg-cyan-100 text-cyan-700 px-2 py-0.5 rounded text-xs font-medium truncate flex-1">
+                                      {getPromptName(app.defaultSettings.promptId)}
+                                  </span>
+                              </div>
                           </div>
                       </div>
 

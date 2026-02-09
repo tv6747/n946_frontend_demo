@@ -102,16 +102,28 @@ export function ModelManagementPanel() {
                               </div>
                           </div>
                           
-                          {/* Toggle Switch */}
-                          <label className="relative inline-flex items-center cursor-pointer" onClick={(e) => e.stopPropagation()}>
-                              <input 
-                                  type="checkbox" 
-                                  className="sr-only peer"
-                                  checked={currentStatus === 'active'}
-                                  onChange={() => toggleStatus(model.id)}
-                              />
-                              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500"></div>
-                          </label>
+                          <div className="flex items-center gap-1">
+                              {/* Toggle Switch */}
+                              <label className="relative inline-flex items-center cursor-pointer mr-2" onClick={(e) => e.stopPropagation()}>
+                                  <input 
+                                      type="checkbox" 
+                                      className="sr-only peer"
+                                      checked={currentStatus === 'active'}
+                                      onChange={() => toggleStatus(model.id)}
+                                  />
+                                  <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-500"></div>
+                              </label>
+
+                              <button 
+                                onClick={() => handleEdit(model)}
+                                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex-shrink-0"
+                              >
+                                  <Edit2 size={16} />
+                              </button>
+                              <button className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0">
+                                  <Trash2 size={16} />
+                              </button>
+                          </div>
                       </div>
                       
                       {/* Details */}
@@ -131,17 +143,7 @@ export function ModelManagementPanel() {
                           </div>
 
                       {/* Actions */}
-                      <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 pl-2">
-                          <button 
-                            onClick={() => handleEdit(model)}
-                            className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          >
-                              <Edit2 size={16} />
-                          </button>
-                          <button className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                              <Trash2 size={16} />
-                          </button>
-                      </div>
+
                   </div>
               );
           })}
