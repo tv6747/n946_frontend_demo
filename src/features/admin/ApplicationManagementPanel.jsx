@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search, Edit2, LayoutGrid, Users, Plus } from 'lucide-react';
 import { MOCK_APPLICATIONS } from '../../data/mockServiceData';
 import { MOCK_LLM_MODELS, MOCK_LLM_PARAMS, MOCK_LLM_PROMPTS } from '../../data/mockLLMData';
+import { MOCK_TOOLS } from '../../data/mockToolData';
 import { MOCK_USERS } from '../../data/mockData';
 import { ApplicationConfigPanel } from './ApplicationConfigPanel';
 
@@ -162,6 +163,27 @@ export function ApplicationManagementPanel() {
                                   return (
                                       <span key={modelId} className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-xs font-medium">
                                           {model.name}
+                                      </span>
+                                  );
+                              })}
+                          </div>
+                      </div>
+
+                      {/* Activated Tools */}
+                      <div>
+                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">已加入工具</label>
+                          <div className="flex flex-wrap gap-1">
+                              {!app.tools || app.tools.length === 0 ? (
+                                  <span className="text-xs text-slate-400 italic">無已加入工具</span>
+                              ) : (app.tools || []).map((t, idx) => {
+                                  const id = typeof t === 'object' ? t.id : t;
+                                  const isDefault = typeof t === 'object' ? t.defaultOn : false;
+                                  const tool = MOCK_TOOLS.find(mt => String(mt.id) === String(id));
+                                  if (!tool) return null;
+                                  return (
+                                      <span key={idx} className={`px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1 ${isDefault ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-600'}`}>
+                                          {tool.name}
+                                          {isDefault && <span className="text-[8px] opacity-70 border border-orange-300 rounded px-0.5 leading-none">預設</span>}
                                       </span>
                                   );
                               })}

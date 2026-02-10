@@ -158,7 +158,7 @@ export function MainDropdown({ currentFeature, onSelect, features }) {
             {groups.doc_gen.length > 0 && (
                 <>
                     {groups.general.length > 0 && <div className="my-1 border-t border-slate-100"></div>}
-                    <div className="px-4 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider sticky top-0 bg-white">文檔生成</div>
+                    <div className="px-4 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider sticky top-0 bg-white">其他應用</div>
                     {groups.doc_gen.map(key => (
                         <MenuItem 
                             key={key}

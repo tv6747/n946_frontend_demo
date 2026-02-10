@@ -13,6 +13,7 @@ export const MOCK_APPLICATIONS = [
       paramId: 'param_3',
       promptId: '',
     },
+    tools: [{ id: '1', defaultOn: true }, { id: '3', defaultOn: false }], // Google Search, OCR
     availableModels: ['model_1', 'model_2'],
     defaultModelId: 'model_1', // Default model for the application
     welcomeMessage: '您好！我是智能助理，有什麼可以幫您的嗎？',
@@ -242,6 +243,29 @@ export const MOCK_APPLICATIONS = [
       isPublic: false
     },
     createdAt: '2024-02-18'
+  },
+  {
+    id: 'app_draft_doc_gen',
+    name: '公文檔案上傳生成案件歷程',
+    level: 'DOC',
+    page: 'draft_doc_gen',
+    defaultSettings: {
+      modelId: 'model_1',
+      paramId: 'param_2',
+      promptId: '',
+    },
+    availableModels: ['model_1'],
+    welcomeMessage: '請上傳公文檔案以生成案件歷程。',
+    defaultQuestions: [
+      '如何上傳檔案？',
+      '支援哪些檔案格式？',
+      '生成歷程需要多久？'
+    ],
+    permissions: {
+      allowedUsers: ['user_admin', 'user_1'],
+      isPublic: false
+    },
+    createdAt: '2024-02-22'
   },
   {
     id: 'app_prompt_opt',

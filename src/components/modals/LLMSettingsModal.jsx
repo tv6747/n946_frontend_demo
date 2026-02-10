@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Settings, HelpCircle } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Settings, HelpCircle, ChevronDown, X } from 'lucide-react';
 import { ModalOverlay } from '../common/ModalOverlay';
 import { LLM_MODELS, PROMPT_TEMPLATES } from '../../data/constants';
+import { MOCK_TOOLS } from '../../data/mockToolData';
 
 export function LLMSettingsModal({ isOpen, onClose, showTemplate = true }) {
   // 模擬預設設定狀態
@@ -10,12 +11,42 @@ export function LLMSettingsModal({ isOpen, onClose, showTemplate = true }) {
     template: 'default',
     temperature: 0.7,
     topP: 0.9,
-    topK: 40
+    topK: 40,
+    tools: ['1', '3'] // 預設啟用 Google Search, OCR
   });
+
+  const [isToolMenuOpen, setIsToolMenuOpen] = useState(false);
+  const toolMenuRef = useRef(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (toolMenuRef.current && !toolMenuRef.current.contains(event.target)) {
+        setIsToolMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleChange = (key, value) => {
     setSettings(prev => ({ ...prev, [key]: value }));
   };
+
+  const toggleTool = (toolId) => {
+      setSettings(prev => {
+          const currentTools = prev.tools || [];
+          if (currentTools.includes(toolId)) {
+              return { ...prev, tools: currentTools.filter(id => id !== toolId) };
+          } else {
+              return { ...prev, tools: [...currentTools, toolId] };
+          }
+      });
+  };
+
+  const activeTools = MOCK_TOOLS.filter(t => t.status === 'active');
 
   if (!isOpen) return null;
 
@@ -69,6 +100,83 @@ export function LLMSettingsModal({ isOpen, onClose, showTemplate = true }) {
                 </select>
              </div>
            )}
+
+           {/* 工具選擇 (下拉選單多選) */}
+           <div className="space-y-2">
+               <div className="flex items-center gap-2 mb-1">
+                   <label className="text-sm font-medium text-slate-700">啟用工具 (Tools)</label>
+                   <div className="group relative">
+                       <HelpCircle size={14} className="text-slate-400 cursor-help" />
+                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                           選擇本次對話可使用的工具。
+                       </div>
+                   </div>
+               </div>
+               
+               <div className="relative" ref={toolMenuRef}>
+                   <button 
+                       type="button"
+                       onClick={() => setIsToolMenuOpen(!isToolMenuOpen)}
+                       className="w-full flex items-center justify-between px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-colors"
+                   >
+                       <span className={settings.tools && settings.tools.length > 0 ? "text-slate-700" : "text-slate-400"}>
+                           {settings.tools && settings.tools.length > 0 
+                               ? `已選擇 ${settings.tools.length} 個工具` 
+                               : "請選擇工具..."}
+                       </span>
+                       <ChevronDown size={16} className={`text-slate-400 transition-transform ${isToolMenuOpen ? 'rotate-180' : ''}`} />
+                   </button>
+
+                   {isToolMenuOpen && (
+                       <div className="absolute top-full left-0 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto custom-scrollbar p-1">
+                           {activeTools.length === 0 ? (
+                               <div className="p-3 text-center text-slate-400 text-xs">無可用工具</div>
+                           ) : activeTools.map(tool => {
+                               const isSelected = (settings.tools || []).includes(String(tool.id));
+                               return (
+                                   <label 
+                                       key={tool.id} 
+                                       className={`flex items-center gap-3 p-2 rounded cursor-pointer transition-colors ${
+                                           isSelected ? 'bg-blue-50 text-blue-700' : 'hover:bg-slate-50 text-slate-700'
+                                       }`}
+                                   >
+                                       <input 
+                                           type="checkbox" 
+                                           className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                           checked={isSelected}
+                                           onChange={() => toggleTool(String(tool.id))}
+                                       />
+                                       <div className="flex-1 min-w-0">
+                                            <div className="text-sm font-medium truncate">{tool.name}</div>
+                                            <div className="text-[10px] text-slate-400 truncate">{tool.description}</div>
+                                       </div>
+                                       {isSelected && <svg className="w-4 h-4 text-blue-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>}
+                                   </label>
+                               );
+                           })}
+                       </div>
+                   )}
+               </div>
+
+               {/* Selected Tags Display */}
+               <div className="flex flex-wrap gap-1.5 min-h-[24px]">
+                   {(settings.tools || []).map(toolId => {
+                       const tool = activeTools.find(t => String(t.id) === String(toolId));
+                       if (!tool) return null;
+                       return (
+                           <span key={toolId} className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-100 text-xs font-medium animate-in fade-in zoom-in duration-200">
+                               {tool.name}
+                               <button 
+                                   onClick={() => toggleTool(toolId)}
+                                   className="hover:bg-blue-200 rounded-full p-0.5 transition-colors"
+                               >
+                                   <X size={12} />
+                               </button>
+                           </span>
+                       );
+                   })}
+               </div>
+           </div>
 
            {/* 參數滑桿區 */}
            <div className="grid grid-cols-2 gap-6 p-4 bg-slate-50 rounded-xl border border-slate-100">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutGrid, Shield, Bot, FileSpreadsheet, FileText, Cpu, Link, Activity, ChevronDown, ChevronRight, Settings, Sliders } from 'lucide-react';
+import { LayoutGrid, Shield, Bot, FileSpreadsheet, FileText, Cpu, Link, Activity, ChevronDown, ChevronRight, Settings, Sliders, Wrench, Waves } from 'lucide-react';
 import { MODES, FEATURES } from '../../data/constants';
 
 export function UnifiedBackendSidebar({
@@ -152,6 +152,32 @@ export function UnifiedBackendSidebar({
             </div>
           )}
         </div>
+
+        {/* Tool Management - Flat */}
+        <button
+          onClick={() => onFeatureChange('ADMIN_TOOLS')}
+          className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center gap-3 ${
+            isActive('ADMIN_TOOLS')
+              ? 'bg-blue-50 text-blue-700 border border-blue-200'
+              : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Wrench size={18} />
+          工具管理
+        </button>
+
+        {/* LangFlow Application */}
+        <button
+          onClick={() => onFeatureChange('ADMIN_LANGFLOW')}
+          className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center gap-3 ${
+            isActive('ADMIN_LANGFLOW')
+              ? 'bg-blue-50 text-blue-700 border border-blue-200'
+              : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Waves size={18} />
+          LangFlow
+        </button>
 
         {/* Corpus Management - Collapsible with sub-modules */}
         <div>

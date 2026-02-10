@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { 
-    LayoutGrid, Trash2, Save, ArrowLeft, ChevronsRight, Check, Cpu, Users, Plus, X, Star
+    LayoutGrid, Trash2, Save, ArrowLeft, ChevronsRight, Check, Cpu, Users, Plus, X, Star, Wrench
 } from 'lucide-react';
 import { MOCK_LLM_MODELS, MOCK_LLM_PARAMS, MOCK_LLM_PROMPTS } from '../../data/mockLLMData';
+import { MOCK_TOOLS } from '../../data/mockToolData';
 import { MOCK_USERS } from '../../data/mockData';
 
 export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, onCreateApp, onDeleteApp, onBack }) {
@@ -28,10 +29,12 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
   
   const [userSearch, setUserSearch] = useState('');
   const [selectedAvailableModelIds, setSelectedAvailableModelIds] = useState([]);
+  const [selectedAvailableToolIds, setSelectedAvailableToolIds] = useState([]); // New state for tools
   const [selectedAvailableUserIds, setSelectedAvailableUserIds] = useState([]);
 
   const filteredUsers = users.filter(u => u.name.includes(userSearch));
   const enabledModels = MOCK_LLM_MODELS.filter(m => m.status === 'active');
+  const enabledTools = MOCK_TOOLS.filter(t => t.status === 'active'); // Filter active tools
 
   // Transfer List Handlers for Models
   const toggleAvailableModelSelection = (id) => {
@@ -78,6 +81,54 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
 
   const handleSetDefaultModel = (modelId) => {
     handleChange({ defaultModelId: modelId });
+  };
+
+  // Transfer List Handlers for Tools - Updated for Object Structure
+  const toggleAvailableToolSelection = (id) => {
+    const strId = String(id);
+    if (selectedAvailableToolIds.includes(strId)) {
+        setSelectedAvailableToolIds(prev => prev.filter(tid => tid !== strId));
+    } else {
+        setSelectedAvailableToolIds(prev => [...prev, strId]);
+    }
+  };
+
+  const handleAddToolsToApp = () => {
+    if (selectedAvailableToolIds.length === 0) return;
+    const currentTools = formData.tools || [];
+    const currentToolIds = currentTools.map(t => t.id);
+    const newToolsIDS = selectedAvailableToolIds.filter(id => !currentToolIds.includes(id));
+    
+    if (newToolsIDS.length > 0) {
+        const newToolObjects = newToolsIDS.map(id => ({ id, defaultOn: true }));
+        handleChange({ tools: [...currentTools, ...newToolObjects] });
+        setSelectedAvailableToolIds([]);
+    }
+  };
+
+  const handleAddAllTools = () => {
+    const currentTools = formData.tools || [];
+    const currentToolIds = currentTools.map(t => t.id);
+    const allEnabledIds = enabledTools.map(t => String(t.id));
+    const newToolIDs = allEnabledIds.filter(id => !currentToolIds.includes(id));
+    
+    if (newToolIDs.length > 0) {
+        const newToolObjects = newToolIDs.map(id => ({ id, defaultOn: true }));
+        handleChange({ tools: [...currentTools, ...newToolObjects] });
+    }
+  };
+
+  const handleRemoveTool = (toolId) => {
+    const currentTools = formData.tools || [];
+    handleChange({ tools: currentTools.filter(t => t.id !== toolId) });
+  };
+
+  const handleToggleToolDefault = (toolId) => {
+      const currentTools = formData.tools || [];
+      const newTools = currentTools.map(t => 
+          t.id === toolId ? { ...t, defaultOn: !t.defaultOn } : t
+      );
+      handleChange({ tools: newTools });
   };
 
   // Transfer List Handlers for Users
@@ -468,6 +519,240 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                                                  <button 
                                                    onClick={() => handleRemoveModel(modelId)}
                                                    className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
+                                                 >
+                                                     <X size={14} />
+                                                 </button>
+                                             </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                       </div>
+                  </div>
+              </div>
+          </section>
+
+          {/* Tool Settings (Enabled Tools) */}
+          <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[400px]">
+              <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                  <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">工具設定</h3>
+              </div>
+              
+              <div className="flex-1 flex overflow-hidden">
+                  {/* Left: Available Tools */}
+                  <div className="flex-1 flex flex-col min-w-0 border-r border-slate-100">
+                      <div className="p-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                          <span className="text-sm font-semibold text-slate-700">可用工具庫</span>
+                          <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">{enabledTools.length}</span>
+                      </div>
+                      <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                           <div className="space-y-1">
+                               {enabledTools.length === 0 ? (
+                                   <div className="text-center py-10 text-slate-400 text-sm">無可用工具</div>
+                               ) : enabledTools.map(tool => {
+                                   const strId = String(tool.id);
+                                   const isSelected = selectedAvailableToolIds.includes(strId);
+                                   const isAdded = (formData.tools || []).some(t => t.id === strId);
+                                   return (
+                                       <div 
+                                         key={tool.id}
+                                         onClick={() => !isAdded && toggleAvailableToolSelection(tool.id)} 
+                                         className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent
+                                            ${isAdded ? 'opacity-50 grayscale bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}
+                                         `}
+                                       >
+                                           <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 bg-white'}`}>
+                                               {isSelected && <Check size={10} />}
+                                           </div>
+                                            <div className="flex-1 min-w-0 flex items-center gap-2">
+                                                <div className="w-6 h-6 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center text-[10px] font-bold">
+                                                     <Wrench size={12} />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="text-sm font-medium text-slate-700 truncate">{tool.name}</div>
+                                                    <div className="text-[10px] text-slate-400 truncate">{tool.description}</div>
+                                                </div>
+                                                {isAdded && <span className="text-xs text-slate-400 flex-shrink-0">• 已啟用</span>}
+                                            </div>
+                                       </div>
+                                   )
+                               })}
+                           </div>
+                      </div>
+                  </div>
+
+                  {/* Center: Actions */}
+                  <div className="w-16 bg-slate-50 border-x border-slate-200 flex flex-col items-center justify-center gap-3 p-2 z-10">
+                      <button 
+                        onClick={handleAddToolsToApp}
+                        disabled={selectedAvailableToolIds.length === 0}
+                        className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="啟用選取的工具"
+                      >
+                          <ChevronsRight size={18} />
+                      </button>
+                      <button 
+                        onClick={handleAddAllTools}
+                        className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all text-xs font-bold"
+                        title="啟用全部"
+                      >
+                          全部
+                      </button>
+                  </div>
+
+                  {/* Right: Enabled Tools */}
+                  <div className="flex-1 flex flex-col min-w-0">
+                      <div className="p-3 border-b border-slate-100 bg-orange-50/30 flex justify-between items-center">
+                          <span className="text-sm font-semibold text-slate-700">已啟用工具</span>
+                          <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold">{(formData.tools || []).length}</span>
+                      </div>
+                       <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                            <div className="space-y-1">
+                                {(!formData.tools || formData.tools.length === 0) ? (
+                                    <div className="text-center py-10 text-slate-400 text-sm">此應用程式尚未啟用任何工具</div>
+                                ) : formData.tools.map(toolObj => {
+                                    const toolId = toolObj.id;
+                                    const tool = MOCK_TOOLS.find(t => String(t.id) === String(toolId));
+                                    if (!tool) return null;
+                                    
+                                    return (
+                                        <div key={toolId} className="flex items-center justify-between p-2 rounded-lg bg-orange-50 border border-orange-100 group hover:bg-orange-100 transition-colors">
+                                             <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                 <div className="w-6 h-6 rounded-lg bg-orange-200 text-orange-700 flex items-center justify-center">
+                                                      <Wrench size={12} />
+                                                 </div>
+                                                 <div className="flex-1 min-w-0">
+                                                    <span className="block text-sm font-medium text-slate-700 truncate">{tool.name}</span>
+                                                    <span className="text-[10px] text-slate-400">
+                                                        {toolObj.defaultOn ? '預設啟用' : '手動觸發'}
+                                                    </span>
+                                                 </div>
+                                             </div>
+                                             <div className="flex items-center gap-2">
+                                                 {/* Default Toggle */}
+                                                 <label className="relative inline-flex items-center cursor-pointer" title="設定是否預設啟用">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        className="sr-only peer"
+                                                        checked={!!toolObj.defaultOn}
+                                                        onChange={() => handleToggleToolDefault(toolId)}
+                                                    />
+                                                    <div className="w-7 h-4 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-500"></div>
+                                                 </label>
+
+                                                 {/* Remove button */}
+                                                 <button 
+                                                   onClick={() => handleRemoveTool(toolId)}
+                                                   className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
+                                                   title="移除工具"
+                                                 >
+                                                     <X size={14} />
+                                                 </button>
+                                             </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                       </div>
+                  </div>
+              </div>
+          </section>
+          {/* Tool Settings - Transfer List (New Section) */}
+          <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[400px]">
+              <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                  <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">工具設定</h3>
+              </div>
+              
+              <div className="flex-1 flex overflow-hidden">
+                  {/* Left: Available Tools */}
+                  <div className="flex-1 flex flex-col min-w-0 border-r border-slate-100">
+                      <div className="p-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                          <span className="text-sm font-semibold text-slate-700">可用工具庫</span>
+                          <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">{enabledTools.length}</span>
+                      </div>
+                      <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                           <div className="space-y-1">
+                               {enabledTools.length === 0 ? (
+                                   <div className="text-center py-10 text-slate-400 text-sm">無可用工具</div>
+                               ) : enabledTools.map(tool => {
+                                   const strId = String(tool.id);
+                                   const isSelected = selectedAvailableToolIds.includes(strId);
+                                   const isAdded = (formData.tools || []).includes(strId);
+                                   return (
+                                       <div 
+                                         key={tool.id}
+                                         onClick={() => !isAdded && toggleAvailableToolSelection(tool.id)} 
+                                         className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent
+                                            ${isAdded ? 'opacity-50 grayscale bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}
+                                         `}
+                                       >
+                                           <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 bg-white'}`}>
+                                               {isSelected && <Check size={10} />}
+                                           </div>
+                                            <div className="flex-1 min-w-0 flex items-center gap-2">
+                                                <div className="w-6 h-6 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center text-[10px] font-bold">
+                                                     <Wrench size={12} />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="text-sm font-medium text-slate-700 truncate">{tool.name}</div>
+                                                    <div className="text-[10px] text-slate-400 truncate">{tool.description}</div>
+                                                </div>
+                                                {isAdded && <span className="text-xs text-slate-400 flex-shrink-0">• 已啟用</span>}
+                                            </div>
+                                       </div>
+                                   )
+                               })}
+                           </div>
+                      </div>
+                  </div>
+
+                  {/* Center: Actions */}
+                  <div className="w-16 bg-slate-50 border-x border-slate-200 flex flex-col items-center justify-center gap-3 p-2 z-10">
+                      <button 
+                        onClick={handleAddToolsToApp}
+                        disabled={selectedAvailableToolIds.length === 0}
+                        className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="啟用選取的工具"
+                      >
+                          <ChevronsRight size={18} />
+                      </button>
+                      <button 
+                        onClick={handleAddAllTools}
+                        className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all text-xs font-bold"
+                        title="啟用全部"
+                      >
+                          全部
+                      </button>
+                  </div>
+
+                  {/* Right: Enabled Tools */}
+                  <div className="flex-1 flex flex-col min-w-0">
+                      <div className="p-3 border-b border-slate-100 bg-orange-50/30 flex justify-between items-center">
+                          <span className="text-sm font-semibold text-slate-700">已啟用工具</span>
+                          <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold">{(formData.tools || []).length}</span>
+                      </div>
+                       <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                            <div className="space-y-1">
+                                {(!formData.tools || formData.tools.length === 0) ? (
+                                    <div className="text-center py-10 text-slate-400 text-sm">此應用尚未啟用任何工具</div>
+                                ) : formData.tools.map(toolId => {
+                                    const tool = MOCK_TOOLS.find(t => String(t.id) === String(toolId));
+                                    if (!tool) return null;
+                                    
+                                    return (
+                                        <div key={toolId} className="flex items-center justify-between p-2 rounded-lg bg-orange-50 border border-orange-100 group hover:bg-orange-100 transition-colors">
+                                             <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                 <div className="w-6 h-6 rounded-lg bg-orange-200 text-orange-700 flex items-center justify-center">
+                                                      <Wrench size={12} />
+                                                 </div>
+                                                 <span className="text-sm font-medium text-slate-700 truncate">{tool.name}</span>
+                                             </div>
+                                             <div className="flex items-center gap-1">
+                                                 {/* Remove button */}
+                                                 <button 
+                                                   onClick={() => handleRemoveTool(toolId)}
+                                                   className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
+                                                   title="移除工具"
                                                  >
                                                      <X size={14} />
                                                  </button>

@@ -15,7 +15,9 @@ export const MODES = {
   ADMIN_PROMPTS: 'admin_prompts',
   ADMIN_APIS: 'admin_apis',
   ADMIN_LLM: 'admin_llm_management',
+  ADMIN_TOOLS: 'admin_tool_management',
   ADMIN_AUDIT: 'admin_audit_management',
+  ADMIN_LANGFLOW: 'admin_langflow',
 };
 
 export const FEATURES = {
@@ -32,7 +34,7 @@ export const FEATURES = {
   DRAFT_HILL: { id: 'draft_hill', label: '例行函稿 - 山坡地社區點監測', mode: MODES.CHAT, placeholder: '輸入監測數據...' },
   DRAFT_AREA: { id: 'draft_area', label: '例行函稿 - 禁建限區', mode: MODES.CHAT, placeholder: '輸入管制區號...' },
   DRAFT_DECOR: { id: 'draft_decor', label: '例行函稿 - 室內裝修', mode: MODES.CHAT, placeholder: '輸入申請案號...' },
-  DRAFT_DOC_GEN: { id: 'draft_doc_gen', label: '公文檔案上傳生成案件歷程', mode: MODES.CHAT, placeholder: '請上傳公文檔案...', allowUpload: true, hideLLMSettings: true },
+  DRAFT_DOC_GEN: { id: 'draft_doc_gen', label: '公文檔案上傳生成案件歷程', mode: MODES.CHAT, placeholder: '請上傳公文檔案以生成案件歷程...', allowUpload: true, hideLLMSettings: true },
   
   // Admin Features
   ADMIN_SERVICE: { id: 'admin_service', label: '服務管理', mode: MODES.ADMIN_SERVICE, placeholder: '' },
@@ -43,7 +45,9 @@ export const FEATURES = {
   ADMIN_PROMPTS: { id: 'admin_prompts', label: '提示詞管理', mode: MODES.ADMIN_PROMPTS, placeholder: '' },
   ADMIN_APIS: { id: 'admin_apis', label: 'API 管理', mode: MODES.ADMIN_APIS, placeholder: '' },
   ADMIN_LLM: { id: 'admin_llm', label: '語言模型管理', mode: MODES.ADMIN_LLM, placeholder: '' },
+  ADMIN_TOOLS: { id: 'admin_tools', label: '工具管理', mode: MODES.ADMIN_TOOLS, placeholder: '' },
   ADMIN_AUDIT: { id: 'admin_audit', label: '稽核管理', mode: MODES.ADMIN_AUDIT, placeholder: '' },
+  ADMIN_LANGFLOW: { id: 'admin_langflow', label: 'LangFlow', mode: MODES.ADMIN_LANGFLOW, placeholder: '' },
 };
 
 export const LANGUAGES = [

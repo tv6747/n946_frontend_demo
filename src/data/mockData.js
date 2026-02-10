@@ -229,6 +229,7 @@ export const MOCK_BOTS = [
     showUsedDocs: true,
     defaultQuestions: ['請問特休假還有幾天？', '如何申請加班費？', '請假單送出後多久會核准？', '遲到會有什麼影響？', '婚假可以分開請嗎？'],
     files: ['file_1', 'file_4'], 
+    tools: [{ id: '2', defaultOn: true }], // DuckDuckGo
     accessibleUsers: ['user_me', 'user_admin'] 
   },
   { 

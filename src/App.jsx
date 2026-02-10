@@ -48,7 +48,9 @@ import { SynonymPanel } from './features/corpus/SynonymPanel';
 import { LLMManagement } from './features/admin/LLMManagement'; // Use wrapper for sub-modules
 import { PromptManagementPanel } from './features/admin/PromptManagementPanel';
 import { APIManagementPanel } from './features/admin/APIManagementPanel';
+import { ToolManagementPanel } from './features/admin/ToolManagementPanel';
 import { BotManagementPanel } from './features/admin/BotManagementPanel';
+import { LangFlowPanel } from './features/admin/LangFlowPanel';
 
 import { UploadCloud, Plus } from 'lucide-react';
 
@@ -127,7 +129,9 @@ export default function App() {
           FEATURES.ADMIN_APIS.id,
           FEATURES.ADMIN_PROPER_NOUN.id,
           FEATURES.ADMIN_SYNONYM.id,
-          FEATURES.ADMIN_AUDIT.id
+          FEATURES.ADMIN_AUDIT.id,
+          FEATURES.ADMIN_TOOLS.id,
+          FEATURES.ADMIN_LANGFLOW.id
       ];
       if (!allowedFeatures.includes(currentFeature.id)) {
           // If in Backend mode, default to LLM Management
@@ -259,7 +263,7 @@ export default function App() {
         if (currentSystem === 'GAI') {
             return ['KB_MANAGEMENT'];
         } else if (currentSystem === 'BACKEND') {
-            return ['ADMIN_SERVICE', 'BOT_MANAGEMENT', 'ADMIN_PROPER_NOUN', 'ADMIN_SYNONYM', 'ADMIN_MODELS', 'ADMIN_PROMPTS', 'ADMIN_APIS', 'ADMIN_AUDIT'];
+            return ['ADMIN_SERVICE', 'BOT_MANAGEMENT', 'ADMIN_PROPER_NOUN', 'ADMIN_SYNONYM', 'ADMIN_MODELS', 'ADMIN_PROMPTS', 'ADMIN_APIS', 'ADMIN_TOOLS', 'ADMIN_AUDIT'];
         }
      }
 
@@ -448,6 +452,7 @@ export default function App() {
               if (adminAuditView === 'chat_records') return { title: '對話紀錄', desc: '查看系統對話歷程' };
               if (adminAuditView === 'stats') return { title: '統計圖表', desc: '系統使用數據統計' };
               return { title: '稽核管理', desc: '系統活動紀錄與報表' };
+          case MODES.ADMIN_LANGFLOW: return { title: 'LangFlow', desc: '低代碼流程設計與管理' };
           default: return null;
       }
   };
@@ -656,6 +661,8 @@ export default function App() {
            {currentFeature.mode === MODES.ADMIN_PROPER_NOUN && <ProperNounPanel />}
            {currentFeature.mode === MODES.ADMIN_SYNONYM && <SynonymPanel />}
            {currentFeature.mode === MODES.ADMIN_LLM && <LLMManagement selectedSubModule={llmSubModule} />}
+           {currentFeature.mode === MODES.ADMIN_TOOLS && <ToolManagementPanel />}
+           {currentFeature.mode === MODES.ADMIN_LANGFLOW && <LangFlowPanel />}
            {currentFeature.mode === MODES.ADMIN_PROMPTS && <PromptManagementPanel />}
            {currentFeature.mode === MODES.ADMIN_APIS && <APIManagementPanel />}
            {currentFeature.mode === MODES.ADMIN_AUDIT && <AuditManagement activeView={adminAuditView} />}

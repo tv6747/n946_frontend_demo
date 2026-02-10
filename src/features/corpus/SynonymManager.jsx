@@ -40,8 +40,8 @@ export function SynonymManager({ searchTerm, selectedCategory, onEdit, onAddSyno
             <table className="w-full text-left text-sm">
                 <thead>
                     <tr className="bg-slate-50 border-b border-slate-200 text-slate-500">
-                        <th className="px-6 py-3 font-medium w-1/4">標準名詞 (Main Term)</th>
-                        <th className="px-6 py-3 font-medium w-1/2">近似用語 / 同義詞 (Synonyms)</th>
+                        <th className="px-6 py-3 font-medium w-1/4">標準名詞</th>
+                        <th className="px-6 py-3 font-medium w-1/2">近似用語 / 同義詞</th>
                         <th className="px-6 py-3 font-medium w-1/6">分類</th>
                         <th className="px-6 py-3 font-medium text-right">操作</th>
                     </tr>
