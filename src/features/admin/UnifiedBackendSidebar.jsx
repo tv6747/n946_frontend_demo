@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutGrid, Shield, Bot, FileSpreadsheet, FileText, Cpu, Link, Activity, ChevronDown, ChevronRight, Settings, Sliders, Wrench, Waves } from 'lucide-react';
+import { LayoutGrid, Shield, Bot, FileSpreadsheet, FileText, Cpu, Link, Activity, ChevronDown, ChevronRight, Settings, Sliders, Wrench, Waves, Users } from 'lucide-react';
 import { MODES, FEATURES } from '../../data/constants';
 
 export function UnifiedBackendSidebar({
@@ -50,6 +50,19 @@ export function UnifiedBackendSidebar({
       </div>
 
       <div className="flex-1 overflow-y-auto p-3 space-y-1">
+        
+        {/* Account Management - Top Item */}
+        <button
+          onClick={() => onFeatureChange('ADMIN_ACCOUNT')}
+          className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center gap-3 ${
+            isActive('ADMIN_ACCOUNT')
+              ? 'bg-blue-50 text-blue-700 border border-blue-200'
+              : 'text-slate-600 hover:bg-slate-100'
+          }`}
+        >
+          <Users size={18} />
+          帳號管理
+        </button>
         
         {/* Service Management - Collapsible (無知識庫權限) */}
         <div>

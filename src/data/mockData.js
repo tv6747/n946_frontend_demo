@@ -427,3 +427,11 @@ export const MOCK_ADMIN_STATS = {
         { hour: '18:00', value: 60 },
     ]
 };
+
+export const MOCK_ACCOUNTS = [
+  { id: 'u101', username: 'alex.lin', name: '林小宏', email: 'alex.lin@nlma.gov.tw', orgUnit: '1', status: 'active', role: 'admin', note: '系統管理員', createdAt: '2023-01-01', updatedAt: '2024-02-01' },
+  { id: 'u102', username: 'sara.chen', name: '陳莎拉', email: 'sara.chen@nlma.gov.tw', orgUnit: '2', status: 'active', role: 'user', note: '建築執照審查人員', createdAt: '2023-03-15', updatedAt: '2024-01-20' },
+  { id: 'u103', username: 'john.wu', name: '吳約翰', email: 'john.wu@nlma.gov.tw', orgUnit: '3', status: 'inactive', role: 'user', note: '留職停薪', createdAt: '2023-06-10', updatedAt: '2023-12-01' },
+  { id: 'u104', username: 'emily.chang', name: '張愛美', email: 'emily.chang@nlma.gov.tw', orgUnit: '1', status: 'active', role: 'user', note: '', createdAt: '2023-11-05', updatedAt: '2024-02-10' },
+  { id: 'u105', username: 'david.wang', name: '王大衛', email: 'david.wang@nlma.gov.tw', orgUnit: '2', status: 'active', role: 'user', note: '新進人員', createdAt: '2024-02-01', updatedAt: '2024-02-01' },
+];

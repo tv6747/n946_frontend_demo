@@ -18,6 +18,7 @@ export const MODES = {
   ADMIN_TOOLS: 'admin_tool_management',
   ADMIN_AUDIT: 'admin_audit_management',
   ADMIN_LANGFLOW: 'admin_langflow',
+  ADMIN_ACCOUNT: 'admin_account_management',
 };
 
 export const FEATURES = {
@@ -48,6 +49,7 @@ export const FEATURES = {
   ADMIN_TOOLS: { id: 'admin_tools', label: '工具管理', mode: MODES.ADMIN_TOOLS, placeholder: '' },
   ADMIN_AUDIT: { id: 'admin_audit', label: '稽核管理', mode: MODES.ADMIN_AUDIT, placeholder: '' },
   ADMIN_LANGFLOW: { id: 'admin_langflow', label: 'LangFlow', mode: MODES.ADMIN_LANGFLOW, placeholder: '' },
+  ADMIN_ACCOUNT: { id: 'admin_account', label: '帳號管理', mode: MODES.ADMIN_ACCOUNT, placeholder: '' },
 };
 
 export const LANGUAGES = [

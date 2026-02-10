@@ -41,6 +41,7 @@ import { AddTermModal } from './components/modals/AddTermModal';
 
 import { ServiceManagement } from './features/admin/ServiceManagement';
 import { AuditManagement } from './features/admin/AuditManagement';
+import { AccountManagementPanel } from './features/admin/AccountManagementPanel';
 import { UnifiedBackendSidebar } from './features/admin/UnifiedBackendSidebar';
 
 import { ProperNounPanel } from './features/corpus/ProperNounPanel';
@@ -131,7 +132,8 @@ export default function App() {
           FEATURES.ADMIN_SYNONYM.id,
           FEATURES.ADMIN_AUDIT.id,
           FEATURES.ADMIN_TOOLS.id,
-          FEATURES.ADMIN_LANGFLOW.id
+          FEATURES.ADMIN_LANGFLOW.id,
+          FEATURES.ADMIN_ACCOUNT.id
       ];
       if (!allowedFeatures.includes(currentFeature.id)) {
           // If in Backend mode, default to LLM Management
@@ -452,7 +454,9 @@ export default function App() {
               if (adminAuditView === 'chat_records') return { title: '對話紀錄', desc: '查看系統對話歷程' };
               if (adminAuditView === 'stats') return { title: '統計圖表', desc: '系統使用數據統計' };
               return { title: '稽核管理', desc: '系統活動紀錄與報表' };
+          case MODES.ADMIN_TOOLS: return { title: '工具管理', desc: '管理與配置AI工具與插件' };
           case MODES.ADMIN_LANGFLOW: return { title: 'LangFlow', desc: '低代碼流程設計與管理' };
+          case MODES.ADMIN_ACCOUNT: return { title: '帳號管理', desc: '建立與管理使用者帳號' };
           default: return null;
       }
   };
@@ -666,6 +670,7 @@ export default function App() {
            {currentFeature.mode === MODES.ADMIN_PROMPTS && <PromptManagementPanel />}
            {currentFeature.mode === MODES.ADMIN_APIS && <APIManagementPanel />}
            {currentFeature.mode === MODES.ADMIN_AUDIT && <AuditManagement activeView={adminAuditView} />}
+           {currentFeature.mode === MODES.ADMIN_ACCOUNT && <AccountManagementPanel />}
     </MainLayout>
   );
 }
