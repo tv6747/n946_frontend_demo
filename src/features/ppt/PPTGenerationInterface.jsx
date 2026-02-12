@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { 
     Bot, MonitorPlay, Check, ChevronRight as ChevronRightIcon, 
     ChevronLeft as ChevronLeftIcon, Paperclip, Settings, Send, GripVertical, Download, Upload,
-    Star, Pencil, Trash2, CheckCircle2, Ban
+    Star, Pencil, Trash2, CheckCircle2, Ban, X
 } from 'lucide-react';
 import { useResizable } from '../../hooks/useResizable';
 import { WelcomeScreen } from '../chat/WelcomeScreen';
 import { CanvasPreview } from './CanvasPreview';
+import { ChatMessage } from '../../components/common/ChatMessage';
 // import { PPT_TEMPLATES } = '../../data/constants'; // Replaced by local definition
 
 import tpl1 from '../../assets/template1.jpg';
@@ -27,6 +28,8 @@ export function PPTGenerationInterface({ currentFeature, onOpenLLMSettings }) {
   const [editingTemplateId, setEditingTemplateId] = useState(null);
   const [tempName, setTempName] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState(templates[0]);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [feedbackText, setFeedbackText] = useState('');
 
   // Sort: Favorites first
   const sortedTemplates = [...templates].sort((a, b) => {
@@ -91,20 +94,11 @@ export function PPTGenerationInterface({ currentFeature, onOpenLLMSettings }) {
                      ) : (
                        <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar bg-slate-50">
                           {messages.map(msg => (
-                            <div key={msg.id} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                              {msg.role === 'ai' && (
-                                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white mt-1 flex-shrink-0">
-                                  <Bot size={16} />
-                                </div>
-                              )}
-                              <div className={`max-w-[90%] px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm whitespace-pre-line ${
-                                  msg.role === 'user' 
-                                    ? 'bg-blue-600 text-white rounded-tr-sm' 
-                                    : 'bg-white border border-slate-200 text-slate-700 rounded-tl-sm'
-                                }`}>
-                                {msg.content}
-                              </div>
-                            </div>
+                            <ChatMessage 
+                               key={msg.id} 
+                               message={msg} 
+                               onFeedback={() => setIsFeedbackModalOpen(true)}
+                            />
                           ))}
                        </div>
                      )}
@@ -338,7 +332,47 @@ export function PPTGenerationInterface({ currentFeature, onOpenLLMSettings }) {
            <span className="text-xs text-slate-400">此回答為大型語言模型產出，僅供參考，請務必核對重要資訊的準確性。</span>
         </div>
         </div>
-      </div>
+
+       {/* Feedback Modal */}
+       {isFeedbackModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative animate-in zoom-in-95 duration-200">
+              <button 
+                  onClick={() => setIsFeedbackModalOpen(false)}
+                  className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                  <X size={20} />
+              </button>
+              <h3 className="text-lg font-bold text-slate-800 mb-4">提供回饋</h3>
+              <p className="text-sm text-slate-500 mb-4">請告訴我們您的建議或遇到的問題，這將幫助我們改進。</p>
+              <textarea 
+                  className="w-full h-32 p-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-4"
+                  placeholder="請輸入您的回饋..."
+                  value={feedbackText}
+                  onChange={(e) => setFeedbackText(e.target.value)}
+              ></textarea>
+              <div className="flex justify-end gap-2">
+                  <button 
+                      onClick={() => setIsFeedbackModalOpen(false)}
+                      className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                  >
+                      取消
+                  </button>
+                  <button 
+                      onClick={() => {
+                          alert('謝謝您的回饋！');
+                          setIsFeedbackModalOpen(false);
+                          setFeedbackText('');
+                      }}
+                      className="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors"
+                  >
+                      送出回饋
+                  </button>
+              </div>
+           </div>
+        </div>
+       )}
+     </div>
     </div>
   );
 }

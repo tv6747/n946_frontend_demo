@@ -119,6 +119,46 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
         <div className="flex flex-col h-full bg-slate-50">
            {renderChatArea()}
            <ChatInput {...commonInputProps} />
+
+           {/* Feedback Modal */}
+           {isFeedbackModalOpen && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+               <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative animate-in zoom-in-95 duration-200">
+                  <button 
+                      onClick={() => setIsFeedbackModalOpen(false)}
+                      className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                      <X size={20} />
+                  </button>
+                  <h3 className="text-lg font-bold text-slate-800 mb-4">提供回饋</h3>
+                  <p className="text-sm text-slate-500 mb-4">請告訴我們您的建議或遇到的問題，這將幫助我們改進。</p>
+                  <textarea 
+                      className="w-full h-32 p-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-4"
+                      placeholder="請輸入您的回饋..."
+                      value={feedbackText}
+                      onChange={(e) => setFeedbackText(e.target.value)}
+                  ></textarea>
+                  <div className="flex justify-end gap-2">
+                      <button 
+                          onClick={() => setIsFeedbackModalOpen(false)}
+                          className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                      >
+                          取消
+                      </button>
+                      <button 
+                          onClick={() => {
+                              alert('謝謝您的回饋！');
+                              setIsFeedbackModalOpen(false);
+                              setFeedbackText('');
+                          }}
+                          className="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors"
+                      >
+                          送出回饋
+                      </button>
+                  </div>
+               </div>
+            </div>
+           )}
         </div>
      );
   }
