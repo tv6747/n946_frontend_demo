@@ -11,6 +11,7 @@ import {
 
 import { MODES, FEATURES } from './data/constants';
 import { KB_TREE_DATA, MASTER_FILES, MOCK_USERS, MOCK_BOTS, CORPUS_PAGES } from './data/mockData';
+import { MOCK_APPLICATIONS } from './data/mockServiceData';
 import { findNodeById } from './utils/helpers';
 import { MainLayout } from './components/layout/MainLayout';
 import { CorpusSidebar } from './features/corpus/CorpusSidebar';
@@ -127,6 +128,7 @@ export default function App() {
           FEATURES.ADMIN_MODELS.id,
           FEATURES.ADMIN_PARAMS.id,
           FEATURES.ADMIN_PROMPTS.id,
+          FEATURES.ADMIN_PROMPT_OPT.id,
           FEATURES.ADMIN_APIS.id,
           FEATURES.ADMIN_PROPER_NOUN.id,
           FEATURES.ADMIN_SYNONYM.id,
@@ -174,6 +176,20 @@ export default function App() {
     }
     return [];
   }, [checkedNodes, currentFeature.mode, selectedBotId, selectedFolderId, files]);
+
+  // Derived state: Merge currentFeature with settings from MOCK_APPLICATIONS
+  const activeFeatureWithSettings = useMemo(() => {
+      // Find matching app config
+      const appConfig = MOCK_APPLICATIONS.find(app => app.page === currentFeature.id);
+      
+      if (appConfig) {
+          return {
+              ...currentFeature,
+              featureSettings: appConfig.featureSettings || { enableFileUpload: true, enableFeedback: true }
+          };
+      }
+      return currentFeature;
+  }, [currentFeature]);
 
   // For Bot Manager: Calculate files in current folder separately for the left panel
   // Now modified to aggregate files from ALL checked folders
@@ -265,16 +281,23 @@ export default function App() {
         if (currentSystem === 'GAI') {
             return ['KB_MANAGEMENT'];
         } else if (currentSystem === 'BACKEND') {
-            return ['ADMIN_SERVICE', 'BOT_MANAGEMENT', 'ADMIN_PROPER_NOUN', 'ADMIN_SYNONYM', 'ADMIN_MODELS', 'ADMIN_PROMPTS', 'ADMIN_APIS', 'ADMIN_TOOLS', 'ADMIN_AUDIT'];
+            return ['ADMIN_SERVICE', 'BOT_MANAGEMENT', 'ADMIN_PROPER_NOUN', 'ADMIN_SYNONYM', 'ADMIN_MODELS', 'ADMIN_PROMPTS', 'ADMIN_PROMPT_OPT', 'ADMIN_APIS', 'ADMIN_TOOLS', 'ADMIN_AUDIT'];
         }
      }
 
      if (currentSystem === 'DOC') {
          // Return Draft features and the new Doc Gen feature
-         return Object.keys(FEATURES).filter(key => key.startsWith('DRAFT_'));
+         return Object.keys(FEATURES).filter(key => key.startsWith('DRAFT_') || key === 'DOC_ASSIST');
      } else {
          // Return everything else, but exclude BOT_MANAGEMENT for regular users
-         return Object.keys(FEATURES).filter(key => !key.startsWith('DRAFT_') && key !== 'BOT_MANAGEMENT' && key !== 'CORPUS_MANAGEMENT' && !key.startsWith('ADMIN_'));
+         return Object.keys(FEATURES).filter(key => 
+             !key.startsWith('DRAFT_') && 
+             key !== 'DOC_ASSIST' &&
+             key !== 'BOT_MANAGEMENT' && 
+             key !== 'CORPUS_MANAGEMENT' && 
+             key !== 'PROMPT_OPT' &&
+             !key.startsWith('ADMIN_')
+         );
      }
   }, [currentSystem, userRole]);
 
@@ -293,9 +316,12 @@ export default function App() {
         if (system === 'GAI') firstFeatureKey = 'KB_MANAGEMENT';
         if (system === 'BACKEND') firstFeatureKey = 'ADMIN_SERVICE';
     } else {
-        firstFeatureKey = Object.keys(FEATURES).find(key => 
-            system === 'DOC' ? key.startsWith('DRAFT_') : !key.startsWith('DRAFT_')
-        );
+        if (system === 'DOC') {
+             // Default to DOC_ASSIST if available, else first DRAFT feature
+             firstFeatureKey = 'DOC_ASSIST';
+        } else {
+             firstFeatureKey = Object.keys(FEATURES).find(key => !key.startsWith('DRAFT_') && key !== 'DOC_ASSIST');
+        }
     }
     
     if (firstFeatureKey) {
@@ -448,6 +474,7 @@ export default function App() {
           case MODES.ADMIN_PROPER_NOUN: return { title: '專有名詞語料庫', desc: '維護專有名詞與定義語料庫' };
           case MODES.ADMIN_SYNONYM: return { title: '近似詞語料庫', desc: '維護標準名詞及其對應的同義詞與變體' };
           case MODES.ADMIN_PROMPTS: return { title: '提示詞管理', desc: '管理與優化系統提示詞' };
+          case MODES.PROMPT: return { title: '提示詞優化', desc: '測試與優化提示詞效果' };
           case MODES.ADMIN_APIS: return { title: 'API 管理', desc: '管理外部服務 API 連接' };
           case MODES.ADMIN_AUDIT:
               if (adminAuditView === 'kb_logs') return { title: '知識庫紀錄', desc: '查看知識庫變更與存取紀錄' };
@@ -607,7 +634,7 @@ export default function App() {
 
           {currentFeature.mode === MODES.CHAT && (
             <ChatInterface 
-              currentFeature={currentFeature} 
+              currentFeature={activeFeatureWithSettings} 
               onExport={() => setIsExportModalOpen(true)}
               onSave={() => setIsSaveModalOpen(true)}
               onOpenLLMSettings={openLLMSettings}

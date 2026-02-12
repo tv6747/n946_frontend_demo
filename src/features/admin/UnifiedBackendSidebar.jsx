@@ -16,6 +16,7 @@ export function UnifiedBackendSidebar({
     service: true,
     llm: true,
     corpus: true,
+    prompt: true,
     audit: true
   });
 
@@ -237,18 +238,50 @@ export function UnifiedBackendSidebar({
           )}
         </div>
 
-        {/* Prompt Management - Flat */}
-        <button
-          onClick={() => onFeatureChange('ADMIN_PROMPTS')}
-          className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center gap-3 ${
-            isActive('ADMIN_PROMPTS')
-              ? 'bg-white text-blue-700 shadow-sm border border-slate-200'
-              : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          <FileText size={18} />
-          提示詞管理
-        </button>
+        {/* Prompt Management - Collapsible */}
+        <div>
+          <button
+            onClick={() => toggleSection('prompt')}
+            className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-between ${
+              (isActive('ADMIN_PROMPTS') || isActive('ADMIN_PROMPT_OPT'))
+                ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                : 'text-slate-600 hover:bg-slate-100'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <FileText size={18} />
+              <span>提示詞</span>
+            </div>
+            {expandedSections.prompt ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          </button>
+
+          {expandedSections.prompt && (
+            <div className="ml-4 mt-1 space-y-1">
+              <button
+                onClick={() => onFeatureChange('ADMIN_PROMPTS')}
+                className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-3 ${
+                  isActive('ADMIN_PROMPTS')
+                    ? 'bg-white text-blue-700 shadow-sm border border-slate-200'
+                    : 'text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                <FileText size={16} />
+                提示詞管理
+              </button>
+              <button
+                onClick={() => onFeatureChange('ADMIN_PROMPT_OPT')}
+                className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-3 ${
+                  isActive('ADMIN_PROMPT_OPT')
+                    ? 'bg-white text-blue-700 shadow-sm border border-slate-200'
+                    : 'text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                <Sliders size={16} />
+                提示詞優化
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* API Management - Flat */}
         <button

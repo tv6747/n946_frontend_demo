@@ -1,5 +1,6 @@
 import React from 'react';
-import { Bot, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { Bot, ThumbsUp, ThumbsDown, MessageCircle } from 'lucide-react';
+
 
 function ActionButton({ icon, onClick }) {
     return (
@@ -9,7 +10,7 @@ function ActionButton({ icon, onClick }) {
     );
 }
 
-export function ChatMessage({ message }) {
+export function ChatMessage({ message, onFeedback }) {
   const { role, content } = message;
   const isUser = role === 'user';
 
@@ -32,6 +33,12 @@ export function ChatMessage({ message }) {
            <div className="flex gap-2 flex-wrap animate-in fade-in duration-300">
               <ActionButton icon={<ThumbsUp size={14}/>} onClick={() => {}} />
               <ActionButton icon={<ThumbsDown size={14}/>} onClick={() => {}} />
+              <button 
+                  onClick={onFeedback}
+                  className="flex items-center gap-1 text-xs bg-white border border-slate-200 px-2 py-1 rounded-md text-slate-600 hover:text-blue-600 hover:bg-slate-50 transition-colors shadow-sm"
+              >
+                  <MessageCircle size={14}/> 回饋
+              </button>
            </div>
         )}
       </div>

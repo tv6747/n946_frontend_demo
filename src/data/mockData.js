@@ -225,7 +225,8 @@ export const MOCK_BOTS = [
     status: 'active', 
     description: '協助查詢假勤相關問題，包含年假、加班、打卡等事項。',
     welcomeMessage: '你好！我是人事差勤小幫手。我可以協助你查詢假勤規定、申請流程、或查看你的出缺勤紀錄。請問今天有什麼可以幫你的嗎？', 
-    allowUpload: false,
+    allowUpload: true,
+    enableFeedback: true,
     showUsedDocs: true,
     defaultQuestions: ['請問特休假還有幾天？', '如何申請加班費？', '請假單送出後多久會核准？', '遲到會有什麼影響？', '婚假可以分開請嗎？'],
     files: ['file_1', 'file_4'], 
@@ -238,7 +239,8 @@ export const MOCK_BOTS = [
     status: 'active', 
     description: '協助解答資安相關問題，包含密碼設定、可疑郵件處理、個資保護等。',
     welcomeMessage: '您好，我是資訊安全防護機器人。請隨時保持警覺，勿點擊不明連結。若有任何資安疑慮、密碼設定或軟體安裝問題，歡迎隨時詢問！', 
-    allowUpload: false,
+    allowUpload: true,
+    enableFeedback: true,
     showUsedDocs: true,
     defaultQuestions: ['收到可疑郵件該如何處理？', '如何設定高強度密碼？', '公司電腦可以安裝私人軟體嗎？', '發現電腦中毒了怎麼辦？', '如何使用 VPN 安全連線？'],
     files: ['file_1', 'file_2'],
@@ -310,7 +312,7 @@ export const MOCK_ADMIN_APPS = [
   {
       id: 'app_doc_draft',
       system: 'DOC',
-      name: '例行函稿 - 署長信箱',
+      name: '首長信箱',
       description: '協助回覆民眾陳情案件。',
       departments: ['u5'],
       users: ['u3'],
@@ -389,8 +391,9 @@ export const MOCK_AUDIT_KB_LOGS = [
 
 export const MOCK_AUDIT_CHAT_LOGS = [
     { id: 'cl1', appType: 'GAI - 互動問答', title: 'Python 教學', user: '李大華', dept: '人事室', time: '2024-02-05 09:45', content: 'User: 如何使用 Python 讀取 CSV?\nAI: 您可以使用 pandas 庫...' },
-    { id: 'cl2', appType: 'DOC - 署長信箱', title: '陳情回覆草稿', user: '王小明', dept: '資訊室', time: '2024-02-04 16:30', content: 'User: 幫我擬一份關於噪音的陳情回覆\nAI: 好的，這是草稿...' },
+    { id: 'cl2', appType: 'DOC - 首長信箱', title: '陳情回覆草稿', user: '王小明', dept: '資訊室', time: '2024-02-04 16:30', content: 'User: 幫我擬一份關於噪音的陳情回覆\nAI: 好的，這是草稿...' },
     { id: 'cl3', appType: 'GAI - 文件翻譯', title: '規格書翻譯', user: '陳小美', dept: '行銷部', time: '2024-02-05 10:15', content: 'User: 翻譯這份文件\nAI: 翻譯完成，請下載。' },
+    { id: 'cl4', appType: 'DOC - 通用公文撰寫', title: '開會通知單撰寫', user: '李大華', dept: '人事室', time: '2024-02-06 14:00', content: 'User: 幫我寫一份開會通知\nAI: 好的，這是草稿...' },
 ];
 
 export const MOCK_ADMIN_STATS = {

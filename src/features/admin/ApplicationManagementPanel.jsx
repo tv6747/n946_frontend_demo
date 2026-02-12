@@ -49,7 +49,7 @@ export function ApplicationManagementPanel() {
 
   const filteredApps = MOCK_APPLICATIONS.filter(app => {
       // Exclude chatbots (they are managed in Bot Management)
-      if (app.page && app.page.startsWith('bot_')) return false;
+      if (app.page && (app.page.startsWith('bot_') || app.page === 'prompt_opt')) return false;
 
       const matchesSearch = app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            app.page.toLowerCase().includes(searchTerm.toLowerCase());
@@ -142,12 +142,6 @@ export function ApplicationManagementPanel() {
                                   <span className="text-[10px] text-slate-500 w-12">參數:</span>
                                   <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-medium truncate flex-1">
                                       {getParamName(app.defaultSettings.paramId)}
-                                  </span>
-                              </div>
-                              <div className="flex items-center gap-1.5">
-                                  <span className="text-[10px] text-slate-500 w-12">提示詞:</span>
-                                  <span className="bg-cyan-100 text-cyan-700 px-2 py-0.5 rounded text-xs font-medium truncate flex-1">
-                                      {getPromptName(app.defaultSettings.promptId)}
                                   </span>
                               </div>
                           </div>

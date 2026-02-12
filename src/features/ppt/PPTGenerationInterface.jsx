@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { 
     Bot, MonitorPlay, Check, ChevronRight as ChevronRightIcon, 
-    ChevronLeft as ChevronLeftIcon, Paperclip, Settings, Send, GripVertical, Download 
+    ChevronLeft as ChevronLeftIcon, Paperclip, Settings, Send, GripVertical, Download, Upload,
+    Star, Pencil, Trash2, CheckCircle2, Ban
 } from 'lucide-react';
 import { useResizable } from '../../hooks/useResizable';
 import { WelcomeScreen } from '../chat/WelcomeScreen';
 import { CanvasPreview } from './CanvasPreview';
-// import { PPT_TEMPLATES } from '../../data/constants'; // Replaced by local definition
+// import { PPT_TEMPLATES } = '../../data/constants'; // Replaced by local definition
 
 import tpl1 from '../../assets/template1.jpg';
 import tpl2 from '../../assets/template2.jpg';
@@ -21,7 +22,44 @@ const LOCAL_PPT_TEMPLATES = [
 export function PPTGenerationInterface({ currentFeature, onOpenLLMSettings }) {
   const [messages, setMessages] = useState([]); 
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(true);
-  const [selectedTemplate, setSelectedTemplate] = useState(LOCAL_PPT_TEMPLATES[0]);
+  const [templates, setTemplates] = useState(LOCAL_PPT_TEMPLATES);
+  const [favoriteTemplateIds, setFavoriteTemplateIds] = useState([LOCAL_PPT_TEMPLATES[0].id]);
+  const [editingTemplateId, setEditingTemplateId] = useState(null);
+  const [tempName, setTempName] = useState("");
+  const [selectedTemplate, setSelectedTemplate] = useState(templates[0]);
+
+  // Sort: Favorites first
+  const sortedTemplates = [...templates].sort((a, b) => {
+     const aFav = favoriteTemplateIds.includes(a.id);
+     const bFav = favoriteTemplateIds.includes(b.id);
+     if (aFav && !bFav) return -1;
+     if (!aFav && bFav) return 1;
+     return 0;
+  });
+
+  const handleFileUpload = () => {
+         const input = document.createElement('input');
+         input.type = 'file';
+         input.accept = 'image/*';
+         input.onchange = (e) => {
+           const file = e.target.files[0];
+           if(file) {
+             const reader = new FileReader();
+             reader.onload = (e) => {
+               const newTemplate = {
+                 id: Date.now(),
+                 name: file.name.replace(/\.[^/.]+$/, ""),
+                 image: e.target.result
+               };
+               setTemplates(prev => [...prev, newTemplate]);
+               // Automatically set as default or selected if desired? For now just add.
+               setSelectedTemplate(newTemplate);
+             };
+             reader.readAsDataURL(file);
+           }
+         };
+         input.click();
+  };
   const { leftWidth, startResizing } = useResizable(50);
 
   const handleSuggestionClick = (text) => {
@@ -105,42 +143,148 @@ export function PPTGenerationInterface({ currentFeature, onOpenLLMSettings }) {
                         className="flex flex-col bg-white border border-slate-200 rounded-2xl shadow-sm mx-2 my-4 overflow-hidden h-[calc(100%-2rem)]"
                      >
                          <div className="h-12 flex items-center justify-between px-4 border-b border-slate-100 flex-shrink-0">
-                            <span className="text-sm font-bold text-slate-700 whitespace-nowrap">選擇範本</span>
+                            <span className="text-base font-bold text-slate-700 whitespace-nowrap">選擇範本</span>
                          </div>
                          
                          <div className="flex-1 overflow-y-auto p-3 custom-scrollbar">
                             <div className="space-y-3">
-                               {LOCAL_PPT_TEMPLATES.map(tpl => (
-                                 <div 
-                                   key={tpl.id} 
-                                   onClick={() => {
-                                        if(!window.confirm("確定要下載此範本嗎？")) return;
-                                        // Trigger Download
-                                        const link = document.createElement('a');
-                                        link.href = tpl.image;
-                                        link.download = `template_${tpl.id}.jpg`;
-                                        document.body.appendChild(link);
-                                        link.click();
-                                        document.body.removeChild(link);
+                               {sortedTemplates.map(tpl => {
+                                 const isFavorite = favoriteTemplateIds.includes(tpl.id);
+                                 const isEditing = tpl.id === editingTemplateId;
+                                 const isSystemTemplate = tpl.id === 1 || tpl.id === 2;
+
+                                 return (
+                                  <div 
+                                    key={tpl.id} 
+                                    className={`group relative cursor-pointer rounded-lg overflow-hidden border transition-all hover:shadow-md ${selectedTemplate.id === tpl.id ? 'border-blue-500 ring-1 ring-inset ring-blue-500' : 'border-slate-200'}`}
+                                  >
+                                     <div className={`aspect-video bg-slate-100 flex items-center justify-center overflow-hidden relative group-image`}>
+                                        <img src={tpl.image} alt={tpl.name} className="w-full h-full object-cover" 
+                                           onClick={() => setSelectedTemplate(tpl)}
+                                        />
                                         
-                                        setSelectedTemplate(tpl);
-                                   }}
-                                   className={`group relative cursor-pointer rounded-lg overflow-hidden border transition-all border-slate-200 hover:shadow-md`}
-                                 >
-                                    <div className={`aspect-video bg-slate-100 flex items-center justify-center overflow-hidden relative`}>
-                                       <img src={tpl.image} alt={tpl.name} className="w-full h-full object-cover" />
-                                        {/* Hover Overlay with Download Icon */}
-                                        <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                                           <div className="bg-white/20 p-3 rounded-full backdrop-blur-sm border border-white/30 text-white shadow-xl transform scale-90 group-hover:scale-100 transition-transform duration-300">
-                                              <Download size={32} strokeWidth={1.5} />
+                                        {/* Top Left: Star Button */}
+                                         <button 
+                                            className={`absolute top-2 left-2 p-1.5 rounded-full backdrop-blur-sm transition-all z-20 ${isFavorite ? 'bg-yellow-400 text-white shadow-sm' : 'bg-black/30 text-white/70 hover:bg-yellow-400 hover:text-white'}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setFavoriteTemplateIds(prev => {
+                                                    if (prev.includes(tpl.id)) {
+                                                        return prev.filter(id => id !== tpl.id);
+                                                    } else {
+                                                        return [...prev, tpl.id];
+                                                    }
+                                                });
+                                            }}
+                                            title={isFavorite ? "取消常用" : "設為常用"}
+                                         >
+                                            <Star size={14} fill={isFavorite ? "currentColor" : "none"} />
+                                         </button>
+
+                                        {/* Top Right: Trash Button (Only in Edit Mode) */}
+                                        {isEditing && (
+                                            <button 
+                                                className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full shadow-md hover:bg-red-600 transition-colors z-20"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if(window.confirm(`確定要刪除「${tpl.name}」嗎？`)) {
+                                                        setTemplates(prev => prev.filter(t => t.id !== tpl.id));
+                                                        if(selectedTemplate.id === tpl.id) setSelectedTemplate(templates[0]);
+                                                    }
+                                                }}
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                        )}
+
+                                         {/* Hover Overlay with Buttons */}
+                                         <div className={`absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3 ${isEditing ? 'hidden' : ''}`}>
+                                            {/* Download */}
+                                            <button 
+                                                className="bg-white/20 p-2 rounded-full backdrop-blur-sm border border-white/30 text-white shadow-xl hover:bg-white/40 transition-all transform hover:scale-110"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if(!window.confirm("確定要下載此範本嗎？")) return;
+                                                    const link = document.createElement('a');
+                                                    link.href = tpl.image;
+                                                    link.download = `template_${tpl.id}.jpg`;
+                                                    document.body.appendChild(link);
+                                                    link.click();
+                                                    document.body.removeChild(link);
+                                                }}
+                                                title="下載範本"
+                                            >
+                                               <Download size={20} />
+                                            </button>
+                                            
+                                            {/* Edit (Hidden for System Templates) */}
+                                            {/* Edit */}
+                                            <button 
+                                                className={`p-2 rounded-full backdrop-blur-sm border border-white/30 shadow-xl transition-all transform ${isSystemTemplate 
+                                                    ? 'bg-red-500/20 text-white/50 cursor-not-allowed hover:bg-red-500/20' 
+                                                    : 'bg-white/20 text-white hover:bg-white/40 hover:scale-110'
+                                                }`}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (isSystemTemplate) return;
+                                                    setEditingTemplateId(tpl.id);
+                                                    setTempName(tpl.name);
+                                                }}
+                                                title={isSystemTemplate ? "預設範本不可編輯" : "編輯範本"}
+                                            >
+                                               {isSystemTemplate ? <Ban size={20} /> : <Pencil size={20} />}
+                                            </button>
+                                         </div>
+                                      </div>
+                                     
+                                     {/* Bottom Area: Name or Edit Input */}
+                                     {isEditing ? (
+                                         <div className="px-2 bg-blue-50 flex items-center gap-2 h-[44px] border-t border-slate-100 box-border overflow-hidden w-full max-w-full">
+                                             <input 
+                                                className="flex-1 min-w-0 w-0 text-xs border border-blue-200 rounded px-2 outline-none focus:border-blue-500 bg-white h-[28px] box-border m-0 leading-normal"
+                                                value={tempName}
+                                                onChange={(e) => setTempName(e.target.value)}
+                                                autoFocus
+                                                onClick={(e) => e.stopPropagation()}
+                                                onKeyDown={(e) => {
+                                                    if(e.key === 'Enter') {
+                                                        setTemplates(prev => prev.map(t => t.id === tpl.id ? {...t, name: tempName} : t));
+                                                        setEditingTemplateId(null);
+                                                    }
+                                                }}
+                                             />
+                                             <button 
+                                                className="text-green-600 hover:bg-green-100 rounded-full flex-shrink-0 w-[28px] h-[28px] flex items-center justify-center"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setTemplates(prev => prev.map(t => t.id === tpl.id ? {...t, name: tempName} : t));
+                                                    setEditingTemplateId(null);
+                                                }}
+                                             >
+                                                 <CheckCircle2 size={16} />
+                                             </button>
+                                         </div>
+                                     ) : (
+                                        <div className="px-2 bg-white flex items-center gap-2 h-[44px] border-t border-slate-100 box-border overflow-hidden w-full max-w-full" onClick={() => setSelectedTemplate(tpl)}>
+                                           <div className="flex-1 min-w-0 w-0 px-2 border border-transparent h-[28px] flex items-center box-border m-0">
+                                              <span className="text-xs font-medium text-slate-900 truncate block w-full leading-none">{tpl.name}</span>
                                            </div>
                                         </div>
-                                     </div>
-                                    <div className="p-2 bg-white flex justify-between items-center">
-                                       <span className="text-xs font-medium text-slate-600 truncate">{tpl.name}</span>
-                                    </div>
-                                 </div>
-                               ))}
+                                     )}
+                                  </div>
+                                 );
+                               })}
+                               
+                               {/* Upload Button at the end */}
+                               <div 
+                                  onClick={handleFileUpload}
+                                  className="border-2 border-dashed border-slate-200 rounded-lg p-4 flex flex-col items-center justify-center gap-2 text-slate-400 hover:border-blue-400 hover:text-blue-500 hover:bg-blue-50 cursor-pointer transition-all group min-h-[100px]"
+                               >
+                                  <div className="bg-slate-100 p-3 rounded-full group-hover:bg-white transition-colors">
+                                      <Upload size={20} />
+                                  </div>
+                                  <span className="text-xs font-medium">上傳新範本</span>
+                               </div>
                             </div>
                          </div>
                      </div>

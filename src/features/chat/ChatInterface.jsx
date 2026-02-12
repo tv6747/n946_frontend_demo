@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  BrainCircuit, FileText, Bot, Download, Save, 
+  BrainCircuit, FileText, Bot, Download, Save, Copy, X,
   GripVertical, Maximize2, ArrowUpRight, FolderDown
 } from 'lucide-react';
 import { useResizable } from '../../hooks/useResizable';
@@ -11,13 +11,17 @@ import { ChatInput } from '../../components/common/ChatInput';
 
 export function ChatInterface({ currentFeature, onExport, onSave, ragContext, onOpenLLMSettings }) {
   const [messages, setMessages] = useState([]);
-  const isDraftMode = currentFeature.id.startsWith('draft_') && !currentFeature.id.startsWith('draft_doc_gen');
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [feedbackText, setFeedbackText] = useState('');
+  const isDraftMode = currentFeature.id.startsWith('draft_') && !currentFeature.id.startsWith('draft_doc_gen') || currentFeature.id === 'doc_assist';
   // Default to 50% for drafts, 70% otherwise
   const { leftWidth, startResizing } = useResizable(isDraftMode ? 50 : 50);
 
   // Check if we should show the LLM settings button (Only for Interactive Chat)
-  const showLLMSettings = currentFeature.id === 'interactive';
+  // Check if we should show the LLM settings button (Only for Interactive Chat)
+  const isInteractive = currentFeature.id === 'interactive';
   const shouldHideLLMSettings = currentFeature.hideLLMSettings;
+  const showLLMSettings = isInteractive || !shouldHideLLMSettings;
 
   useEffect(() => {
     if (currentFeature.id === 'draft_mail') {
@@ -30,6 +34,9 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
         { id: 1, role: 'user', content: '公文號：113營署建字第1130008888號，請幫我檢查缺件情況並擬定補正通知。' },
         { id: 2, role: 'ai', content: '好的，已檢核公文號 113營署建字第1130008888號。\n\n經查核，本案尚缺以下文件：\n1. 消防安全設備圖說 (未核章)\n2. 施工許可證申請書 (缺屋主簽名)\n\n建議補正通知內容如下：\n主旨：台端申請本市XX區...室內裝修審查一案 (公文號：113營署建字第1130008888號)，請於文到10日內補正說明二所列事項，請查照。\n說明：\n一、依建築物室內裝修管理辦法辦理。\n二、補正事項：(一) 請檢附經消防局核章之消防圖說...(略)' }
       ]);
+    } else if (currentFeature.id === 'doc_assist') {
+      // DOC_ASSIST: Start empty to show Welcome Screen
+      setMessages([]);
     } else {
       setMessages([]); 
     }
@@ -87,7 +94,11 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
        ) : (
          <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar bg-slate-50/50">
            {messages.map(msg => (
-              <ChatMessage key={msg.id} message={msg} />
+              <ChatMessage 
+                 key={msg.id} 
+                 message={msg} 
+                 onFeedback={() => setIsFeedbackModalOpen(true)}
+              />
            ))}
          </div>
        )}
@@ -98,7 +109,7 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
      placeholder: currentFeature.placeholder,
      showLLMSettings: showLLMSettings && !shouldHideLLMSettings,
      onOpenLLMSettings,
-     allowUpload: currentFeature.id === 'interactive' || currentFeature.allowUpload,
+     allowUpload: true, // Force enable for all chat inputs
      showInstructions: currentFeature.showInstructions
   };
 
@@ -151,6 +162,7 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
                          </>
                      )}
                      <button onClick={onExport} className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded transition-colors" title="匯出文件"><Download size={16} /></button>
+                     <button className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded transition-colors" title="複製內容" onClick={() => navigator.clipboard.writeText(lastAIResponse)}><Copy size={16} /></button>
                      <button onClick={onSave} className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded transition-colors" title="儲存草稿"><Save size={16} /></button>
                      <button className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded transition-colors" title="全螢幕"><Maximize2 size={16} /></button>
                   </div>
@@ -172,6 +184,46 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
       {/* 2. Full Width Input Bar at Bottom */}
       <ChatInput {...commonInputProps} />
 
+
+      {/* Feedback Modal */}
+      {isFeedbackModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+           <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative animate-in zoom-in-95 duration-200">
+              <button 
+                  onClick={() => setIsFeedbackModalOpen(false)}
+                  className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                  <X size={20} />
+              </button>
+              <h3 className="text-lg font-bold text-slate-800 mb-4">提供回饋</h3>
+              <p className="text-sm text-slate-500 mb-4">請告訴我們您的建議或遇到的問題，這將幫助我們改進。</p>
+              <textarea 
+                  className="w-full h-32 p-3 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none mb-4"
+                  placeholder="請輸入您的回饋..."
+                  value={feedbackText}
+                  onChange={(e) => setFeedbackText(e.target.value)}
+              ></textarea>
+              <div className="flex justify-end gap-2">
+                  <button 
+                      onClick={() => setIsFeedbackModalOpen(false)}
+                      className="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                  >
+                      取消
+                  </button>
+                  <button 
+                      onClick={() => {
+                          alert('謝謝您的回饋！');
+                          setIsFeedbackModalOpen(false);
+                          setFeedbackText('');
+                      }}
+                      className="px-4 py-2 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors"
+                  >
+                      送出回饋
+                  </button>
+              </div>
+           </div>
+        </div>
+      )}
     </div>
   );
 }

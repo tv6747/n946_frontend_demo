@@ -308,8 +308,33 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
 
                       {/* 3. Feature Toggles */}
                       <div className="space-y-1">
-                         <label className="block text-sm font-medium text-slate-700">功能開關</label>
+                         <label className="block text-sm font-medium text-slate-700">功能設定</label>
                          <div className="flex flex-col gap-3 py-2">
+                            <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
+                                <div className={`w-5 h-5 rounded border flex items-center justify-center ${formData.allowUpload ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300'}`}>
+                                    {formData.allowUpload && <Check size={14} />}
+                                </div>
+                                <input 
+                                    type="checkbox" 
+                                    className="hidden"
+                                    checked={!!formData.allowUpload}
+                                    onChange={(e) => handleChange({ allowUpload: e.target.checked })}
+                                />
+                                <span className="text-sm font-medium text-slate-700">啟用檔案上傳</span>
+                            </label>
+
+                            <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
+                                <div className={`w-5 h-5 rounded border flex items-center justify-center ${formData.enableFeedback ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300'}`}>
+                                    {formData.enableFeedback && <Check size={14} />}
+                                </div>
+                                <input 
+                                    type="checkbox" 
+                                    className="hidden"
+                                    checked={!!formData.enableFeedback}
+                                    onChange={(e) => handleChange({ enableFeedback: e.target.checked })}
+                                />
+                                <span className="text-sm font-medium text-slate-700">啟用回饋機制</span>
+                            </label>
                             <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
                                 <div className={`w-5 h-5 rounded border flex items-center justify-center ${formData.showInstructions ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300'}`}>
                                     {formData.showInstructions && <Check size={14} />}
@@ -334,19 +359,6 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
                                     onChange={(e) => handleChange({ showCitations: e.target.checked })}
                                 />
                                 <span className="text-sm font-medium text-slate-700">顯示引用來源</span>
-                            </label>
-
-                            <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
-                                <div className={`w-5 h-5 rounded border flex items-center justify-center ${formData.enableFeedback ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300'}`}>
-                                    {formData.enableFeedback && <Check size={14} />}
-                                </div>
-                                <input 
-                                    type="checkbox" 
-                                    className="hidden"
-                                    checked={!!formData.enableFeedback}
-                                    onChange={(e) => handleChange({ enableFeedback: e.target.checked })}
-                                />
-                                <span className="text-sm font-medium text-slate-700">啟用回饋機制</span>
                             </label>
                          </div>
                       </div>

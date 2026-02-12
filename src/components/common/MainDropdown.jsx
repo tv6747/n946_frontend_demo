@@ -18,6 +18,7 @@ const ICON_MAP = {
     DRAFT_AREA: <FileText size={16} />,
     DRAFT_DECOR: <Hammer size={16} />,
     DRAFT_DOC_GEN: <FileText size={16} />,
+    DOC_ASSIST: <FileText size={16} />, // Added icon
     ADMIN_APP: <LayoutGrid size={16} />,
     ADMIN_PROMPT: <MessageSquare size={16} />,
     ADMIN_MODEL: <Cpu size={16} />,
@@ -48,16 +49,22 @@ export function MainDropdown({ currentFeature, onSelect, features }) {
     setIsOpen(false);
   };
 
+  // Define desired order for doc_gen
+  const DOC_GEN_ORDER = ['DOC_ASSIST', 'DRAFT_MAIL', 'DRAFT_DOC_GEN'];
+
   // Grouping Logic
   const groups = {
       general: availableFeatures.filter(k => ['INTERACTIVE', 'DOC_TRANS', 'PPT_GEN', 'PROMPT_OPT', 'KB_MANAGEMENT'].includes(k)),
       bots: availableFeatures.filter(k => ['BOT_HR', 'BOT_SECURITY'].includes(k)),
-      doc_gen: availableFeatures.filter(k => ['DRAFT_DOC_GEN'].includes(k)),
-      drafts: availableFeatures.filter(k => k.startsWith('DRAFT_') && !['DRAFT_DOC_GEN'].includes(k)),
+      // Filter then Sort by defined order
+      doc_gen: availableFeatures
+          .filter(k => DOC_GEN_ORDER.includes(k))
+          .sort((a, b) => DOC_GEN_ORDER.indexOf(a) - DOC_GEN_ORDER.indexOf(b)),
+      drafts: availableFeatures.filter(k => k.startsWith('DRAFT_') && !['DRAFT_DOC_GEN', 'DRAFT_MAIL', 'DOC_ASSIST'].includes(k)),
       admin: availableFeatures.filter(k => k.startsWith('ADMIN_') || k === 'BOT_MANAGEMENT' || k === 'CORPUS_MANAGEMENT'),
   };
-
-  const isDocSystem = availableFeatures.some(k => k.startsWith('DRAFT_'));
+  
+  const isDocSystem = availableFeatures.some(k => k.startsWith('DRAFT_') || k === 'DOC_ASSIST');
   // Determine if we are in admin system (if admin features are present)
   const isAdminSystem = availableFeatures.some(k => k.startsWith('ADMIN_'));
 
@@ -140,29 +147,30 @@ export function MainDropdown({ currentFeature, onSelect, features }) {
                 </>
             )}
 
-            {groups.drafts.length > 0 && (
+            {groups.doc_gen.length > 0 && (
                 <>
                     {groups.general.length > 0 && <div className="my-1 border-t border-slate-100"></div>}
+                    <div className="px-4 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider sticky top-0 bg-white">通用功能</div>
+                    {groups.doc_gen.map(key => (
+                        <MenuItem 
+                            key={key}
+                            label={FEATURES[key].label} 
+                            active={currentFeature.id === FEATURES[key].id} 
+                            onClick={() => handleItemClick(key)} 
+                            icon={ICON_MAP[key]} 
+                        />
+                    ))}
+                </>
+            )}
+
+            {groups.drafts.length > 0 && (
+                <>
+                    {(groups.general.length > 0 || groups.doc_gen.length > 0) && <div className="my-1 border-t border-slate-100"></div>}
                     <div className="px-4 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider sticky top-0 bg-white">例行函稿</div>
                     {groups.drafts.map(key => (
                         <MenuItem 
                             key={key}
                             label={FEATURES[key].label.replace('例行函稿 - ', '')} 
-                            active={currentFeature.id === FEATURES[key].id} 
-                            onClick={() => handleItemClick(key)} 
-                            indent
-                        />
-                    ))}
-                </>
-            )}
-            {groups.doc_gen.length > 0 && (
-                <>
-                    {groups.general.length > 0 && <div className="my-1 border-t border-slate-100"></div>}
-                    <div className="px-4 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider sticky top-0 bg-white">其他應用</div>
-                    {groups.doc_gen.map(key => (
-                        <MenuItem 
-                            key={key}
-                            label={FEATURES[key].label} 
                             active={currentFeature.id === FEATURES[key].id} 
                             onClick={() => handleItemClick(key)} 
                             indent

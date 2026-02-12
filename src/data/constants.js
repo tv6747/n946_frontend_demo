@@ -31,11 +31,12 @@ export const FEATURES = {
   BOT_MANAGEMENT: { id: 'bot_manage', label: '答詢機器人管理', mode: MODES.BOT_MGR, placeholder: '' },
   BOT_HR: { id: 'bot_hr', label: '答詢機器人 - 人事差勤機器人', mode: MODES.CHAT, placeholder: '詢問假勤相關...' },
   BOT_SECURITY: { id: 'bot_security', label: '答詢機器人 - 資訊安全機器人', mode: MODES.CHAT, placeholder: '詢問資安相關...' },
-  DRAFT_MAIL: { id: 'draft_mail', label: '例行函稿 - 署長信箱', mode: MODES.CHAT, placeholder: '輸入民眾來信內容...' },
+  DRAFT_MAIL: { id: 'draft_mail', label: '首長信箱', mode: MODES.CHAT, placeholder: '輸入民眾來信內容...' },
   DRAFT_HILL: { id: 'draft_hill', label: '例行函稿 - 山坡地社區點監測', mode: MODES.CHAT, placeholder: '輸入監測數據...' },
   DRAFT_AREA: { id: 'draft_area', label: '例行函稿 - 禁建限區', mode: MODES.CHAT, placeholder: '輸入管制區號...' },
   DRAFT_DECOR: { id: 'draft_decor', label: '例行函稿 - 室內裝修', mode: MODES.CHAT, placeholder: '輸入申請案號...' },
   DRAFT_DOC_GEN: { id: 'draft_doc_gen', label: '公文檔案上傳生成案件歷程', mode: MODES.CHAT, placeholder: '請上傳公文檔案以生成案件歷程...', allowUpload: true, hideLLMSettings: true },
+  DOC_ASSIST: { id: 'doc_assist', label: '通用公文撰寫', mode: MODES.CHAT, placeholder: '輸入公文內容或詢問格式...', allowUpload: true, hideLLMSettings: false },
   
   // Admin Features
   ADMIN_SERVICE: { id: 'admin_service', label: '服務管理', mode: MODES.ADMIN_SERVICE, placeholder: '' },
@@ -45,6 +46,7 @@ export const FEATURES = {
   ADMIN_PARAMS: { id: 'admin_params', label: '模型參數管理', mode: MODES.ADMIN_PARAMS, placeholder: '' },
   ADMIN_PROMPTS: { id: 'admin_prompts', label: '提示詞管理', mode: MODES.ADMIN_PROMPTS, placeholder: '' },
   ADMIN_APIS: { id: 'admin_apis', label: 'API 管理', mode: MODES.ADMIN_APIS, placeholder: '' },
+  ADMIN_PROMPT_OPT: { id: 'admin_prompt_opt', label: '提示詞優化', mode: MODES.PROMPT, placeholder: '輸入測試案例...' },
   ADMIN_LLM: { id: 'admin_llm', label: '語言模型管理', mode: MODES.ADMIN_LLM, placeholder: '' },
   ADMIN_TOOLS: { id: 'admin_tools', label: '工具管理', mode: MODES.ADMIN_TOOLS, placeholder: '' },
   ADMIN_AUDIT: { id: 'admin_audit', label: '稽核管理', mode: MODES.ADMIN_AUDIT, placeholder: '' },
@@ -118,6 +120,11 @@ export const WELCOME_CONFIG = {
     sub: '上傳公文檔案以自動生成案件歷程摘要及時間軸。',
     suggestions: ['上傳 PDF 檔案開始分析', '生成案件歷程摘要']
   },
+  doc_assist: {
+    title: '通用公文撰寫',
+    sub: '協助撰寫、潤飾與檢查各類公文內容。',
+    suggestions: ['如何撰寫開會通知單？', '幫我潤飾這段函稿內容', '檢查這份公文的格式是否正確']
+  },
   ppt_gen: {
     title: '快速生成專業簡報',
     sub: '告訴我主題，我將為您生成大綱、內容並套用精美範本。',
@@ -134,7 +141,7 @@ export const WELCOME_CONFIG = {
     suggestions: ['分析上季度的營收下滑原因', '預測下個月的熱銷商品', '根據現有數據找出潛在的高價值客戶']
   },
   draft_mail: {
-    title: '署長信箱擬稿',
+    title: '首長信箱擬稿',
     sub: '協助回覆民眾陳情案件，確保語氣正式且合規。',
     suggestions: ['擬稿回覆關於夜間施工噪音的陳情', '回覆民眾詢問公園設施修繕進度', '針對交通號誌故障的陳情回覆']
   },

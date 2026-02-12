@@ -1,0 +1,28 @@
+
+  {
+    id: 'app_doc_assist', // New App
+    name: '公文輔助',
+    level: 'DOC',
+    page: 'doc_assist',
+    defaultSettings: {
+      modelId: 'model_1',
+      paramId: 'param_2',
+      promptId: '',
+    },
+    featureSettings: {
+      enableFileUpload: true,
+      enableFeedback: true
+    },
+    availableModels: ['model_1'],
+    welcomeMessage: '協助撰寫、潤飾與檢查各類公文內容。',
+    defaultQuestions: [
+      '如何撰寫開會通知單？',
+      '幫我潤飾這段函稿內容',
+      '檢查這份公文的格式是否正確'
+    ],
+    permissions: {
+      allowedUsers: ['user_admin', 'user_1'],
+      isPublic: false
+    },
+    createdAt: '2024-02-23'
+  },

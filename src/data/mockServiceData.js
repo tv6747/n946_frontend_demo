@@ -13,6 +13,10 @@ export const MOCK_APPLICATIONS = [
       paramId: 'param_3',
       promptId: '',
     },
+    featureSettings: {
+      enableFileUpload: true,
+      enableFeedback: true
+    },
     tools: [{ id: '1', defaultOn: true }, { id: '3', defaultOn: false }], // Google Search, OCR
     availableModels: ['model_1', 'model_2'],
     defaultModelId: 'model_1', // Default model for the application
@@ -86,6 +90,10 @@ export const MOCK_APPLICATIONS = [
       paramId: 'param_2',
       promptId: '',
     },
+    featureSettings: {
+      enableFileUpload: true,
+      enableFeedback: true
+    },
     availableModels: ['model_1', 'model_2'],
     defaultModelId: 'model_1',
     welcomeMessage: '專業文件翻譯服務，支援多種語言。',
@@ -154,7 +162,7 @@ export const MOCK_APPLICATIONS = [
   },
   {
     id: 'app_draft_mail',
-    name: '例行函稿 - 署長信箱',
+    name: '首長信箱',
     level: 'DOC',
     page: 'draft_mail',
     defaultSettings: {
@@ -185,6 +193,10 @@ export const MOCK_APPLICATIONS = [
       paramId: 'param_2',
       promptId: '',
     },
+    featureSettings: {
+      enableFileUpload: true,
+      enableFeedback: true
+    },
     availableModels: ['model_1'],
     welcomeMessage: '請輸入山坡地監測數據，系統將生成監測報告函稿。',
     defaultQuestions: [
@@ -207,6 +219,10 @@ export const MOCK_APPLICATIONS = [
       modelId: 'model_1',
       paramId: 'param_2',
       promptId: '',
+    },
+    featureSettings: {
+      enableFileUpload: true,
+      enableFeedback: true
     },
     availableModels: ['model_1'],
     welcomeMessage: '輸入管制區號，系統將生成相關公文。',
@@ -231,6 +247,10 @@ export const MOCK_APPLICATIONS = [
       paramId: 'param_2',
       promptId: '',
     },
+    featureSettings: {
+      enableFileUpload: true,
+      enableFeedback: true
+    },
     availableModels: ['model_1'],
     welcomeMessage: '請輸入裝修申請案號，系統將協助處理相關文件。',
     defaultQuestions: [
@@ -245,6 +265,35 @@ export const MOCK_APPLICATIONS = [
     createdAt: '2024-02-18'
   },
   {
+    id: 'app_doc_assist',
+    name: '通用公文撰寫',
+    level: 'DOC',
+    page: 'doc_assist',
+    featureSettings: {
+      enableFileUpload: true,
+      enableFeedback: true
+    },
+    defaultSettings: {
+      modelId: 'model_1',
+      paramId: 'param_2',
+      promptId: '',
+    },
+    availableModels: ['model_1'],
+    availablePrompts: ['prompt_1'],
+    defaultPromptId: 'prompt_1',
+    welcomeMessage: '協助撰寫、潤飾與檢查各類公文內容。',
+    defaultQuestions: [
+      '如何撰寫開會通知單？',
+      '幫我潤飾這段函稿內容',
+      '檢查這份公文的格式是否正確'
+    ],
+    permissions: {
+      allowedUsers: ['user_admin', 'user_1'],
+      isPublic: false
+    },
+    createdAt: '2024-02-23'
+  },
+  {
     id: 'app_draft_doc_gen',
     name: '公文檔案上傳生成案件歷程',
     level: 'DOC',
@@ -253,6 +302,10 @@ export const MOCK_APPLICATIONS = [
       modelId: 'model_1',
       paramId: 'param_2',
       promptId: '',
+    },
+    featureSettings: {
+      enableFileUpload: true,
+      enableFeedback: true
     },
     availableModels: ['model_1'],
     welcomeMessage: '請上傳公文檔案以生成案件歷程。',
