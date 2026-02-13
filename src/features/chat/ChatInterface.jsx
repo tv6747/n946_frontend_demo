@@ -9,7 +9,7 @@ import { CanvasPreview } from '../ppt/CanvasPreview';
 import { ChatMessage } from '../../components/common/ChatMessage';
 import { ChatInput } from '../../components/common/ChatInput';
 
-export function ChatInterface({ currentFeature, onExport, onSave, ragContext, onOpenLLMSettings }) {
+export function ChatInterface({ currentFeature, onExport, onSave, ragContext, ragContextLabel, onOpenLLMSettings }) {
   const [messages, setMessages] = useState([]);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
@@ -62,7 +62,15 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
             <div className="flex items-center gap-2">
                <BrainCircuit size={14} className="text-indigo-500" />
                <span className="font-medium flex items-center gap-1">
-                  基於勾選的 
+                  {ragContextLabel ? (
+                    <>
+                      目前使用文件範圍：
+                      <span className="font-bold text-indigo-800">{ragContextLabel}</span>
+                      <span className="text-indigo-400 mx-1">•</span>
+                    </>
+                  ) : (
+                    <>基於勾選的 </>
+                  )}
                   <span className="relative group cursor-help underline decoration-dotted underline-offset-4 decoration-indigo-400 font-bold">
                      {ragContext.length} 個檔案
                       {/* Light Theme Tooltip (Read Only) */}
@@ -84,7 +92,7 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, on
                          </div>
                      </div>
                   </span>
-                  進行回答
+                  {!ragContextLabel && <> 進行回答</>}
                </span>
             </div>
          </div>

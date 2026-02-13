@@ -1,29 +1,90 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
     FolderOpen, X, FileText, Trash2, Users, Download, 
     MessageSquare, Search, FileCode, File, Info, ArrowLeftRight, 
-    ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, Bot 
+    ChevronLeft as ChevronLeftIcon, ChevronRight as ChevronRightIcon, Bot,
+    List, Pencil, Check, ListPlus, MinusCircle
 } from 'lucide-react';
 import { findNodePath } from '../../utils/helpers';
 import { MASTER_FILES, KB_TREE_DATA } from '../../data/mockData';
 
-export function KBManagerPanel({ selectedFolderId, files, bots, selectedFileIds, onSelectionChange, onRemove, onShare, onUpload, onViewDetails, onStartChat, isReadOnly = false, userRole, onRoleChange }) {
+/**
+ * KBManagerPanel - 知識庫管理面板
+ * 
+ * 【業務邏輯說明 - 常用清單模式】
+ * 當 isFavListMode=true 時，此面板顯示的是「常用清單」中的文件。
+ * 此清單資料庫僅儲存文件的 ID，在此清單中的任何移除或修改操作，
+ * 皆不會影響或刪除到原本的文件實體。
+ * 
+ * 【狀態獨立性】
+ * 「常用清單」的文件勾選狀態 (favSelectedFileIds) 與「文件導覽」的勾選狀態 (selectedFileIds)
+ * 完全獨立，互不影響。
+ */
+export function KBManagerPanel({ 
+  selectedFolderId, files, bots, selectedFileIds, onSelectionChange, 
+  onRemove, onShare, onUpload, onViewDetails, onStartChat, 
+  isReadOnly = false, userRole, onRoleChange, 
+  isFavListMode = false, favListName = '', onFavListNameChange,
+  isPersonalFolder = false,
+  onOpenAddToListModal,
+  onRemoveFromFavList,
+  favSelectedFileIds = [], onFavSelectionChange,
+  folderDisplayName = '', onFolderNameChange
+}) {
   
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
+  // Inline edit state for favorite list name
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editNameValue, setEditNameValue] = useState(favListName);
+  const nameInputRef = useRef(null);
+
+  // Inline edit state for folder name (個人知識庫)
+  const [isEditingFolderName, setIsEditingFolderName] = useState(false);
+  const [editFolderNameValue, setEditFolderNameValue] = useState(folderDisplayName);
+  const folderNameInputRef = useRef(null);
+
   const isSharedFolder = selectedFolderId.startsWith('shared_'); 
   
+  // 根據模式使用不同的勾選狀態
+  const activeSelectedIds = isFavListMode ? favSelectedFileIds : selectedFileIds;
+  const activeOnSelectionChange = isFavListMode ? onFavSelectionChange : onSelectionChange;
+
   // 取得目前所有選取的檔案物件（不分資料夾）
   const selectedFilesObjects = useMemo(() => {
-     return MASTER_FILES.filter(f => selectedFileIds.includes(f.id));
-  }, [selectedFileIds]);
+     return MASTER_FILES.filter(f => activeSelectedIds.includes(f.id));
+  }, [activeSelectedIds]);
 
-  // 重置頁碼當資料夾變更
+  // 重置頁碼當資料夾變更 or 切換到常用清單
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedFolderId]);
+  }, [selectedFolderId, isFavListMode]);
+
+  // Sync edit name value when favListName changes externally
+  useEffect(() => {
+    setEditNameValue(favListName);
+    setIsEditingName(false);
+  }, [favListName]);
+
+  // Sync folder name value when folder changes
+  useEffect(() => {
+    setEditFolderNameValue(folderDisplayName);
+    setIsEditingFolderName(false);
+  }, [folderDisplayName]);
+
+  // Focus input when editing starts
+  useEffect(() => {
+    if (isEditingName && nameInputRef.current) {
+      nameInputRef.current.focus();
+      nameInputRef.current.select();
+    }
+    if (isEditingFolderName && folderNameInputRef.current) {
+      folderNameInputRef.current.focus();
+      folderNameInputRef.current.select();
+    }
+  }, [isEditingName, isEditingFolderName]);
 
   // Pagination Logic
   const totalPages = Math.ceil(files.length / itemsPerPage);
@@ -38,46 +99,122 @@ export function KBManagerPanel({ selectedFolderId, files, bots, selectedFileIds,
   };
 
   const handleSelectAll = (e) => {
-    // Select all files in CURRENT PAGE
     const currentFileIds = currentFiles.map(f => f.id);
-    
     if (e.target.checked) {
-      const newSelection = [...new Set([...selectedFileIds, ...currentFileIds])];
-      onSelectionChange(newSelection);
+      const newSelection = [...new Set([...activeSelectedIds, ...currentFileIds])];
+      activeOnSelectionChange(newSelection);
     } else {
-      const newSelection = selectedFileIds.filter(id => !currentFileIds.includes(id));
-      onSelectionChange(newSelection);
+      const newSelection = activeSelectedIds.filter(id => !currentFileIds.includes(id));
+      activeOnSelectionChange(newSelection);
     }
   };
 
   const handleSelectOne = (id) => {
-    if (selectedFileIds.includes(id)) {
-      onSelectionChange(selectedFileIds.filter(fid => fid !== id));
+    if (activeSelectedIds.includes(id)) {
+      activeOnSelectionChange(activeSelectedIds.filter(fid => fid !== id));
     } else {
-      onSelectionChange([...selectedFileIds, id]);
+      activeOnSelectionChange([...activeSelectedIds, id]);
     }
   };
 
   const handleRemoveFromSelection = (id) => {
-    onSelectionChange(selectedFileIds.filter(fid => fid !== id));
+    activeOnSelectionChange(activeSelectedIds.filter(fid => fid !== id));
   };
 
   const handleClearSelection = () => {
-    onSelectionChange([]);
+    activeOnSelectionChange([]);
   };
 
   const pathString = useMemo(() => {
+    if (isFavListMode) return favListName;
     if (isReadOnly) return selectedFolderId;
     const path = findNodePath(KB_TREE_DATA, selectedFolderId);
     return path ? path.join(' > ') : 'Root';
-  }, [selectedFolderId, isReadOnly]);
+  }, [selectedFolderId, isReadOnly, isFavListMode, favListName]);
 
   const getUsedByBots = (fileId) => {
     return bots ? bots.filter(bot => bot.files.includes(fileId)) : [];
   };
 
   // Check if all items on current page are selected
-  const isPageAllSelected = currentFiles.length > 0 && currentFiles.every(f => selectedFileIds.includes(f.id));
+  const isPageAllSelected = currentFiles.length > 0 && currentFiles.every(f => activeSelectedIds.includes(f.id));
+
+  // Handle inline edit confirm
+  const handleNameEditConfirm = () => {
+    const trimmed = editNameValue.trim();
+    if (trimmed && trimmed !== favListName && onFavListNameChange) {
+      onFavListNameChange(trimmed);
+    } else {
+      setEditNameValue(favListName);
+    }
+    setIsEditingName(false);
+  };
+
+  const handleNameKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleNameEditConfirm();
+    } else if (e.key === 'Escape') {
+      setEditNameValue(favListName);
+      setIsEditingName(false);
+    }
+  };
+
+  // Handle folder name inline edit confirm
+  const handleFolderNameEditConfirm = () => {
+    const trimmed = editFolderNameValue.trim();
+    if (trimmed && trimmed !== folderDisplayName && onFolderNameChange) {
+      onFolderNameChange(trimmed);
+    } else {
+      setEditFolderNameValue(folderDisplayName);
+    }
+    setIsEditingFolderName(false);
+  };
+
+  const handleFolderNameKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleFolderNameEditConfirm();
+    } else if (e.key === 'Escape') {
+      setEditFolderNameValue(folderDisplayName);
+      setIsEditingFolderName(false);
+    }
+  };
+
+  // ===== Shared Tooltip Dropdown Component =====
+  const renderSelectedTooltip = () => {
+    if (activeSelectedIds.length === 0) return null;
+    return (
+      <div className="absolute top-full left-0 mt-4 w-72 bg-white border border-slate-200 rounded-xl shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left text-slate-800">
+        <div className="p-3 border-b border-slate-100 font-bold text-xs text-slate-500 uppercase tracking-wider flex justify-between items-center">
+           <span>已選文件清單</span>
+           <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">{activeSelectedIds.length}</span>
+        </div>
+        <div className="max-h-48 overflow-y-auto custom-scrollbar">
+           {selectedFilesObjects.map(file => (
+              <div key={file.id} className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 border-b border-slate-50 last:border-0 group/item">
+                 <div className="flex items-center gap-2 min-w-0">
+                    <FileText size={14} className="text-slate-400 flex-shrink-0" />
+                    <span className="text-sm text-slate-700 truncate">{file.name}</span>
+                 </div>
+                 <button 
+                   onClick={(e) => { e.stopPropagation(); handleRemoveFromSelection(file.id); }}
+                   className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                   title="從選取中移除"
+                 >
+                    <Trash2 size={12} />
+                 </button>
+              </div>
+           ))}
+        </div>
+        <div className="p-2 bg-slate-50 border-t border-slate-200 rounded-b-xl">
+           <button onClick={handleClearSelection} className="w-full text-center text-xs text-red-500 hover:text-red-700 hover:bg-red-50 py-1.5 rounded transition-colors">
+              全部移除
+           </button>
+        </div>
+        <div className="absolute bottom-full left-4 border-8 border-transparent border-b-white"></div>
+        <div className="absolute bottom-full left-0 w-full h-4 bg-transparent"></div> 
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col h-full bg-slate-50 p-6 overflow-hidden">
@@ -85,93 +222,177 @@ export function KBManagerPanel({ selectedFolderId, files, bots, selectedFileIds,
        <div className="flex flex-col gap-4 mb-4">
          <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold flex items-center gap-2 text-slate-800">
-                <FolderOpen className="text-yellow-500 flex-shrink-0"/> <span className="truncate">{pathString}</span>
+                {isFavListMode ? (
+                  <>
+                    {/* 常用清單模式：清單圖示 + 可編輯清單名稱 + 鉛筆常駐顯示 */}
+                    <List className="text-amber-500 flex-shrink-0" />
+                    {isEditingName ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          ref={nameInputRef}
+                          type="text"
+                          value={editNameValue}
+                          onChange={(e) => setEditNameValue(e.target.value)}
+                          onBlur={handleNameEditConfirm}
+                          onKeyDown={handleNameKeyDown}
+                          className="text-2xl font-bold text-slate-800 bg-white border border-blue-400 rounded-lg px-3 py-1 outline-none focus:ring-2 focus:ring-blue-200 transition-all"
+                          style={{ minWidth: '200px' }}
+                        />
+                        <button 
+                          onClick={handleNameEditConfirm}
+                          className="p-1 text-green-600 hover:bg-green-50 rounded-md transition-colors"
+                          title="確認"
+                        >
+                          <Check size={18} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 cursor-pointer" onClick={() => setIsEditingName(true)}>
+                        <span className="truncate border-b border-dashed border-slate-300 hover:border-slate-500 transition-colors">{favListName}</span>
+                        {/* 鉛筆按鈕常駐顯示 */}
+                        <Pencil size={14} className="text-slate-400 hover:text-blue-500 transition-colors flex-shrink-0" />
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {/* 文件導覽模式：資料夾圖示 + 路徑（個人知識庫支援行內編輯） */}
+                    <FolderOpen className="text-yellow-500 flex-shrink-0"/> 
+                    {isPersonalFolder && isEditingFolderName ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          ref={folderNameInputRef}
+                          type="text"
+                          value={editFolderNameValue}
+                          onChange={(e) => setEditFolderNameValue(e.target.value)}
+                          onBlur={handleFolderNameEditConfirm}
+                          onKeyDown={handleFolderNameKeyDown}
+                          className="text-2xl font-bold text-slate-800 bg-white border border-blue-400 rounded-lg px-3 py-1 outline-none focus:ring-2 focus:ring-blue-200 transition-all"
+                          style={{ minWidth: '200px' }}
+                        />
+                        <button 
+                          onClick={handleFolderNameEditConfirm}
+                          className="p-1 text-green-600 hover:bg-green-50 rounded-md transition-colors"
+                          title="確認"
+                        >
+                          <Check size={18} />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <span className="truncate">{pathString}</span>
+                        {isPersonalFolder && (
+                          <button 
+                            onClick={() => setIsEditingFolderName(true)}
+                            className="p-1 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-colors flex-shrink-0"
+                            title="編輯資料夾名稱"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
             </h2>
          </div>
          
          {!isReadOnly && (
            <div className="h-10 flex items-center justify-between">
              <div className="flex items-center gap-3">
-                {selectedFileIds.length > 0 ? (
-                    // Light Theme Selection Toolbar (Replaced Dark one)
-                    <div className="flex items-center gap-3 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-sm animate-in fade-in duration-200">
-                        {/* Close Selection */}
-                        <button onClick={handleClearSelection} className="text-slate-400 hover:text-slate-600 transition-colors">
-                            <X size={16} />
+                {/* ===== 工具列：兩種模式皆常駐顯示 ===== */}
+                <div className="flex items-center gap-3 bg-white border border-slate-200 px-3 py-1.5 rounded-xl shadow-sm">
+                    {/* Close Selection - only show when items selected */}
+                    {activeSelectedIds.length > 0 && (
+                      <button onClick={handleClearSelection} className="text-slate-400 hover:text-slate-600 transition-colors">
+                          <X size={16} />
+                      </button>
+                    )}
+                    
+                    {/* Selected Count with Tooltip */}
+                    <div className="relative group">
+                       <span className="text-sm font-medium text-slate-700 cursor-help border-b border-dashed border-slate-300 pb-0.5">
+                           已選取 {activeSelectedIds.length} 個項目
+                       </span>
+                       {renderSelectedTooltip()}
+                    </div>
+
+                    <div className="w-px h-4 bg-slate-200 mx-1"></div>
+
+                    {isFavListMode ? (
+                      /* ===== 常用清單模式：下載 + 從清單移除 ===== */
+                      <>
+                        <button 
+                          onClick={() => alert(`下載 ${activeSelectedIds.length} 個檔案`)} 
+                          className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                          title="下載"
+                        >
+                          <Download size={16} />
                         </button>
-                        
-                        {/* Selected Count with Tooltip */}
-                        <div className="relative group">
-                           <span className="text-sm font-medium text-slate-700 cursor-help border-b border-dashed border-slate-300 pb-0.5">
-                               已選取 {selectedFileIds.length} 個項目
-                           </span>
-                           
-                           {/* Hover Dropdown */}
-                           <div className="absolute top-full left-0 mt-4 w-72 bg-white border border-slate-200 rounded-xl shadow-xl z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left text-slate-800">
-                              <div className="p-3 border-b border-slate-100 font-bold text-xs text-slate-500 uppercase tracking-wider flex justify-between items-center">
-                                 <span>已選文件清單</span>
-                                 <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded">{selectedFileIds.length}</span>
-                              </div>
-                              <div className="max-h-48 overflow-y-auto custom-scrollbar">
-                                 {selectedFilesObjects.map(file => (
-                                    <div key={file.id} className="flex items-center justify-between px-3 py-2 hover:bg-slate-50 border-b border-slate-50 last:border-0 group/item">
-                                       <div className="flex items-center gap-2 min-w-0">
-                                          <FileText size={14} className="text-slate-400 flex-shrink-0" />
-                                          <span className="text-sm text-slate-700 truncate">{file.name}</span>
-                                       </div>
-                                       <button 
-                                         onClick={(e) => { e.stopPropagation(); handleRemoveFromSelection(file.id); }}
-                                         className="p-1 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-                                         title="從選取中移除"
-                                       >
-                                          <Trash2 size={12} />
-                                       </button>
-                                    </div>
-                                 ))}
-                              </div>
-                              <div className="p-2 bg-slate-50 border-t border-slate-200 rounded-b-xl">
-                                 <button onClick={handleClearSelection} className="w-full text-center text-xs text-red-500 hover:text-red-700 hover:bg-red-50 py-1.5 rounded transition-colors">
-                                    全部移除
-                                 </button>
-                              </div>
-                              {/* Arrow & Bridge */}
-                              <div className="absolute bottom-full left-4 border-8 border-transparent border-b-white"></div>
-                              <div className="absolute bottom-full left-0 w-full h-4 bg-transparent"></div> 
-                           </div>
-                        </div>
+                        {/* 從清單移除按鈕：僅勾選時可用 */}
+                        {activeSelectedIds.length > 0 && (
+                          <button 
+                            onClick={() => onRemoveFromFavList && onRemoveFromFavList(activeSelectedIds)}
+                            className="p-1.5 text-slate-500 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors flex items-center gap-1 text-xs font-medium"
+                            title="從清單移除（不影響原始文件）"
+                          >
+                            <MinusCircle size={16} />
+                          </button>
+                        )}
+                      </>
+                    ) : (
+                      /* ===== 文件導覽模式：原始工具按鈕 + 加入清單 ===== */
+                      <>
+                        {/* 加入清單 */}
+                        {activeSelectedIds.length > 0 && (
+                          <button 
+                            onClick={() => onOpenAddToListModal && onOpenAddToListModal()}
+                            className="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                            title="加入常用清單"
+                          >
+                            <ListPlus size={16} />
+                          </button>
+                        )}
 
-                        <div className="w-px h-4 bg-slate-200 mx-1"></div>
-
-                        {/* Actions */}
-                        {!isSharedFolder && (userRole === 'admin' || selectedFolderId.startsWith('personal')) && (
+                        {/* 分享 */}
+                        {activeSelectedIds.length > 0 && !isSharedFolder && (userRole === 'admin' || selectedFolderId.startsWith('personal')) && (
                           <button onClick={onShare} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="分享">
                              <Users size={16} />
                           </button>
                         )}
-                        <button onClick={() => alert(`下載 ${selectedFileIds.length} 個檔案`)} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="下載">
-                             <Download size={16} />
+
+                        {/* 下載 */}
+                        <button 
+                          onClick={() => alert(`下載 ${activeSelectedIds.length} 個檔案`)} 
+                          className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                          title="下載"
+                        >
+                          <Download size={16} />
                         </button>
 
-                        {!isSharedFolder && (userRole === 'admin' || selectedFolderId.startsWith('personal')) && (
-                          <button onClick={() => onRemove(selectedFileIds)} className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="刪除">
+                        {/* 刪除 */}
+                        {activeSelectedIds.length > 0 && !isSharedFolder && (userRole === 'admin' || selectedFolderId.startsWith('personal')) && (
+                          <button onClick={() => onRemove(activeSelectedIds)} className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="刪除">
                              <Trash2 size={16} />
                           </button>
                         )}
                         
-                        <div className="w-px h-4 bg-slate-200 mx-1"></div>
-
-                        <button 
-                            onClick={onStartChat}
-                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1 font-medium text-xs"
-                            title="使用已選文件問答"
-                        >
-                            <MessageSquare size={16} /> 問答
-                        </button>
-                    </div>
-                ) : (
-                   /* When nothing selected, show spacer to prevent layout shift if necessary, but here we just render nothing to keep clean */
-                   null
-                )}
+                        {/* 問答 */}
+                        {activeSelectedIds.length > 0 && (
+                          <>
+                            <div className="w-px h-4 bg-slate-200 mx-1"></div>
+                            <button 
+                                onClick={onStartChat}
+                                className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1 font-medium text-xs"
+                                title="使用已選文件問答"
+                            >
+                                <MessageSquare size={16} /> 問答
+                            </button>
+                          </>
+                        )}
+                      </>
+                    )}
+                </div>
              </div>
 
              {/* Right Side: Search (Always Visible) */}
@@ -180,7 +401,7 @@ export function KBManagerPanel({ selectedFolderId, files, bots, selectedFileIds,
                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                  <input 
                    type="text" 
-                   placeholder="搜尋此資料夾..." 
+                   placeholder={isFavListMode ? "搜尋此清單..." : "搜尋此資料夾..."} 
                    className="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 w-64 transition-all"
                  />
                </div>
@@ -209,12 +430,12 @@ export function KBManagerPanel({ selectedFolderId, files, bots, selectedFileIds,
             {currentFiles.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full opacity-40">
                 <FileCode size={40} className="mb-2" />
-                <p className="text-xs">此資料夾尚無文件</p>
+                <p className="text-xs">{isFavListMode ? '此清單尚無文件' : '此資料夾尚無文件'}</p>
               </div>
             ) : (
               currentFiles.map(file => {
                 const usedBy = getUsedByBots(file.id);
-                const isRowSelected = selectedFileIds.includes(file.id);
+                const isRowSelected = activeSelectedIds.includes(file.id);
                 const isShared = file.sharedWith && file.sharedWith.length > 0;
                 
                 const handleFileDragStart = (e, fileId) => {
@@ -225,7 +446,7 @@ export function KBManagerPanel({ selectedFolderId, files, bots, selectedFileIds,
                 return (
                   <div 
                     key={file.id} 
-                    draggable={!isReadOnly && (userRole === 'admin' || selectedFolderId.startsWith('personal'))}
+                    draggable={!isReadOnly && !isFavListMode && (userRole === 'admin' || selectedFolderId.startsWith('personal'))}
                     onDragStart={(e) => handleFileDragStart(e, file.id)}
                     className={`grid grid-cols-12 gap-4 px-6 py-4 border-b border-slate-50 transition-colors items-center animate-in fade-in duration-200 ${isRowSelected ? 'bg-blue-50/40' : 'hover:bg-slate-50/50'}`}
                   >
@@ -245,7 +466,6 @@ export function KBManagerPanel({ selectedFolderId, files, bots, selectedFileIds,
                         </div>
                         <span className={`text-sm font-medium truncate ${isRowSelected ? 'text-blue-700' : 'text-slate-700'}`}>{file.name}</span>
                         
-                        {/* Always visible Info Button & Status Icons */}
                         <div className="flex items-center gap-1">
                            <button 
                              onClick={() => onViewDetails(file)}
@@ -255,7 +475,6 @@ export function KBManagerPanel({ selectedFolderId, files, bots, selectedFileIds,
                              <Info size={14} />
                            </button>
                            
-                           {/* Status Icons based on logic */}
                            {usedBy.length > 0 && (
                              <span className="text-purple-500" title="被機器人使用"><Bot size={12} /></span>
                            )}

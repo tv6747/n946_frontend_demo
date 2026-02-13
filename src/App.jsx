@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 import { MODES, FEATURES } from './data/constants';
-import { KB_TREE_DATA, MASTER_FILES, MOCK_USERS, MOCK_BOTS, CORPUS_PAGES } from './data/mockData';
+import { KB_TREE_DATA, MASTER_FILES, MOCK_USERS, MOCK_BOTS, CORPUS_PAGES, MOCK_FAVORITE_LISTS } from './data/mockData';
 import { MOCK_APPLICATIONS } from './data/mockServiceData';
 import { findNodeById } from './utils/helpers';
 import { MainLayout } from './components/layout/MainLayout';
@@ -23,6 +23,7 @@ import { ExportModal } from './components/modals/ExportModal';
 import { SaveArchiveModal } from './components/modals/SaveArchiveModal';
 import { LLMSettingsModal } from './components/modals/LLMSettingsModal';
 import { FileDetailsModal } from './components/modals/FileDetailsModal';
+import { AddToListModal } from './components/modals/AddToListModal';
 
 import { KBSidebar } from './features/kb/KBSidebar';
 import { KBManagerPanel } from './features/kb/KBManagerPanel';
@@ -83,7 +84,15 @@ export default function App() {
   // KB Mode & Context State
   const [kbMode, setKbMode] = useState('qa'); 
   const [kbSelectedFileIds, setKbSelectedFileIds] = useState([]); // Selected files for RAG
+  const [qaFromDefaultList, setQaFromDefaultList] = useState(false); // 追蹤 QA 上下文是否來自星號預設清單
   const [kbTreeData, setKbTreeData] = useState(KB_TREE_DATA); // Lifted state for Tree (folders)
+
+  // 常用清單 (Favorite Lists) State
+  const [favoriteLists, setFavoriteLists] = useState(MOCK_FAVORITE_LISTS);
+  const [selectedFavListId, setSelectedFavListId] = useState(null);
+  // 常用清單獨立勾選狀態 - 與 kbSelectedFileIds 完全隔離
+  const [favSelectedFileIds, setFavSelectedFileIds] = useState([]);
+  const [isAddToListModalOpen, setIsAddToListModalOpen] = useState(false);
 
   // Modals State
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -170,12 +179,19 @@ export default function App() {
 
   const displayFiles = useMemo(() => {
     if (currentFeature.mode === MODES.KB) {
+      // 常用清單模式：依據選取的清單的 fileIds 過濾
+      if (selectedFavListId) {
+        const favList = favoriteLists.find(l => l.id === selectedFavListId);
+        if (favList) {
+          return MASTER_FILES.filter(f => favList.fileIds.includes(f.id));
+        }
+      }
       return files.filter(f => f.folderId === selectedFolderId);
     } else if (currentFeature.mode === MODES.BOT_MGR && selectedBotId && selectedBotId !== 'NEW_BOT') {
       return files.filter(f => checkedNodes.includes(f.id));
     }
     return [];
-  }, [checkedNodes, currentFeature.mode, selectedBotId, selectedFolderId, files]);
+  }, [checkedNodes, currentFeature.mode, selectedBotId, selectedFolderId, files, selectedFavListId, favoriteLists]);
 
   // Derived state: Merge currentFeature with settings from MOCK_APPLICATIONS
   const activeFeatureWithSettings = useMemo(() => {
@@ -259,8 +275,116 @@ export default function App() {
     return files.filter(f => kbSelectedFileIds.includes(f.id));
   }, [kbSelectedFileIds, files]);
 
+  // 衍生值：目前被設為預設（星號）的常用清單
+  const defaultFavList = useMemo(() => {
+    return favoriteLists.find(l => l.isDefault) || null;
+  }, [favoriteLists]);
+
+  // 當進入 QA 模式且尚未選取任何檔案時，自動帶入星號預設清單的文件
+  useEffect(() => {
+    if (
+      currentFeature.mode === MODES.KB &&
+      kbMode === 'qa' &&
+      kbSelectedFileIds.length === 0 &&
+      defaultFavList &&
+      defaultFavList.fileIds.length > 0
+    ) {
+      setKbSelectedFileIds(defaultFavList.fileIds);
+      setQaFromDefaultList(true);
+    }
+  }, [currentFeature.mode, kbMode, defaultFavList]);
+
   // 共用的打開 LLM 設定函數
   const openLLMSettings = () => setIsLLMModalOpen(true);
+
+  // ===== 常用清單 Handlers =====
+  const handleSelectFavList = (listId) => {
+    setSelectedFavListId(listId);
+    // 切換時清除常用清單的獨立勾選（不影響 kbSelectedFileIds）
+    setFavSelectedFileIds([]);
+  };
+
+  // 星號單選邏輯 (Radio behavior)：只有一個清單可設為預設
+  const handleToggleFavDefault = (listId) => {
+    setFavoriteLists(prev => prev.map(l => {
+      if (l.id === listId) return { ...l, isDefault: !l.isDefault };
+      return { ...l, isDefault: false }; // 取消其他清單的預設
+    }));
+  };
+
+  const handleFavListNameChange = (newName) => {
+    if (selectedFavListId) {
+      setFavoriteLists(prev => prev.map(l => 
+        l.id === selectedFavListId ? { ...l, name: newName } : l
+      ));
+    }
+  };
+
+  // 將檔案加入現有清單
+  const handleAddFilesToList = (listId, fileIds) => {
+    setFavoriteLists(prev => prev.map(l => {
+      if (l.id === listId) {
+        const merged = [...new Set([...l.fileIds, ...fileIds])];
+        return { ...l, fileIds: merged };
+      }
+      return l;
+    }));
+  };
+
+  // 新增清單並加入檔案
+  const handleCreateListAndAdd = (newName, fileIds) => {
+    const newList = {
+      id: `fav_${Date.now()}`,
+      name: newName,
+      isDefault: false,
+      fileIds: [...fileIds]
+    };
+    setFavoriteLists(prev => [...prev, newList]);
+  };
+
+  // 從目前常用清單中移除檔案 ID（不影響原始檔案）
+  const handleRemoveFromFavList = (fileIds) => {
+    if (selectedFavListId) {
+      setFavoriteLists(prev => prev.map(l => {
+        if (l.id === selectedFavListId) {
+          return { ...l, fileIds: l.fileIds.filter(fid => !fileIds.includes(fid)) };
+        }
+        return l;
+      }));
+      // 清除已移除的勾選
+      setFavSelectedFileIds(prev => prev.filter(id => !fileIds.includes(id)));
+    }
+  };
+
+  // 新增空清單
+  const handleCreateFavList = () => {
+    const newList = {
+      id: `fav_${Date.now()}`,
+      name: `新清單 ${favoriteLists.length + 1}`,
+      isDefault: false,
+      fileIds: []
+    };
+    setFavoriteLists(prev => [...prev, newList]);
+    setSelectedFavListId(newList.id);
+  };
+
+  // 刪除目前選取的常用清單
+  const handleDeleteFavList = () => {
+    if (selectedFavListId && confirm('確定要刪除此常用清單嗎？')) {
+      setFavoriteLists(prev => prev.filter(l => l.id !== selectedFavListId));
+      setSelectedFavListId(null);
+      setFavSelectedFileIds([]);
+    }
+  };
+
+  // 以清單內文件為上下文進入 QA 模式
+  const handleFavStartChat = (listId) => {
+    const list = favoriteLists.find(l => l.id === listId);
+    if (list) {
+      setKbSelectedFileIds(list.fileIds);
+      setKbMode('qa');
+    }
+  };
 
   // Folder Check Handler for Bot Manager
   const handleBotFolderCheck = (folderId, isChecked) => {
@@ -432,21 +556,29 @@ export default function App() {
            kbMode === 'qa' ? (
               <CommonHistorySidebar currentFeatureId="kb_qa" />
            ) : (
-              <KBSidebar 
-                treeData={kbTreeData}
-                selectedFolderId={selectedFolderId}
-                onSelectFolder={handleFolderSelect}
-                onUpload={() => setIsUploadModalOpen(true)}
-                files={files}
-                selectedFileIds={kbSelectedFileIds}
-                onSelectionChange={setKbSelectedFileIds}
-                userRole={userRole}
-                onMoveFolder={(sourceId, targetId) => {
-                    alert(`移動資料夾 ${sourceId} 到 ${targetId} (State Update TODO)`);
-                    // TODO: Implement actual move logic
-                }}
-                onMoveFile={handleMoveFile}
-              />
+               <KBSidebar 
+                 treeData={kbTreeData}
+                 selectedFolderId={selectedFolderId}
+                 onSelectFolder={handleFolderSelect}
+                 onUpload={() => setIsUploadModalOpen(true)}
+                 files={files}
+                 selectedFileIds={kbSelectedFileIds}
+                 onSelectionChange={setKbSelectedFileIds}
+                 userRole={userRole}
+                 onMoveFolder={(sourceId, targetId) => {
+                     alert(`移動資料夾 ${sourceId} 到 ${targetId} (State Update TODO)`);
+                     // TODO: Implement actual move logic
+                 }}
+                 onMoveFile={handleMoveFile}
+                 favoriteLists={favoriteLists}
+                 selectedFavListId={selectedFavListId}
+                 onSelectFavList={handleSelectFavList}
+                 onToggleFavDefault={handleToggleFavDefault}
+                 isFavListMode={!!selectedFavListId}
+                 onCreateFavList={handleCreateFavList}
+                 onDeleteFavList={handleDeleteFavList}
+                 onFavStartChat={handleFavStartChat}
+               />
            )
 
 
@@ -516,7 +648,16 @@ export default function App() {
           <div className="ml-2 flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
              {/* Swapped order: QA first (left), Manage second (right) */}
              <button 
-               onClick={() => setKbMode('qa')}
+               onClick={() => {
+                 // 切換至問答模式時，若使用者尚未手動勾選，自動帶入星號預設清單
+                 if (kbSelectedFileIds.length === 0 && defaultFavList && defaultFavList.fileIds.length > 0) {
+                   setKbSelectedFileIds(defaultFavList.fileIds);
+                   setQaFromDefaultList(true);
+                 } else {
+                   setQaFromDefaultList(false);
+                 }
+                 setKbMode('qa');
+               }}
                className={`px-3 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-1.5 ${kbMode === 'qa' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
              >
                <MessageSquare size={14} /> 問答
@@ -600,6 +741,15 @@ export default function App() {
            {isAddTermModalOpen && (
               <AddTermModal onClose={() => setIsAddTermModalOpen(false)} />
            )}
+           {isAddToListModalOpen && (
+              <AddToListModal
+                favoriteLists={favoriteLists}
+                selectedFileIds={kbSelectedFileIds}
+                onAddToList={handleAddFilesToList}
+                onCreateAndAdd={handleCreateListAndAdd}
+                onClose={() => setIsAddToListModalOpen(false)}
+              />
+           )}
        </>
     }>
         {currentFeature.mode === MODES.KB && (
@@ -615,15 +765,26 @@ export default function App() {
                 onUpload={() => setIsUploadModalOpen(true)}
                 onAddBot={() => setIsBotModalOpen(true)}
                 onViewDetails={(file) => setFileDetailsModal(file)}
-                onStartChat={() => setKbMode('qa')}
+                onStartChat={() => { setQaFromDefaultList(false); setKbMode('qa'); }}
                 userRole={userRole}
                 onRoleChange={setUserRole}
+                isFavListMode={!!selectedFavListId}
+                favListName={selectedFavListId ? (favoriteLists.find(l => l.id === selectedFavListId)?.name || '') : ''}
+                onFavListNameChange={handleFavListNameChange}
+                isPersonalFolder={selectedFolderId === 'personal' || selectedFolderId.startsWith('personal_')}
+                onOpenAddToListModal={() => setIsAddToListModalOpen(true)}
+                onRemoveFromFavList={handleRemoveFromFavList}
+                favSelectedFileIds={favSelectedFileIds}
+                onFavSelectionChange={setFavSelectedFileIds}
+                folderDisplayName={selectedFolderId.split('_').pop() || selectedFolderId}
+                onFolderNameChange={(newName) => alert(`資料夾重新命名為：${newName} (Demo)`)}
               />
             ) : (
               // RAG QA Mode
               <ChatInterface 
                 currentFeature={{...currentFeature, id: 'kb_qa'}} 
                 ragContext={kbSelectedFilesObjects}
+                ragContextLabel={qaFromDefaultList && defaultFavList ? defaultFavList.name : null}
                 onExport={() => setIsExportModalOpen(true)}
                 onSave={() => setIsSaveModalOpen(true)}
                 onOpenLLMSettings={openLLMSettings}

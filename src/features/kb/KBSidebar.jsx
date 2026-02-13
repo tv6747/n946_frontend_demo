@@ -1,18 +1,17 @@
-import { Plus, UploadCloud, ChevronDown, Bot, Circle, FolderPlus, FolderMinus, FolderInput, Trash2 } from 'lucide-react';
+import { Plus, UploadCloud, ChevronDown, Bot, Circle, FolderPlus, FolderMinus, FolderInput, Trash2, Star, List, MessageSquare, ListPlus, ListX } from 'lucide-react';
 import { TreeNode } from '../../components/common/TreeNode';
 import { useMemo, useState } from 'react';
 
-export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBotsSection, bots, selectedBotId, onSelectBot, onUpload, files, selectedFileIds, onSelectionChange, onCreateBot, userRole = 'user', onMoveFolder, onMoveFile, checkable, checkedFolderIds, onCheck, customActionButton }) {
+export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBotsSection, bots, selectedBotId, onSelectBot, onUpload, files, selectedFileIds, onSelectionChange, onCreateBot, userRole = 'user', onMoveFolder, onMoveFile, checkable, checkedFolderIds, onCheck, customActionButton, favoriteLists, selectedFavListId, onSelectFavList, onToggleFavDefault, onCreateFavList, onDeleteFavList, onFavStartChat, isFavListMode }) {
   const [isSectionExpanded, setIsSectionExpanded] = useState(true);
   const [isBotSectionExpanded, setIsBotSectionExpanded] = useState(true);
+  const [isFavSectionExpanded, setIsFavSectionExpanded] = useState(true);
 
   // Filter Tree Data based on Role
   const filteredTreeData = useMemo(() => {
      if (userRole === 'admin') {
-         // Admin: Hide Personal and Shared
          return treeData.filter(node => node.id !== 'personal' && node.id !== 'shared_root');
      } else {
-         // User: Show all (Personal is visible)
          return treeData;
      }
   }, [treeData, userRole]);
@@ -20,7 +19,6 @@ export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBots
   // Check permissions
   const canModify = useMemo(() => {
      if (userRole === 'admin') return true;
-     // User can only modify Personal folder and its children
      return selectedFolderId === 'personal' || selectedFolderId.startsWith('personal_'); 
   }, [userRole, selectedFolderId]);
 
@@ -40,33 +38,68 @@ export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBots
           </button>
         )}
 
-        {/* Folder Actions */}
+        {/* Folder / List Actions - 根據模式動態切換 */}
         {!onCreateBot && (
             <div className="grid grid-cols-3 gap-2 mb-3">
-                <button disabled={!canModify} onClick={() => alert("新增資料夾 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500" title="新增資料夾">
-                    <FolderPlus size={16} className="mb-1 text-blue-500"/>
-                    <span className="text-[10px]">新增</span>
-                </button>
-                <button disabled={!canModify} onClick={() => alert("刪除資料夾 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500" title="刪除資料夾">
-                    <FolderMinus size={16} className="mb-1 text-red-500"/>
-                    <span className="text-[10px]">刪除</span>
-                </button>
-                <button disabled={!canModify} onClick={() => alert("查看已刪除檔案 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500" 
-                    title="回收桶"
-                >
-                    <Trash2 size={16} className="mb-1 text-slate-500"/>
-                    <span className="text-[10px]">回收桶</span>
-                </button>
+                {isFavListMode ? (
+                  /* ===== 常用清單模式：新增/刪除改為清單操作，回收桶 disabled ===== */
+                  <>
+                    <button 
+                      onClick={() => onCreateFavList && onCreateFavList()} 
+                      className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors" 
+                      title="新增清單"
+                    >
+                        <ListPlus size={16} className="mb-1 text-blue-500"/>
+                        <span className="text-[10px]">新增</span>
+                    </button>
+                    <button 
+                      onClick={() => onDeleteFavList && onDeleteFavList()} 
+                      disabled={!selectedFavListId}
+                      className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+                      title="刪除清單"
+                    >
+                        <ListX size={16} className="mb-1 text-red-500"/>
+                        <span className="text-[10px]">刪除</span>
+                    </button>
+                    {/* 回收桶 disabled */}
+                    <button 
+                      disabled 
+                      className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg text-slate-600 transition-colors opacity-50 cursor-not-allowed" 
+                      title="常用清單模式下不可使用"
+                    >
+                        <Trash2 size={16} className="mb-1 text-slate-400"/>
+                        <span className="text-[10px]">回收桶</span>
+                    </button>
+                  </>
+                ) : (
+                  /* ===== 文件導覽模式：原始邏輯 ===== */
+                  <>
+                    <button disabled={!canModify} onClick={() => alert("新增資料夾 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500" title="新增資料夾">
+                        <FolderPlus size={16} className="mb-1 text-blue-500"/>
+                        <span className="text-[10px]">新增</span>
+                    </button>
+                    <button disabled={!canModify} onClick={() => alert("刪除資料夾 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500" title="刪除資料夾">
+                        <FolderMinus size={16} className="mb-1 text-red-500"/>
+                        <span className="text-[10px]">刪除</span>
+                    </button>
+                    <button disabled={!canModify} onClick={() => alert("查看已刪除檔案 (Demo)")} className="flex flex-col items-center justify-center p-2 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500" 
+                        title="回收桶"
+                    >
+                        <Trash2 size={16} className="mb-1 text-slate-500"/>
+                        <span className="text-[10px]">回收桶</span>
+                    </button>
+                  </>
+                )}
             </div>
         )}
 
-        {/* Upload Button for KB Manage Mode */}
+        {/* Upload Button for KB Manage Mode - 常用清單模式下 disabled */}
         {onUpload && (
           <button 
             onClick={onUpload}
-            disabled={!canModify}
+            disabled={isFavListMode || !canModify}
             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-dashed border-slate-300 hover:border-blue-400 hover:text-blue-600 text-slate-500 rounded-lg transition-all text-sm font-medium mb-4 group shadow-sm flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-slate-300 disabled:hover:text-slate-500"
-            title={!canModify ? "僅限於個人知識庫中操作" : "上傳檔案"}
+            title={isFavListMode ? "常用清單模式下不可上傳" : (!canModify ? "僅限於個人知識庫中操作" : "上傳檔案")}
           >
             <UploadCloud size={16} className="group-hover:scale-110 transition-transform"/>
             上傳檔案
@@ -110,6 +143,61 @@ export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBots
         </div>
       )}
 
+      {/* ===== 常用清單 Section (Favorite Lists) ===== */}
+      {favoriteLists && favoriteLists.length > 0 && (
+        <div className="flex-shrink-0 border-b border-slate-100 pb-2 mb-2">
+          <div 
+            onClick={() => setIsFavSectionExpanded(!isFavSectionExpanded)} 
+            className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors border-b border-transparent select-none rounded-md"
+          >
+            <span>常用清單</span>
+            <ChevronDown size={14} className={`transition-transform duration-200 ${isFavSectionExpanded ? '' : '-rotate-90'}`} />
+          </div>
+          {isFavSectionExpanded && (
+            <div className="p-2 animate-in slide-in-from-top-2 duration-200">
+              {favoriteLists.map(list => (
+                <div 
+                  key={list.id}
+                  className={`flex items-center gap-2 py-2 px-3 rounded-md cursor-pointer group transition-colors mb-1
+                    ${selectedFavListId === list.id ? 'bg-amber-50 border border-amber-200' : 'hover:bg-slate-50 border border-transparent'}
+                  `}
+                >
+                  {/* Star Icon: 單選邏輯 (Radio behavior) - 點擊設為唯一預設 */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onToggleFavDefault && onToggleFavDefault(list.id); }}
+                    className="flex-shrink-0 p-0.5 rounded transition-colors hover:bg-amber-100"
+                    title={list.isDefault ? '目前為預設清單' : '設為預設清單'}
+                  >
+                    <Star 
+                      size={14} 
+                      className={`transition-colors ${list.isDefault ? 'fill-amber-400 text-amber-400' : 'text-slate-300 hover:text-amber-400'}`} 
+                    />
+                  </button>
+                  {/* List Name: 點擊選取此清單 */}
+                  <div 
+                    className="flex items-center gap-1.5 flex-1 min-w-0"
+                    onClick={() => onSelectFavList && onSelectFavList(list.id)}
+                  >
+                    <List size={13} className={selectedFavListId === list.id ? 'text-amber-600 flex-shrink-0' : 'text-slate-400 flex-shrink-0'} />
+                    <span className={`text-sm truncate font-medium ${selectedFavListId === list.id ? 'text-amber-700' : 'text-slate-600'}`}>
+                      {list.name}
+                    </span>
+                  </div>
+                  {/* Q&A Button: 常駐顯示藍色高亮，提示使用者可隨時啟動問答 */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onFavStartChat && onFavStartChat(list.id); }}
+                    className="flex-shrink-0 p-1.5 rounded-md bg-blue-50 text-blue-500 hover:bg-blue-100 hover:text-blue-600 transition-colors"
+                    title="使用此清單文件問答"
+                  >
+                    <MessageSquare size={13} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* File Section */}
       <div className="flex-shrink-0 pb-4">
           <div onClick={() => setIsSectionExpanded(!isSectionExpanded)} className="px-2 py-3 text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors border-b border-transparent select-none rounded-md">
@@ -124,7 +212,11 @@ export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBots
                   key={node.id} 
                   node={node} 
                   selectedFolderId={selectedFolderId} 
-                  onSelectFolder={onSelectFolder}
+                  onSelectFolder={(folderId) => {
+                    // 當使用者點選文件導覽中的資料夾時，自動取消常用清單選取
+                    if (onSelectFavList) onSelectFavList(null);
+                    onSelectFolder(folderId);
+                  }}
                   files={files}
                   selectedFileIds={selectedFileIds}
                   onSelectionChange={onSelectionChange}

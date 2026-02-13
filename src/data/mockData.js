@@ -59,6 +59,28 @@ export const KB_TREE_DATA = [
   }
 ];
 
+/**
+ * 常用清單 (Favorite Lists) 假資料
+ * 
+ * 【業務邏輯說明 - 供開發參考】
+ * 此清單資料庫僅儲存文件的 ID，在此清單中的任何移除或修改操作，
+ * 皆不會影響或刪除到原本的文件實體。
+ * 清單僅為「參照」，不擁有檔案本身。
+ */
+export const MOCK_FAVORITE_LISTS = [
+  {
+    id: 'fav_1',
+    name: '常用文件列表1',
+    isDefault: true,
+    fileIds: ['file_22', 'file_24', 'file_26', 'file_28', 'file_30', 'file_32', 'file_34']
+  },
+  {
+    id: 'fav_2',
+    name: '行銷文件列表1',
+    isDefault: false,
+    fileIds: ['file_22', 'file_24', 'file_26', 'file_28', 'file_30', 'file_32', 'file_34']
+  }
+];
 
 
 export const CORPUS_PAGES = [
