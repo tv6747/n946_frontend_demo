@@ -435,10 +435,26 @@ const LOCAL_PPT_TEMPLATES = [
 - **元件**: `BotConfigPanel`
 - **配置項目**:
   - 機器人基本資訊 (名稱、描述)
-  - 預設設定 (模型、參數、提示詞)
+  - **統一分頁式預設設定** (見下方詳細說明)
   - 歡迎訊息與預設問題
   - 關聯檔案 (`files`) - **自動過濾僅顯示組織/單位資料夾**
   - 可存取使用者 (`accessibleUsers`)
+
+#### BotConfigPanel 預設設定 (分頁式設計)
+
+將語言模型、參數、提示詞、工具四類設定整合為單一區塊，以分頁 (Tab) 切換，每個分頁採用左右列表選取 (Transfer List) 的互動模式：
+
+| 分頁 | 選取邏輯 | 左側 | 右側 |
+|------|---------|------|------|
+| **語言模型** | 單選 (Radio) | 可用模型列表 | 已設定的單一模型 |
+| **參數** | 單選 (Radio) | 可用參數組合列表 | 已設定的單一參數 |
+| **提示詞** | 單選 (Radio) | 可用提示詞列表 | 已設定的單一提示詞 |
+| **工具** | 多選 (Checkbox) + 啟用開關 | 可用工具庫 | 已啟用工具（含 `defaultOn` 切換） |
+
+**設計重點**：
+- 分頁選項位於「預設設定」標題下方，與歡迎訊息/預設問題的分頁切換風格一致
+- 語言模型 / 參數 / 提示詞 為單選邏輯，點選後僅保留一個項目
+- 工具為多選邏輯，支援 `defaultOn` 開關切換預設啟用狀態
 
 #### 預設答詢機器人
 - **人事差勤機器人** (`BOT_HR`): 使用 `ChatInterface`，提供假勤相關諮詢
@@ -513,8 +529,21 @@ selectedCorpusId: 'proper_noun' | 'synonym'
 
 **服務管理** (`ADMIN_SERVICE`):
 - 應用管理 (`apps`): `ApplicationManagementPanel` + `ApplicationConfigPanel`
+  - `ApplicationConfigPanel` 採用統一分頁式「預設設定」(語言模型/參數/提示詞/工具)
 - 知識庫權限 (`kb_permission`): `KBPermissionPanel`
 - 答詢機器人管理 (`bot_management`): `BotManagementPanel` + `BotConfigPanel`
+  - `BotConfigPanel` 採用統一分頁式「預設設定」(語言模型/參數/提示詞/工具)
+
+#### ApplicationConfigPanel 預設設定 (分頁式設計)
+
+與 `BotConfigPanel` 相同的分頁式區塊結構，但選取邏輯有所不同：
+
+| 分頁 | 選取邏輯 | 說明 |
+|------|---------|------|
+| **語言模型** | 多選 (Checkbox) + ⭐ 星號預設 | 可選取多個模型，透過星號標記預設模型 |
+| **參數** | 單選 (Radio) | 僅可設定一組參數 |
+| **提示詞** | 多選 (Checkbox) + ⭐ 星號預設 | 可選取多個提示詞，透過星號標記預設 |
+| **工具** | 多選 (Checkbox) + 啟用開關 | 可啟用多個工具，含 `defaultOn` 切換 |
 
 **語言模型管理** (`ADMIN_LLM`):
 - 模型管理 (`models`): `ModelManagementPanel`

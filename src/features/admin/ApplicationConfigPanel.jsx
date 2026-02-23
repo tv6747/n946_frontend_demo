@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { 
-    LayoutGrid, Trash2, Save, ArrowLeft, ChevronsRight, Check, Cpu, Users, Plus, X, Star, Wrench, MessageSquare
+    LayoutGrid, Trash2, Save, ArrowLeft, ChevronsRight, Check, Cpu, Users, Plus, X, Star, Wrench, MessageSquare, Settings
 } from 'lucide-react';
 import { MOCK_LLM_MODELS, MOCK_LLM_PARAMS, MOCK_LLM_PROMPTS } from '../../data/mockLLMData';
 import { MOCK_TOOLS } from '../../data/mockToolData';
@@ -12,6 +12,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
   // Use local state for the form data
   const [formData, setFormData] = useState(app);
   const [activeTab, setActiveTab] = useState('welcome'); // 'welcome', 'questions'
+  const [defaultSettingsTab, setDefaultSettingsTab] = useState('model');
   
   // Sync with prop changes
   React.useEffect(() => {
@@ -32,6 +33,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
   const [selectedAvailablePromptIds, setSelectedAvailablePromptIds] = useState([]); // New state for prompts
   const [selectedAvailableToolIds, setSelectedAvailableToolIds] = useState([]); // New state for tools
   const [selectedAvailableUserIds, setSelectedAvailableUserIds] = useState([]);
+  const [selectedAvailableParamId, setSelectedAvailableParamId] = useState(null); // Single-select for params
 
   const filteredUsers = users.filter(u => u.name.includes(userSearch));
   const enabledModels = MOCK_LLM_MODELS.filter(m => m.status === 'active');
@@ -185,6 +187,14 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
       );
       handleChange({ tools: newTools });
   };
+
+  // Single-select handler for Params
+  const handleSetParamToApp = () => {
+      if (!selectedAvailableParamId) return;
+      handleChange({ defaultSettings: { ...formData.defaultSettings, paramId: selectedAvailableParamId } });
+      setSelectedAvailableParamId(null);
+  };
+  const handleClearParam = () => handleChange({ defaultSettings: { ...formData.defaultSettings, paramId: '' } });
 
   // Transfer List Handlers for Users
   const toggleAvailableUserSelection = (id) => {
@@ -460,402 +470,321 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
               </div>
           </section>
 
-          {/* Default Settings Block (Separate) */}
-          <section className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-4">
+          {/* Unified Default Settings with Tabs */}
+          <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[400px]">
+              <div className="px-6 py-4 border-b border-slate-200 bg-slate-50">
                   <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">預設設定</h3>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1.5">參數</label>
-                      <select 
-                            value={formData.defaultSettings?.paramId || ''}
-                            onChange={(e) => handleChange({ defaultSettings: { ...formData.defaultSettings, paramId: e.target.value } })}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-colors"
-                        >
-                            <option value="">請選擇參數組合</option>
-                            {MOCK_LLM_PARAMS.map(param => (
-                                <option key={param.id} value={param.id}>
-                                    {param.name}
-                                </option>
-                            ))}
-                        </select>
-                  </div>
-              </div>
-          </section>
-
-
-          {/* 4. Available Models - Transfer List */}
-          <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[400px]">
-              <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                  <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">可選語言模型設定</h3>
+              <div className="flex border-b border-slate-200 px-6">
+                  {[{ key: 'model', label: '語言模型' }, { key: 'params', label: '參數' }, { key: 'prompt', label: '提示詞' }, { key: 'tools', label: '工具' }].map(tab => (
+                      <button key={tab.key} onClick={() => setDefaultSettingsTab(tab.key)}
+                          className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${defaultSettingsTab === tab.key ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                          {tab.label}
+                      </button>
+                  ))}
               </div>
               
               <div className="flex-1 flex overflow-hidden">
-                  {/* Left: Available Models */}
-                  <div className="flex-1 flex flex-col min-w-0 border-r border-slate-100">
-                      <div className="p-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                          <span className="text-sm font-semibold text-slate-700">已啟用模型</span>
-                          <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">{enabledModels.length}</span>
+                  {/* ===== Model Tab (Multi Select + Star Default) ===== */}
+                  {defaultSettingsTab === 'model' && (<>
+                      <div className="flex-1 flex flex-col min-w-0 border-r border-slate-100">
+                          <div className="p-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                              <span className="text-sm font-semibold text-slate-700">已啟用模型</span>
+                              <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">{enabledModels.length}</span>
+                          </div>
+                          <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                              <div className="space-y-1">
+                                  {enabledModels.length === 0 ? (
+                                      <div className="text-center py-10 text-slate-400 text-sm">無已啟用模型</div>
+                                  ) : enabledModels.map(model => {
+                                      const isSelected = selectedAvailableModelIds.includes(model.id);
+                                      const isAdded = (formData.availableModels || []).includes(model.id);
+                                      return (
+                                          <div key={model.id} onClick={() => !isAdded && toggleAvailableModelSelection(model.id)}
+                                              className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent ${isAdded ? 'opacity-50 grayscale bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}`}>
+                                              <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 bg-white'}`}>
+                                                  {isSelected && <Check size={10} />}
+                                              </div>
+                                              <div className="flex-1 min-w-0 flex items-center gap-2">
+                                                  <div className="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center"><Cpu size={12} /></div>
+                                                  <div className="text-sm font-medium text-slate-700 truncate">{model.name}</div>
+                                                  {isAdded && <span className="text-xs text-slate-400">• 已加入</span>}
+                                              </div>
+                                          </div>
+                                      );
+                                  })}
+                              </div>
+                          </div>
                       </div>
-                      <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-                           <div className="space-y-1">
-                               {enabledModels.length === 0 ? (
-                                   <div className="text-center py-10 text-slate-400 text-sm">無已啟用模型</div>
-                               ) : enabledModels.map(model => {
-                                   const isSelected = selectedAvailableModelIds.includes(model.id);
-                                   const isAdded = (formData.availableModels || []).includes(model.id);
-                                   return (
-                                       <div 
-                                         key={model.id}
-                                         onClick={() => !isAdded && toggleAvailableModelSelection(model.id)} 
-                                         className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent
-                                            ${isAdded ? 'opacity-50 grayscale bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}
-                                         `}
-                                       >
-                                           <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 bg-white'}`}>
-                                               {isSelected && <Check size={10} />}
-                                           </div>
-                                            <div className="flex-1 min-w-0 flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-[10px] font-bold">
-                                                     <Cpu size={12} />
-                                                </div>
-                                                <div className="text-sm font-medium text-slate-700 truncate">{model.name}</div>
-                                                {isAdded && <span className="text-xs text-slate-400">• 已加入</span>}
-                                            </div>
-                                       </div>
-                                   )
-                               })}
-                           </div>
+                      <div className="w-16 bg-slate-50 border-x border-slate-200 flex flex-col items-center justify-center gap-3 p-2 z-10">
+                          <button onClick={handleAddModelsToApp} disabled={selectedAvailableModelIds.length === 0}
+                              className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed" title="新增選取的項目">
+                              <ChevronsRight size={18} />
+                          </button>
+                          <button onClick={handleAddAllModels}
+                              className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all text-xs font-bold" title="新增全部">
+                              全部
+                          </button>
                       </div>
-                  </div>
+                      <div className="flex-1 flex flex-col min-w-0">
+                          <div className="p-3 border-b border-slate-100 bg-purple-50/30 flex justify-between items-center">
+                              <span className="text-sm font-semibold text-slate-700">已選模型</span>
+                              <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold">{(formData.availableModels || []).length}</span>
+                          </div>
+                          <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                              <div className="space-y-1">
+                                  {(!formData.availableModels || formData.availableModels.length === 0) ? (
+                                      <div className="flex flex-col items-center justify-center h-full text-slate-400"><Cpu size={32} className="mb-2 opacity-50" /><p className="text-xs">無已選模型</p></div>
+                                  ) : formData.availableModels.map((modelId, index) => {
+                                      const model = MOCK_LLM_MODELS.find(m => m.id === modelId);
+                                      if (!model) return null;
+                                      const isDefault = formData.defaultModelId ? formData.defaultModelId === modelId : index === 0;
+                                      return (
+                                          <div key={modelId} className={`flex items-center justify-between p-2 rounded-lg group hover:bg-purple-100 transition-colors ${isDefault ? 'bg-purple-100 border border-purple-200' : 'bg-purple-50 border border-purple-100'}`}>
+                                              <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                  <div className="w-6 h-6 rounded-full bg-purple-200 text-purple-700 flex items-center justify-center"><Cpu size={12} /></div>
+                                                  <span className="text-sm font-medium text-slate-700 truncate">{model.name}</span>
+                                                  {isDefault && <Star size={14} className="text-yellow-500 fill-yellow-500 flex-shrink-0" />}
+                                              </div>
+                                              <div className="flex items-center gap-1">
+                                                  {!isDefault && (
+                                                      <button onClick={() => handleSetDefaultModel(modelId)} className="p-1 text-slate-400 hover:text-yellow-500 hover:bg-yellow-50 rounded transition-all opacity-0 group-hover:opacity-100" title="設為預設模型"><Star size={14} /></button>
+                                                  )}
+                                                  <button onClick={() => handleRemoveModel(modelId)} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"><X size={14} /></button>
+                                              </div>
+                                          </div>
+                                      );
+                                  })}
+                              </div>
+                          </div>
+                      </div>
+                  </>)}
 
-                  {/* Center: Actions */}
-                  <div className="w-16 bg-slate-50 border-x border-slate-200 flex flex-col items-center justify-center gap-3 p-2 z-10">
-                      <button 
-                        onClick={handleAddModelsToApp}
-                        disabled={selectedAvailableModelIds.length === 0}
-                        className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                        title="新增選取的項目"
-                      >
-                          <ChevronsRight size={18} />
-                      </button>
-                      <button 
-                        onClick={handleAddAllModels}
-                        className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all text-xs font-bold"
-                        title="新增全部"
-                      >
-                          全部
-                      </button>
-                  </div>
-
-                  {/* Right: Selected Models */}
-                  <div className="flex-1 flex flex-col min-w-0">
-                      <div className="p-3 border-b border-slate-100 bg-blue-50/30 flex justify-between items-center">
-                          <span className="text-sm font-semibold text-slate-700">已選模型</span>
-                          <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">{(formData.availableModels || []).length}</span>
+                  {/* ===== Params Tab (Single Select) ===== */}
+                  {defaultSettingsTab === 'params' && (<>
+                      <div className="flex-1 flex flex-col min-w-0 border-r border-slate-100">
+                          <div className="p-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                              <span className="text-sm font-semibold text-slate-700">可用參數組合</span>
+                              <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">{MOCK_LLM_PARAMS.length}</span>
+                          </div>
+                          <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                              <div className="space-y-1">
+                                  {MOCK_LLM_PARAMS.map(param => {
+                                      const isSelected = selectedAvailableParamId === param.id;
+                                      const isCurrent = formData.defaultSettings?.paramId === param.id;
+                                      return (
+                                          <div key={param.id} onClick={() => !isCurrent && setSelectedAvailableParamId(isSelected ? null : param.id)}
+                                              className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent ${isCurrent ? 'opacity-50 bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}`}>
+                                              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center mr-3 ${isSelected ? 'border-blue-600' : 'border-slate-300'}`}>
+                                                  {isSelected && <div className="w-2 h-2 rounded-full bg-blue-600" />}
+                                              </div>
+                                              <div className="flex-1 min-w-0 flex items-center gap-2">
+                                                  <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><Settings size={12} /></div>
+                                                  <div className="flex-1 min-w-0">
+                                                      <div className="text-sm font-medium text-slate-700 truncate">{param.name}</div>
+                                                      <div className="text-[10px] text-slate-400">T:{param.temperature} P:{param.topP} K:{param.topK}</div>
+                                                  </div>
+                                                  {isCurrent && <span className="text-xs text-slate-400 flex-shrink-0">• 已設定</span>}
+                                              </div>
+                                          </div>
+                                      );
+                                  })}
+                              </div>
+                          </div>
                       </div>
-                       <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-                            <div className="space-y-1">
-                                {(!formData.availableModels || formData.availableModels.length === 0) ? (
-                                    <div className="text-center py-10 text-slate-400 text-sm">無已選模型</div>
-                                ) : formData.availableModels.map((modelId, index) => {
-                                    const model = MOCK_LLM_MODELS.find(m => m.id === modelId);
-                                    if (!model) return null;
-                                    
-                                    // Determine if this is the default model
-                                    // If no defaultModelId is set, the first model is default
-                                    const isDefault = formData.defaultModelId 
-                                        ? formData.defaultModelId === modelId 
-                                        : index === 0;
-                                    
-                                    return (
-                                        <div key={modelId} className={`flex items-center justify-between p-2 rounded-lg group hover:bg-blue-100 transition-colors ${isDefault ? 'bg-blue-100 border border-blue-200' : 'bg-blue-50 border border-blue-100'}`}>
-                                             <div className="flex items-center gap-2 min-w-0 flex-1">
-                                                 <div className="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
-                                                      <Cpu size={12} />
-                                                 </div>
-                                                 <span className="text-sm font-medium text-slate-700 truncate">{model.name}</span>
-                                                 {isDefault && (
-                                                     <Star size={14} className="text-yellow-500 fill-yellow-500 flex-shrink-0" />
-                                                 )}
-                                             </div>
-                                             <div className="flex items-center gap-1">
-                                                 {/* Set as default button (only show if not already default) */}
-                                                 {!isDefault && (
-                                                     <button 
-                                                       onClick={() => handleSetDefaultModel(modelId)}
-                                                       className="p-1 text-slate-400 hover:text-yellow-500 hover:bg-yellow-50 rounded transition-all opacity-0 group-hover:opacity-100"
-                                                       title="設為預設模型"
-                                                     >
-                                                         <Star size={14} />
-                                                     </button>
-                                                 )}
-                                                 {/* Remove button */}
-                                                 <button 
-                                                   onClick={() => handleRemoveModel(modelId)}
-                                                   className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
-                                                 >
-                                                     <X size={14} />
-                                                 </button>
-                                             </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                       </div>
-                  </div>
+                      <div className="w-16 bg-slate-50 border-x border-slate-200 flex flex-col items-center justify-center gap-3 p-2 z-10">
+                          <button onClick={handleSetParamToApp} disabled={!selectedAvailableParamId}
+                              className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed" title="設定參數">
+                              <ChevronsRight size={18} />
+                          </button>
+                      </div>
+                      <div className="flex-1 flex flex-col min-w-0">
+                          <div className="p-3 border-b border-slate-100 bg-blue-50/30 flex justify-between items-center">
+                              <span className="text-sm font-semibold text-slate-700">已設定參數</span>
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">{formData.defaultSettings?.paramId ? 1 : 0}</span>
+                          </div>
+                          <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                              {!formData.defaultSettings?.paramId ? (
+                                  <div className="flex flex-col items-center justify-center h-full text-slate-400"><Settings size={32} className="mb-2 opacity-50" /><p className="text-xs">尚未設定參數</p></div>
+                              ) : (() => {
+                                  const param = MOCK_LLM_PARAMS.find(p => p.id === formData.defaultSettings.paramId);
+                                  if (!param) return null;
+                                  return (
+                                      <div className="flex items-center justify-between p-2 rounded-lg bg-blue-50 border border-blue-100 group hover:bg-blue-100 transition-colors">
+                                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                                              <div className="w-6 h-6 rounded-full bg-blue-200 text-blue-700 flex items-center justify-center"><Settings size={12} /></div>
+                                              <div className="flex-1 min-w-0">
+                                                  <span className="block text-sm font-medium text-slate-700 truncate">{param.name}</span>
+                                                  <span className="text-[10px] text-slate-400">T:{param.temperature} P:{param.topP} K:{param.topK}</span>
+                                              </div>
+                                          </div>
+                                          <button onClick={handleClearParam} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all" title="清除參數"><X size={14} /></button>
+                                      </div>
+                                  );
+                              })()}
+                          </div>
+                      </div>
+                  </>)}
+
+                  {/* ===== Prompt Tab (Multi Select + Star Default) ===== */}
+                  {defaultSettingsTab === 'prompt' && (<>
+                      <div className="flex-1 flex flex-col min-w-0 border-r border-slate-100">
+                          <div className="p-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                              <span className="text-sm font-semibold text-slate-700">可用提示詞</span>
+                              <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">{enabledPrompts.length}</span>
+                          </div>
+                          <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                              <div className="space-y-1">
+                                  {enabledPrompts.length === 0 ? (
+                                      <div className="text-center py-10 text-slate-400 text-sm">無可用提示詞</div>
+                                  ) : enabledPrompts.map(prompt => {
+                                      const isSelected = selectedAvailablePromptIds.includes(prompt.id);
+                                      const isAdded = (formData.availablePrompts || []).includes(prompt.id);
+                                      return (
+                                          <div key={prompt.id} onClick={() => !isAdded && toggleAvailablePromptSelection(prompt.id)}
+                                              className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent ${isAdded ? 'opacity-50 grayscale bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}`}>
+                                              <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 bg-white'}`}>
+                                                  {isSelected && <Check size={10} />}
+                                              </div>
+                                              <div className="flex-1 min-w-0 flex items-center gap-2">
+                                                  <div className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center"><MessageSquare size={12} /></div>
+                                                  <div className="text-sm font-medium text-slate-700 truncate">{prompt.name}</div>
+                                                  {isAdded && <span className="text-xs text-slate-400">• 已加入</span>}
+                                              </div>
+                                          </div>
+                                      );
+                                  })}
+                              </div>
+                          </div>
+                      </div>
+                      <div className="w-16 bg-slate-50 border-x border-slate-200 flex flex-col items-center justify-center gap-3 p-2 z-10">
+                          <button onClick={handleAddPromptsToApp} disabled={selectedAvailablePromptIds.length === 0}
+                              className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed" title="新增選取的項目">
+                              <ChevronsRight size={18} />
+                          </button>
+                          <button onClick={handleAddAllPrompts}
+                              className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all text-xs font-bold" title="新增全部">
+                              全部
+                          </button>
+                      </div>
+                      <div className="flex-1 flex flex-col min-w-0">
+                          <div className="p-3 border-b border-slate-100 bg-green-50/30 flex justify-between items-center">
+                              <span className="text-sm font-semibold text-slate-700">已選提示詞</span>
+                              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">{(formData.availablePrompts || []).length}</span>
+                          </div>
+                          <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                              <div className="space-y-1">
+                                  {(!formData.availablePrompts || formData.availablePrompts.length === 0) ? (
+                                      <div className="flex flex-col items-center justify-center h-full text-slate-400"><MessageSquare size={32} className="mb-2 opacity-50" /><p className="text-xs">無已選提示詞</p></div>
+                                  ) : formData.availablePrompts.map((promptId, index) => {
+                                      const prompt = MOCK_LLM_PROMPTS.find(p => p.id === promptId);
+                                      if (!prompt) return null;
+                                      const isDefault = formData.defaultPromptId ? formData.defaultPromptId === promptId : index === 0;
+                                      return (
+                                          <div key={promptId} className={`flex items-center justify-between p-2 rounded-lg group hover:bg-green-100 transition-colors ${isDefault ? 'bg-green-100 border border-green-200' : 'bg-green-50 border border-green-100'}`}>
+                                              <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                  <div className="w-6 h-6 rounded-full bg-green-200 text-green-700 flex items-center justify-center"><MessageSquare size={12} /></div>
+                                                  <span className="text-sm font-medium text-slate-700 truncate">{prompt.name}</span>
+                                                  {isDefault && <Star size={14} className="text-yellow-500 fill-yellow-500 flex-shrink-0" />}
+                                              </div>
+                                              <div className="flex items-center gap-1">
+                                                  {!isDefault && (
+                                                      <button onClick={() => handleSetDefaultPrompt(promptId)} className="p-1 text-slate-400 hover:text-yellow-500 hover:bg-yellow-50 rounded transition-all opacity-0 group-hover:opacity-100" title="設為預設提示詞"><Star size={14} /></button>
+                                                  )}
+                                                  <button onClick={() => handleRemovePrompt(promptId)} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"><X size={14} /></button>
+                                              </div>
+                                          </div>
+                                      );
+                                  })}
+                              </div>
+                          </div>
+                      </div>
+                  </>)}
+
+                  {/* ===== Tools Tab (Multi Select + Enable Toggle) ===== */}
+                  {defaultSettingsTab === 'tools' && (<>
+                      <div className="flex-1 flex flex-col min-w-0 border-r border-slate-100">
+                          <div className="p-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                              <span className="text-sm font-semibold text-slate-700">可用工具庫</span>
+                              <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">{enabledTools.length}</span>
+                          </div>
+                          <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                              <div className="space-y-1">
+                                  {enabledTools.length === 0 ? (
+                                      <div className="text-center py-10 text-slate-400 text-sm">無可用工具</div>
+                                  ) : enabledTools.map(tool => {
+                                      const strId = String(tool.id);
+                                      const isSelected = selectedAvailableToolIds.includes(strId);
+                                      const isAdded = (formData.tools || []).some(t => t.id === strId);
+                                      return (
+                                          <div key={tool.id} onClick={() => !isAdded && toggleAvailableToolSelection(tool.id)}
+                                              className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent ${isAdded ? 'opacity-50 grayscale bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}`}>
+                                              <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 bg-white'}`}>
+                                                  {isSelected && <Check size={10} />}
+                                              </div>
+                                              <div className="flex-1 min-w-0 flex items-center gap-2">
+                                                  <div className="w-6 h-6 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center"><Wrench size={12} /></div>
+                                                  <div className="flex-1 min-w-0">
+                                                      <div className="text-sm font-medium text-slate-700 truncate">{tool.name}</div>
+                                                      <div className="text-[10px] text-slate-400 truncate">{tool.description}</div>
+                                                  </div>
+                                                  {isAdded && <span className="text-xs text-slate-400 flex-shrink-0">• 已啟用</span>}
+                                              </div>
+                                          </div>
+                                      );
+                                  })}
+                              </div>
+                          </div>
+                      </div>
+                      <div className="w-16 bg-slate-50 border-x border-slate-200 flex flex-col items-center justify-center gap-3 p-2 z-10">
+                          <button onClick={handleAddToolsToApp} disabled={selectedAvailableToolIds.length === 0}
+                              className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed" title="啟用選取的工具">
+                              <ChevronsRight size={18} />
+                          </button>
+                          <button onClick={handleAddAllTools}
+                              className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all text-xs font-bold" title="啟用全部">
+                              全部
+                          </button>
+                      </div>
+                      <div className="flex-1 flex flex-col min-w-0">
+                          <div className="p-3 border-b border-slate-100 bg-orange-50/30 flex justify-between items-center">
+                              <span className="text-sm font-semibold text-slate-700">已啟用工具</span>
+                              <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold">{(formData.tools || []).length}</span>
+                          </div>
+                          <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                              <div className="space-y-1">
+                                  {(!formData.tools || formData.tools.length === 0) ? (
+                                      <div className="flex flex-col items-center justify-center h-full text-slate-400"><Wrench size={32} className="mb-2 opacity-50" /><p className="text-xs">尚未啟用任何工具</p></div>
+                                  ) : formData.tools.map(toolObj => {
+                                      const toolId = toolObj.id;
+                                      const tool = MOCK_TOOLS.find(t => String(t.id) === String(toolId));
+                                      if (!tool) return null;
+                                      return (
+                                          <div key={toolId} className="flex items-center justify-between p-2 rounded-lg bg-orange-50 border border-orange-100 group hover:bg-orange-100 transition-colors">
+                                              <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                  <div className="w-6 h-6 rounded-lg bg-orange-200 text-orange-700 flex items-center justify-center"><Wrench size={12} /></div>
+                                                  <div className="flex-1 min-w-0">
+                                                      <span className="block text-sm font-medium text-slate-700 truncate">{tool.name}</span>
+                                                      <span className="text-[10px] text-slate-400">{toolObj.defaultOn ? '預設啟用' : '手動觸發'}</span>
+                                                  </div>
+                                              </div>
+                                              <div className="flex items-center gap-2">
+                                                  <label className="relative inline-flex items-center cursor-pointer" title="設定是否預設啟用">
+                                                      <input type="checkbox" className="sr-only peer" checked={!!toolObj.defaultOn} onChange={() => handleToggleToolDefault(toolId)} />
+                                                      <div className="w-7 h-4 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-500"></div>
+                                                  </label>
+                                                  <button onClick={() => handleRemoveTool(toolId)} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all" title="移除工具"><X size={14} /></button>
+                                              </div>
+                                          </div>
+                                      );
+                                  })}
+                              </div>
+                          </div>
+                      </div>
+                  </>)}
               </div>
           </section>
 
-          {/* Available Prompts - Transfer List */}
-          <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[400px]">
-              <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                  <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">可選提示詞設定</h3>
-              </div>
-              
-              <div className="flex-1 flex overflow-hidden">
-                  {/* Left: Available Prompts */}
-                  <div className="flex-1 flex flex-col min-w-0 border-r border-slate-100">
-                      <div className="p-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                          <span className="text-sm font-semibold text-slate-700">可用提示詞</span>
-                          <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">{enabledPrompts.length}</span>
-                      </div>
-                      <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-                           <div className="space-y-1">
-                               {enabledPrompts.length === 0 ? (
-                                   <div className="text-center py-10 text-slate-400 text-sm">無可用提示詞</div>
-                               ) : enabledPrompts.map(prompt => {
-                                   const isSelected = selectedAvailablePromptIds.includes(prompt.id);
-                                   const isAdded = (formData.availablePrompts || []).includes(prompt.id);
-                                   return (
-                                       <div 
-                                         key={prompt.id}
-                                         onClick={() => !isAdded && toggleAvailablePromptSelection(prompt.id)} 
-                                         className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent
-                                            ${isAdded ? 'opacity-50 grayscale bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}
-                                         `}
-                                       >
-                                           <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 bg-white'}`}>
-                                               {isSelected && <Check size={10} />}
-                                           </div>
-                                            <div className="flex-1 min-w-0 flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-[10px] font-bold">
-                                                     <MessageSquare size={12} />
-                                                </div>
-                                                <div className="text-sm font-medium text-slate-700 truncate">{prompt.name}</div>
-                                                {isAdded && <span className="text-xs text-slate-400">• 已加入</span>}
-                                            </div>
-                                       </div>
-                                   )
-                               })}
-                           </div>
-                      </div>
-                  </div>
-
-                  {/* Center: Actions */}
-                  <div className="w-16 bg-slate-50 border-x border-slate-200 flex flex-col items-center justify-center gap-3 p-2 z-10">
-                      <button 
-                        onClick={handleAddPromptsToApp}
-                        disabled={selectedAvailablePromptIds.length === 0}
-                        className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                        title="新增選取的項目"
-                      >
-                          <ChevronsRight size={18} />
-                      </button>
-                      <button 
-                        onClick={handleAddAllPrompts}
-                        className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all text-xs font-bold"
-                        title="新增全部"
-                      >
-                          全部
-                      </button>
-                  </div>
-
-                  {/* Right: Selected Prompts */}
-                  <div className="flex-1 flex flex-col min-w-0">
-                      <div className="p-3 border-b border-slate-100 bg-green-50/30 flex justify-between items-center">
-                          <span className="text-sm font-semibold text-slate-700">已選提示詞</span>
-                          <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">{(formData.availablePrompts || []).length}</span>
-                      </div>
-                       <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-                            <div className="space-y-1">
-                                {(!formData.availablePrompts || formData.availablePrompts.length === 0) ? (
-                                    <div className="text-center py-10 text-slate-400 text-sm">無已選提示詞</div>
-                                ) : formData.availablePrompts.map((promptId, index) => {
-                                    const prompt = MOCK_LLM_PROMPTS.find(p => p.id === promptId);
-                                    if (!prompt) return null;
-                                    
-                                    // Determine if this is the default prompt
-                                    const isDefault = formData.defaultPromptId 
-                                        ? formData.defaultPromptId === promptId 
-                                        : index === 0;
-                                    
-                                    return (
-                                        <div key={promptId} className={`flex items-center justify-between p-2 rounded-lg group hover:bg-green-100 transition-colors ${isDefault ? 'bg-green-100 border border-green-200' : 'bg-green-50 border border-green-100'}`}>
-                                             <div className="flex items-center gap-2 min-w-0 flex-1">
-                                                 <div className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
-                                                      <MessageSquare size={12} />
-                                                 </div>
-                                                 <span className="text-sm font-medium text-slate-700 truncate">{prompt.name}</span>
-                                                 {isDefault && (
-                                                     <Star size={14} className="text-yellow-500 fill-yellow-500 flex-shrink-0" />
-                                                 )}
-                                             </div>
-                                             <div className="flex items-center gap-1">
-                                                 {/* Set as default button */}
-                                                 {!isDefault && (
-                                                     <button 
-                                                       onClick={() => handleSetDefaultPrompt(promptId)}
-                                                       className="p-1 text-slate-400 hover:text-yellow-500 hover:bg-yellow-50 rounded transition-all opacity-0 group-hover:opacity-100"
-                                                       title="設為預設提示詞"
-                                                     >
-                                                         <Star size={14} />
-                                                     </button>
-                                                 )}
-                                                 {/* Remove button */}
-                                                 <button 
-                                                   onClick={() => handleRemovePrompt(promptId)}
-                                                   className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
-                                                 >
-                                                     <X size={14} />
-                                                 </button>
-                                             </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                       </div>
-                  </div>
-              </div>
-          </section>
-
-          {/* Tool Settings (Enabled Tools) */}
-          <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[400px]">
-              <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                  <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">工具設定</h3>
-              </div>
-              
-              <div className="flex-1 flex overflow-hidden">
-                  {/* Left: Available Tools */}
-                  <div className="flex-1 flex flex-col min-w-0 border-r border-slate-100">
-                      <div className="p-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                          <span className="text-sm font-semibold text-slate-700">可用工具庫</span>
-                          <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">{enabledTools.length}</span>
-                      </div>
-                      <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-                           <div className="space-y-1">
-                               {enabledTools.length === 0 ? (
-                                   <div className="text-center py-10 text-slate-400 text-sm">無可用工具</div>
-                               ) : enabledTools.map(tool => {
-                                   const strId = String(tool.id);
-                                   const isSelected = selectedAvailableToolIds.includes(strId);
-                                   const isAdded = (formData.tools || []).some(t => t.id === strId);
-                                   return (
-                                       <div 
-                                         key={tool.id}
-                                         onClick={() => !isAdded && toggleAvailableToolSelection(tool.id)} 
-                                         className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent
-                                            ${isAdded ? 'opacity-50 grayscale bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}
-                                         `}
-                                       >
-                                           <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 bg-white'}`}>
-                                               {isSelected && <Check size={10} />}
-                                           </div>
-                                            <div className="flex-1 min-w-0 flex items-center gap-2">
-                                                <div className="w-6 h-6 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center text-[10px] font-bold">
-                                                     <Wrench size={12} />
-                                                </div>
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="text-sm font-medium text-slate-700 truncate">{tool.name}</div>
-                                                    <div className="text-[10px] text-slate-400 truncate">{tool.description}</div>
-                                                </div>
-                                                {isAdded && <span className="text-xs text-slate-400 flex-shrink-0">• 已啟用</span>}
-                                            </div>
-                                       </div>
-                                   )
-                               })}
-                           </div>
-                      </div>
-                  </div>
-
-                  {/* Center: Actions */}
-                  <div className="w-16 bg-slate-50 border-x border-slate-200 flex flex-col items-center justify-center gap-3 p-2 z-10">
-                      <button 
-                        onClick={handleAddToolsToApp}
-                        disabled={selectedAvailableToolIds.length === 0}
-                        className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                        title="啟用選取的工具"
-                      >
-                          <ChevronsRight size={18} />
-                      </button>
-                      <button 
-                        onClick={handleAddAllTools}
-                        className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all text-xs font-bold"
-                        title="啟用全部"
-                      >
-                          全部
-                      </button>
-                  </div>
-
-                  {/* Right: Enabled Tools */}
-                  <div className="flex-1 flex flex-col min-w-0">
-                      <div className="p-3 border-b border-slate-100 bg-orange-50/30 flex justify-between items-center">
-                          <span className="text-sm font-semibold text-slate-700">已啟用工具</span>
-                          <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold">{(formData.tools || []).length}</span>
-                      </div>
-                       <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-                            <div className="space-y-1">
-                                {(!formData.tools || formData.tools.length === 0) ? (
-                                    <div className="text-center py-10 text-slate-400 text-sm">此應用程式尚未啟用任何工具</div>
-                                ) : formData.tools.map(toolObj => {
-                                    const toolId = toolObj.id;
-                                    const tool = MOCK_TOOLS.find(t => String(t.id) === String(toolId));
-                                    if (!tool) return null;
-                                    
-                                    return (
-                                        <div key={toolId} className="flex items-center justify-between p-2 rounded-lg bg-orange-50 border border-orange-100 group hover:bg-orange-100 transition-colors">
-                                             <div className="flex items-center gap-2 min-w-0 flex-1">
-                                                 <div className="w-6 h-6 rounded-lg bg-orange-200 text-orange-700 flex items-center justify-center">
-                                                      <Wrench size={12} />
-                                                 </div>
-                                                 <div className="flex-1 min-w-0">
-                                                    <span className="block text-sm font-medium text-slate-700 truncate">{tool.name}</span>
-                                                    <span className="text-[10px] text-slate-400">
-                                                        {toolObj.defaultOn ? '預設啟用' : '手動觸發'}
-                                                    </span>
-                                                 </div>
-                                             </div>
-                                             <div className="flex items-center gap-2">
-                                                 {/* Default Toggle */}
-                                                 <label className="relative inline-flex items-center cursor-pointer" title="設定是否預設啟用">
-                                                    <input 
-                                                        type="checkbox" 
-                                                        className="sr-only peer"
-                                                        checked={!!toolObj.defaultOn}
-                                                        onChange={() => handleToggleToolDefault(toolId)}
-                                                    />
-                                                    <div className="w-7 h-4 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-500"></div>
-                                                 </label>
-
-                                                 {/* Remove button */}
-                                                 <button 
-                                                   onClick={() => handleRemoveTool(toolId)}
-                                                   className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
-                                                   title="移除工具"
-                                                 >
-                                                     <X size={14} />
-                                                 </button>
-                                             </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                       </div>
-                  </div>
-              </div>
-          </section>
 
 
           {/* 5. User Permissions - Transfer List */}
