@@ -13,10 +13,13 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
   const [formData, setFormData] = useState(app);
   const [activeTab, setActiveTab] = useState('welcome'); // 'welcome', 'questions'
   const [defaultSettingsTab, setDefaultSettingsTab] = useState('model');
+  const [settingsMode, setSettingsMode] = useState('chat'); // 'chat' | 'canvas'
   
   // Sync with prop changes
   React.useEffect(() => {
     setFormData(app);
+    // Reset to chat mode if the new app doesn't support canvas
+    if (!app.supportCanvas) setSettingsMode('chat');
   }, [app]);
 
   const handleChange = (updates) => {
@@ -40,6 +43,26 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
   const enabledPrompts = MOCK_LLM_PROMPTS; // Prompts don't have active status currently
   const enabledTools = MOCK_TOOLS.filter(t => t.status === 'active'); // Filter active tools
 
+  // ===== Mode-aware computed getters =====
+  const modeAvailableModels = settingsMode === 'chat' ? (formData.availableModels || []) : (formData.settings?.canvas?.availableModels || []);
+  const modeDefaultModelId = settingsMode === 'chat' ? formData.defaultModelId : (formData.settings?.canvas?.defaultModelId || '');
+  const modeDefaultSettings = settingsMode === 'chat' ? (formData.defaultSettings || {}) : (formData.settings?.canvas?.defaultSettings || {});
+  const modeTools = settingsMode === 'chat' ? (formData.tools || []) : (formData.settings?.canvas?.tools || []);
+  const modeAvailablePrompts = settingsMode === 'chat' ? (formData.availablePrompts || []) : (formData.settings?.canvas?.availablePrompts || []);
+  const modeDefaultPromptId = settingsMode === 'chat' ? formData.defaultPromptId : (formData.settings?.canvas?.defaultPromptId || '');
+
+
+  // Mode-aware change helper: writes to flat fields for chat, nested settings.canvas for canvas
+  const handleModeFieldChange = (updates) => {
+    if (settingsMode === 'chat') {
+      handleChange(updates);
+    } else {
+      const currentCanvas = formData.settings?.canvas || {};
+      const newCanvas = { ...currentCanvas, ...updates };
+      handleChange({ settings: { ...formData.settings, canvas: newCanvas } });
+    }
+  };
+
   // Transfer List Handlers for Models
   const toggleAvailableModelSelection = (id) => {
     if (selectedAvailableModelIds.includes(id)) {
@@ -51,42 +74,42 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
 
   const handleAddModelsToApp = () => {
     if (selectedAvailableModelIds.length === 0) return;
-    const currentModels = formData.availableModels || [];
+    const currentModels = modeAvailableModels;
     const newModelsToAdd = selectedAvailableModelIds.filter(id => !currentModels.includes(id));
     if (newModelsToAdd.length > 0) {
-        handleChange({ availableModels: [...currentModels, ...newModelsToAdd] });
+        handleModeFieldChange({ availableModels: [...currentModels, ...newModelsToAdd] });
         setSelectedAvailableModelIds([]);
     }
   };
 
   const handleAddAllModels = () => {
-    const currentModels = formData.availableModels || [];
+    const currentModels = modeAvailableModels;
     const allEnabledIds = enabledModels.map(m => m.id);
     const newModelsToAdd = allEnabledIds.filter(id => !currentModels.includes(id));
     if (newModelsToAdd.length > 0) {
-        handleChange({ availableModels: [...currentModels, ...newModelsToAdd] });
+        handleModeFieldChange({ availableModels: [...currentModels, ...newModelsToAdd] });
     }
   };
 
   const handleRemoveModel = (modelId) => {
-    const currentModels = formData.availableModels || [];
+    const currentModels = modeAvailableModels;
     const newModels = currentModels.filter(id => id !== modelId);
     
     // If removed model was the default, set the first remaining model as default
-    if (formData.defaultModelId === modelId && newModels.length > 0) {
-        handleChange({ 
+    if (modeDefaultModelId === modelId && newModels.length > 0) {
+        handleModeFieldChange({ 
             availableModels: newModels,
             defaultModelId: newModels[0]
         });
     } else {
-        handleChange({ availableModels: newModels });
+        handleModeFieldChange({ availableModels: newModels });
     }
   };
 
   const handleSetDefaultModel = (modelId) => {
-    handleChange({ 
+    handleModeFieldChange({ 
         defaultModelId: modelId,
-        defaultSettings: { ...formData.defaultSettings, modelId: modelId }
+        defaultSettings: { ...modeDefaultSettings, modelId: modelId }
     });
   };
 
@@ -101,42 +124,42 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
 
   const handleAddPromptsToApp = () => {
     if (selectedAvailablePromptIds.length === 0) return;
-    const currentPrompts = formData.availablePrompts || [];
+    const currentPrompts = modeAvailablePrompts;
     const newPromptsToAdd = selectedAvailablePromptIds.filter(id => !currentPrompts.includes(id));
     if (newPromptsToAdd.length > 0) {
-        handleChange({ availablePrompts: [...currentPrompts, ...newPromptsToAdd] });
+        handleModeFieldChange({ availablePrompts: [...currentPrompts, ...newPromptsToAdd] });
         setSelectedAvailablePromptIds([]);
     }
   };
 
   const handleAddAllPrompts = () => {
-    const currentPrompts = formData.availablePrompts || [];
+    const currentPrompts = modeAvailablePrompts;
     const allIds = enabledPrompts.map(p => p.id);
     const newPromptsToAdd = allIds.filter(id => !currentPrompts.includes(id));
     if (newPromptsToAdd.length > 0) {
-        handleChange({ availablePrompts: [...currentPrompts, ...newPromptsToAdd] });
+        handleModeFieldChange({ availablePrompts: [...currentPrompts, ...newPromptsToAdd] });
     }
   };
 
   const handleRemovePrompt = (promptId) => {
-    const currentPrompts = formData.availablePrompts || [];
+    const currentPrompts = modeAvailablePrompts;
     const newPrompts = currentPrompts.filter(id => id !== promptId);
     
     // If removed prompt was the default, set the first remaining prompt as default
-    if (formData.defaultPromptId === promptId && newPrompts.length > 0) {
-        handleChange({ 
+    if (modeDefaultPromptId === promptId && newPrompts.length > 0) {
+        handleModeFieldChange({ 
             availablePrompts: newPrompts,
             defaultPromptId: newPrompts[0]
         });
     } else {
-        handleChange({ availablePrompts: newPrompts });
+        handleModeFieldChange({ availablePrompts: newPrompts });
     }
   };
 
   const handleSetDefaultPrompt = (promptId) => {
-    handleChange({ 
+    handleModeFieldChange({ 
         defaultPromptId: promptId,
-        defaultSettings: { ...formData.defaultSettings, promptId: promptId }
+        defaultSettings: { ...modeDefaultSettings, promptId: promptId }
     });
   };
 
@@ -152,49 +175,49 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
 
   const handleAddToolsToApp = () => {
     if (selectedAvailableToolIds.length === 0) return;
-    const currentTools = formData.tools || [];
+    const currentTools = modeTools;
     const currentToolIds = currentTools.map(t => t.id);
     const newToolsIDS = selectedAvailableToolIds.filter(id => !currentToolIds.includes(id));
     
     if (newToolsIDS.length > 0) {
         const newToolObjects = newToolsIDS.map(id => ({ id, defaultOn: true }));
-        handleChange({ tools: [...currentTools, ...newToolObjects] });
+        handleModeFieldChange({ tools: [...currentTools, ...newToolObjects] });
         setSelectedAvailableToolIds([]);
     }
   };
 
   const handleAddAllTools = () => {
-    const currentTools = formData.tools || [];
+    const currentTools = modeTools;
     const currentToolIds = currentTools.map(t => t.id);
     const allEnabledIds = enabledTools.map(t => String(t.id));
     const newToolIDs = allEnabledIds.filter(id => !currentToolIds.includes(id));
     
     if (newToolIDs.length > 0) {
         const newToolObjects = newToolIDs.map(id => ({ id, defaultOn: true }));
-        handleChange({ tools: [...currentTools, ...newToolObjects] });
+        handleModeFieldChange({ tools: [...currentTools, ...newToolObjects] });
     }
   };
 
   const handleRemoveTool = (toolId) => {
-    const currentTools = formData.tools || [];
-    handleChange({ tools: currentTools.filter(t => t.id !== toolId) });
+    const currentTools = modeTools;
+    handleModeFieldChange({ tools: currentTools.filter(t => t.id !== toolId) });
   };
 
   const handleToggleToolDefault = (toolId) => {
-      const currentTools = formData.tools || [];
+      const currentTools = modeTools;
       const newTools = currentTools.map(t => 
           t.id === toolId ? { ...t, defaultOn: !t.defaultOn } : t
       );
-      handleChange({ tools: newTools });
+      handleModeFieldChange({ tools: newTools });
   };
 
   // Single-select handler for Params
   const handleSetParamToApp = () => {
       if (!selectedAvailableParamId) return;
-      handleChange({ defaultSettings: { ...formData.defaultSettings, paramId: selectedAvailableParamId } });
+      handleModeFieldChange({ defaultSettings: { ...modeDefaultSettings, paramId: selectedAvailableParamId } });
       setSelectedAvailableParamId(null);
   };
-  const handleClearParam = () => handleChange({ defaultSettings: { ...formData.defaultSettings, paramId: '' } });
+  const handleClearParam = () => handleModeFieldChange({ defaultSettings: { ...modeDefaultSettings, paramId: '' } });
 
   // Transfer List Handlers for Users
   const toggleAvailableUserSelection = (id) => {
@@ -472,9 +495,22 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
 
           {/* Unified Default Settings with Tabs */}
           <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[400px]">
-              <div className="px-6 py-4 border-b border-slate-200 bg-slate-50">
-                  <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">預設設定</h3>
-              </div>
+               <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+                   <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">預設設定</h3>
+                   {formData.supportCanvas && (                   <div className="flex items-center gap-2">
+                       <span className="text-xs text-slate-400">模式</span>
+                       <div className="flex items-center bg-slate-200/60 p-0.5 rounded-lg">
+                           <button onClick={() => setSettingsMode('chat')}
+                               className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${settingsMode === 'chat' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                               對話
+                           </button>
+                           <button onClick={() => setSettingsMode('canvas')}
+                               className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${settingsMode === 'canvas' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+                               Canvas
+                           </button>
+                       </div>
+                   </div>)}
+               </div>
               <div className="flex border-b border-slate-200 px-6">
                   {[{ key: 'model', label: '語言模型' }, { key: 'params', label: '參數' }, { key: 'prompt', label: '提示詞' }, { key: 'tools', label: '工具' }].map(tab => (
                       <button key={tab.key} onClick={() => setDefaultSettingsTab(tab.key)}
@@ -498,7 +534,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                                       <div className="text-center py-10 text-slate-400 text-sm">無已啟用模型</div>
                                   ) : enabledModels.map(model => {
                                       const isSelected = selectedAvailableModelIds.includes(model.id);
-                                      const isAdded = (formData.availableModels || []).includes(model.id);
+                                      const isAdded = modeAvailableModels.includes(model.id);
                                       return (
                                           <div key={model.id} onClick={() => !isAdded && toggleAvailableModelSelection(model.id)}
                                               className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent ${isAdded ? 'opacity-50 grayscale bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}`}>
@@ -529,16 +565,16 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                       <div className="flex-1 flex flex-col min-w-0">
                           <div className="p-3 border-b border-slate-100 bg-purple-50/30 flex justify-between items-center">
                               <span className="text-sm font-semibold text-slate-700">已選模型</span>
-                              <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold">{(formData.availableModels || []).length}</span>
+                              <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold">{modeAvailableModels.length}</span>
                           </div>
                           <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
                               <div className="space-y-1">
-                                  {(!formData.availableModels || formData.availableModels.length === 0) ? (
+                                  {(modeAvailableModels.length === 0) ? (
                                       <div className="flex flex-col items-center justify-center h-full text-slate-400"><Cpu size={32} className="mb-2 opacity-50" /><p className="text-xs">無已選模型</p></div>
-                                  ) : formData.availableModels.map((modelId, index) => {
+                                  ) : modeAvailableModels.map((modelId, index) => {
                                       const model = MOCK_LLM_MODELS.find(m => m.id === modelId);
                                       if (!model) return null;
-                                      const isDefault = formData.defaultModelId ? formData.defaultModelId === modelId : index === 0;
+                                      const isDefault = modeDefaultModelId ? modeDefaultModelId === modelId : index === 0;
                                       return (
                                           <div key={modelId} className={`flex items-center justify-between p-2 rounded-lg group hover:bg-purple-100 transition-colors ${isDefault ? 'bg-purple-100 border border-purple-200' : 'bg-purple-50 border border-purple-100'}`}>
                                               <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -571,7 +607,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                               <div className="space-y-1">
                                   {MOCK_LLM_PARAMS.map(param => {
                                       const isSelected = selectedAvailableParamId === param.id;
-                                      const isCurrent = formData.defaultSettings?.paramId === param.id;
+                                      const isCurrent = modeDefaultSettings?.paramId === param.id;
                                       return (
                                           <div key={param.id} onClick={() => !isCurrent && setSelectedAvailableParamId(isSelected ? null : param.id)}
                                               className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent ${isCurrent ? 'opacity-50 bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}`}>
@@ -601,13 +637,13 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                       <div className="flex-1 flex flex-col min-w-0">
                           <div className="p-3 border-b border-slate-100 bg-blue-50/30 flex justify-between items-center">
                               <span className="text-sm font-semibold text-slate-700">已設定參數</span>
-                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">{formData.defaultSettings?.paramId ? 1 : 0}</span>
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">{modeDefaultSettings?.paramId ? 1 : 0}</span>
                           </div>
                           <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-                              {!formData.defaultSettings?.paramId ? (
+                              {!modeDefaultSettings?.paramId ? (
                                   <div className="flex flex-col items-center justify-center h-full text-slate-400"><Settings size={32} className="mb-2 opacity-50" /><p className="text-xs">尚未設定參數</p></div>
                               ) : (() => {
-                                  const param = MOCK_LLM_PARAMS.find(p => p.id === formData.defaultSettings.paramId);
+                                  const param = MOCK_LLM_PARAMS.find(p => p.id === modeDefaultSettings.paramId);
                                   if (!param) return null;
                                   return (
                                       <div className="flex items-center justify-between p-2 rounded-lg bg-blue-50 border border-blue-100 group hover:bg-blue-100 transition-colors">
@@ -639,7 +675,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                                       <div className="text-center py-10 text-slate-400 text-sm">無可用提示詞</div>
                                   ) : enabledPrompts.map(prompt => {
                                       const isSelected = selectedAvailablePromptIds.includes(prompt.id);
-                                      const isAdded = (formData.availablePrompts || []).includes(prompt.id);
+                                      const isAdded = modeAvailablePrompts.includes(prompt.id);
                                       return (
                                           <div key={prompt.id} onClick={() => !isAdded && toggleAvailablePromptSelection(prompt.id)}
                                               className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent ${isAdded ? 'opacity-50 grayscale bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}`}>
@@ -670,16 +706,16 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                       <div className="flex-1 flex flex-col min-w-0">
                           <div className="p-3 border-b border-slate-100 bg-green-50/30 flex justify-between items-center">
                               <span className="text-sm font-semibold text-slate-700">已選提示詞</span>
-                              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">{(formData.availablePrompts || []).length}</span>
+                              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-bold">{modeAvailablePrompts.length}</span>
                           </div>
                           <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
                               <div className="space-y-1">
-                                  {(!formData.availablePrompts || formData.availablePrompts.length === 0) ? (
+                                  {(modeAvailablePrompts.length === 0) ? (
                                       <div className="flex flex-col items-center justify-center h-full text-slate-400"><MessageSquare size={32} className="mb-2 opacity-50" /><p className="text-xs">無已選提示詞</p></div>
-                                  ) : formData.availablePrompts.map((promptId, index) => {
+                                  ) : modeAvailablePrompts.map((promptId, index) => {
                                       const prompt = MOCK_LLM_PROMPTS.find(p => p.id === promptId);
                                       if (!prompt) return null;
-                                      const isDefault = formData.defaultPromptId ? formData.defaultPromptId === promptId : index === 0;
+                                      const isDefault = modeDefaultPromptId ? modeDefaultPromptId === promptId : index === 0;
                                       return (
                                           <div key={promptId} className={`flex items-center justify-between p-2 rounded-lg group hover:bg-green-100 transition-colors ${isDefault ? 'bg-green-100 border border-green-200' : 'bg-green-50 border border-green-100'}`}>
                                               <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -715,7 +751,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                                   ) : enabledTools.map(tool => {
                                       const strId = String(tool.id);
                                       const isSelected = selectedAvailableToolIds.includes(strId);
-                                      const isAdded = (formData.tools || []).some(t => t.id === strId);
+                                      const isAdded = modeTools.some(t => t.id === strId);
                                       return (
                                           <div key={tool.id} onClick={() => !isAdded && toggleAvailableToolSelection(tool.id)}
                                               className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent ${isAdded ? 'opacity-50 grayscale bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}`}>
@@ -749,13 +785,13 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                       <div className="flex-1 flex flex-col min-w-0">
                           <div className="p-3 border-b border-slate-100 bg-orange-50/30 flex justify-between items-center">
                               <span className="text-sm font-semibold text-slate-700">已啟用工具</span>
-                              <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold">{(formData.tools || []).length}</span>
+                              <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold">{modeTools.length}</span>
                           </div>
                           <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
                               <div className="space-y-1">
-                                  {(!formData.tools || formData.tools.length === 0) ? (
+                                  {(modeTools.length === 0) ? (
                                       <div className="flex flex-col items-center justify-center h-full text-slate-400"><Wrench size={32} className="mb-2 opacity-50" /><p className="text-xs">尚未啟用任何工具</p></div>
-                                  ) : formData.tools.map(toolObj => {
+                                  ) : modeTools.map(toolObj => {
                                       const toolId = toolObj.id;
                                       const tool = MOCK_TOOLS.find(t => String(t.id) === String(toolId));
                                       if (!tool) return null;

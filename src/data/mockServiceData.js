@@ -8,6 +8,7 @@ export const MOCK_APPLICATIONS = [
     name: '互動問答',
     level: 'GAI',
     page: 'interactive',
+    supportCanvas: false,
     defaultSettings: {
       modelId: 'model_1',
       paramId: 'param_3',
@@ -30,13 +31,18 @@ export const MOCK_APPLICATIONS = [
       allowedUsers: ['user_1', 'user_2', 'user_3', 'user_4'],
       isPublic: false
     },
-    createdAt: '2024-01-15'
+    createdAt: '2024-01-15',
+  settings: {
+    chat: { defaultSettings: {}, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' },
+    canvas: { defaultSettings: { modelId: '', paramId: '', promptId: '' }, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' }
+  }
   },
   {
     id: 'app_kb',
     name: '知識庫',
     level: 'GAI',
     page: 'kb_manage',
+    supportCanvas: false,
     defaultSettings: {
       modelId: 'model_1',
       paramId: 'param_2',
@@ -54,13 +60,18 @@ export const MOCK_APPLICATIONS = [
       allowedUsers: ['user_1', 'user_2', 'user_3'],
       isPublic: false
     },
-    createdAt: '2024-01-18'
+    createdAt: '2024-01-18',
+  settings: {
+    chat: { defaultSettings: {}, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' },
+    canvas: { defaultSettings: { modelId: '', paramId: '', promptId: '' }, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' }
+  }
   },
   {
     id: 'app_ppt',
     name: 'PPT 互動產出',
     level: 'GAI',
     page: 'ppt_gen',
+    supportCanvas: true,
     defaultSettings: {
       modelId: 'model_2',
       paramId: 'param_1',
@@ -78,13 +89,18 @@ export const MOCK_APPLICATIONS = [
       allowedUsers: ['user_1', 'user_2'],
       isPublic: false
     },
-    createdAt: '2024-01-22'
+    createdAt: '2024-01-22',
+  settings: {
+    chat: { defaultSettings: {}, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' },
+    canvas: { defaultSettings: { modelId: '', paramId: '', promptId: '' }, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' }
+  }
   },
   {
     id: 'app_translation',
     name: '文件翻譯',
     level: 'GAI',
     page: 'doc_trans',
+    supportCanvas: false,
     defaultSettings: {
       modelId: 'model_1',
       paramId: 'param_2',
@@ -106,13 +122,18 @@ export const MOCK_APPLICATIONS = [
       allowedUsers: [],
       isPublic: true
     },
-    createdAt: '2024-02-01'
+    createdAt: '2024-02-01',
+  settings: {
+    chat: { defaultSettings: {}, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' },
+    canvas: { defaultSettings: { modelId: '', paramId: '', promptId: '' }, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' }
+  }
   },
   {
     id: 'app_bot_hr',
     name: '答詢機器人 - 人事差勤機器人',
     level: 'GAI',
     page: 'bot_hr',
+    supportCanvas: true,
     defaultSettings: {
       modelId: 'model_2',
       paramId: 'param_3',
@@ -132,13 +153,18 @@ export const MOCK_APPLICATIONS = [
       allowedUsers: [],
       isPublic: true
     },
-    createdAt: '2024-02-05'
+    createdAt: '2024-02-05',
+  settings: {
+    chat: { defaultSettings: {}, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' },
+    canvas: { defaultSettings: { modelId: '', paramId: '', promptId: '' }, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' }
+  }
   },
   {
     id: 'app_bot_security',
     name: '答詢機器人 - 資訊安全機器人',
     level: 'GAI',
     page: 'bot_security',
+    supportCanvas: true,
     defaultSettings: {
       modelId: 'model_1',
       paramId: 'param_2',
@@ -158,13 +184,18 @@ export const MOCK_APPLICATIONS = [
       allowedUsers: ['user_me', 'user_admin'],
       isPublic: false
     },
-    createdAt: '2024-02-08'
+    createdAt: '2024-02-08',
+  settings: {
+    chat: { defaultSettings: {}, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' },
+    canvas: { defaultSettings: { modelId: '', paramId: '', promptId: '' }, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' }
+  }
   },
   {
     id: 'app_draft_mail',
     name: '首長信箱',
     level: 'DOC',
     page: 'draft_mail',
+    supportCanvas: true,
     defaultSettings: {
       modelId: 'model_1',
       paramId: 'param_2',
@@ -181,13 +212,18 @@ export const MOCK_APPLICATIONS = [
       allowedUsers: ['user_1', 'user_4'],
       isPublic: false
     },
-    createdAt: '2024-02-10'
+    createdAt: '2024-02-10',
+  settings: {
+    chat: { defaultSettings: {}, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' },
+    canvas: { defaultSettings: { modelId: '', paramId: '', promptId: '' }, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' }
+  }
   },
   {
     id: 'app_draft_hill',
     name: '例行函稿 - 山坡地社區點監測',
     level: 'DOC',
     page: 'draft_hill',
+    supportCanvas: true,
     defaultSettings: {
       modelId: 'model_1',
       paramId: 'param_2',
@@ -208,13 +244,18 @@ export const MOCK_APPLICATIONS = [
       allowedUsers: ['user_1'],
       isPublic: false
     },
-    createdAt: '2024-02-12'
+    createdAt: '2024-02-12',
+  settings: {
+    chat: { defaultSettings: {}, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' },
+    canvas: { defaultSettings: { modelId: '', paramId: '', promptId: '' }, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' }
+  }
   },
   {
     id: 'app_draft_area',
     name: '例行函稿 - 禁建限區',
     level: 'DOC',
     page: 'draft_area',
+    supportCanvas: true,
     defaultSettings: {
       modelId: 'model_1',
       paramId: 'param_2',
@@ -235,13 +276,18 @@ export const MOCK_APPLICATIONS = [
       allowedUsers: ['user_1', 'user_4'],
       isPublic: false
     },
-    createdAt: '2024-02-15'
+    createdAt: '2024-02-15',
+  settings: {
+    chat: { defaultSettings: {}, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' },
+    canvas: { defaultSettings: { modelId: '', paramId: '', promptId: '' }, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' }
+  }
   },
   {
     id: 'app_draft_decor',
     name: '例行函稿 - 室內裝修',
     level: 'DOC',
     page: 'draft_decor',
+    supportCanvas: true,
     defaultSettings: {
       modelId: 'model_1',
       paramId: 'param_2',
@@ -262,13 +308,18 @@ export const MOCK_APPLICATIONS = [
       allowedUsers: ['user_1', 'user_2', 'user_4'],
       isPublic: false
     },
-    createdAt: '2024-02-18'
+    createdAt: '2024-02-18',
+  settings: {
+    chat: { defaultSettings: {}, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' },
+    canvas: { defaultSettings: { modelId: '', paramId: '', promptId: '' }, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' }
+  }
   },
   {
     id: 'app_doc_assist',
     name: '通用公文撰寫',
     level: 'DOC',
     page: 'doc_assist',
+    supportCanvas: true,
     featureSettings: {
       enableFileUpload: true,
       enableFeedback: true
@@ -291,13 +342,18 @@ export const MOCK_APPLICATIONS = [
       allowedUsers: ['user_admin', 'user_1'],
       isPublic: false
     },
-    createdAt: '2024-02-23'
+    createdAt: '2024-02-23',
+  settings: {
+    chat: { defaultSettings: {}, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' },
+    canvas: { defaultSettings: { modelId: '', paramId: '', promptId: '' }, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' }
+  }
   },
   {
     id: 'app_draft_doc_gen',
     name: '公文檔案上傳生成案件歷程',
     level: 'DOC',
     page: 'draft_doc_gen',
+    supportCanvas: false,
     defaultSettings: {
       modelId: 'model_1',
       paramId: 'param_2',
@@ -318,13 +374,18 @@ export const MOCK_APPLICATIONS = [
       allowedUsers: ['user_admin', 'user_1'],
       isPublic: false
     },
-    createdAt: '2024-02-22'
+    createdAt: '2024-02-22',
+  settings: {
+    chat: { defaultSettings: {}, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' },
+    canvas: { defaultSettings: { modelId: '', paramId: '', promptId: '' }, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' }
+  }
   },
   {
     id: 'app_prompt_opt',
     name: '提示詞優化',
     level: 'GAI',
     page: 'prompt_opt',
+    supportCanvas: true,
     defaultSettings: {
       modelId: 'model_2',
       paramId: 'param_1',
@@ -341,7 +402,11 @@ export const MOCK_APPLICATIONS = [
       allowedUsers: ['user_1', 'user_2'],
       isPublic: false
     },
-    createdAt: '2024-02-20'
+    createdAt: '2024-02-20',
+  settings: {
+    chat: { defaultSettings: {}, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' },
+    canvas: { defaultSettings: { modelId: '', paramId: '', promptId: '' }, availableModels: [], tools: [], availablePrompts: [], defaultModelId: '', defaultPromptId: '' }
+  }
   }
 ];
 

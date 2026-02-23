@@ -9,7 +9,7 @@ import { KB_TREE_DATA } from '../../data/mockData';
 import { MOCK_LLM_MODELS, MOCK_LLM_PARAMS, MOCK_LLM_PROMPTS } from '../../data/mockLLMData';
 import { MOCK_TOOLS } from '../../data/mockToolData';
 
-export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, allFiles, selectedFolderName, users, onUpdateBot, onCreateBot, onRemoveFile, onDeleteBot, onOpenLLMSettings, onBack }) {
+export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, allFiles, selectedFolderName, users, onUpdateBot, onCreateBot, onRemoveFile, onDeleteBot, onBack }) {
   if (!bot) return null;
   
   // Use local state for the form data to support creation mode and edits
@@ -298,21 +298,12 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
                       {/* 1. Name */}
                       <div className="space-y-1">
                           <label className="block text-sm font-medium text-slate-700">機器人名稱</label>
-                          <div className="flex gap-2">
-                              <input 
-                                    value={formData.name || ''}
-                                    onChange={(e) => handleChange({ name: e.target.value })}
-                                    placeholder="例如：人資小幫手"
-                                    className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
-                                />
-                                <button 
-                                    onClick={onOpenLLMSettings}
-                                    className="px-4 py-2.5 bg-slate-50 border border-slate-300 text-slate-600 rounded-lg hover:bg-slate-100 transition-colors flex items-center gap-2"
-                                    title="模型參數設定"
-                                >
-                                    <Settings size={18} />
-                                </button>
-                          </div>
+                          <input 
+                                value={formData.name || ''}
+                                onChange={(e) => handleChange({ name: e.target.value })}
+                                placeholder="例如：人資小幫手"
+                                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
+                            />
                       </div>
 
                       {/* 2. Status */}
