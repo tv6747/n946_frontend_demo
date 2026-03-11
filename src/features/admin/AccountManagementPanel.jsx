@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Plus, Filter, Edit2, Trash2 } from 'lucide-react';
-import { MOCK_ACCOUNTS, MOCK_TERM_CATEGORIES } from '../../data/mockData';
+import { MOCK_ACCOUNTS, MOCK_TERM_CATEGORIES, MOCK_USERS } from '../../data/mockData';
 import { AccountEditPanel } from './AccountEditPanel';
 
 export function AccountManagementPanel() {
@@ -59,6 +59,11 @@ export function AccountManagementPanel() {
   const getOrgName = (id) => {
       const org = MOCK_TERM_CATEGORIES.find(c => String(c.id) === String(id));
       return org ? org.name : 'Unknown';
+  };
+
+  const getDeptName = (deptId) => {
+      const dept = MOCK_USERS.find(u => u.id === deptId);
+      return dept ? dept.name.replace(' - 全體', '') : deptId;
   };
 
   if (selectedAccount) {
@@ -139,7 +144,7 @@ export function AccountManagementPanel() {
                         <th className="px-6 py-3 font-medium w-16">序號</th>
                         <th className="px-6 py-3 font-medium">帳號 / 姓名</th>
                         <th className="px-6 py-3 font-medium">組織單位</th>
-                        <th className="px-6 py-3 font-medium">電子信箱</th>
+                        <th className="px-6 py-3 font-medium">部門管理員</th>
                         <th className="px-6 py-3 font-medium">更新時間</th>
                         <th className="px-6 py-3 font-medium text-center">狀態</th>
                         <th className="px-6 py-3 font-medium text-right">功能</th>
@@ -169,8 +174,18 @@ export function AccountManagementPanel() {
                                        {getOrgName(acc.orgUnit)}
                                    </span>
                                 </td>
-                                <td className="px-6 py-4 text-sm text-slate-600 font-sans">
-                                    {acc.email}
+                                <td className="px-6 py-4">
+                                    {(acc.permissionUnits || []).filter(pu => pu.isAdmin).length > 0 ? (
+                                        <div className="flex flex-wrap gap-1">
+                                            {acc.permissionUnits.filter(pu => pu.isAdmin).map(pu => (
+                                                <span key={pu.deptId} className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                                                    {getDeptName(pu.deptId)}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <span className="text-xs text-slate-300">—</span>
+                                    )}
                                 </td>
                                 <td className="px-6 py-4 text-xs text-slate-400 tabular-nums">
                                     {acc.updatedAt}

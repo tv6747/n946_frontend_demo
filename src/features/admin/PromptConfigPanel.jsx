@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-    LayoutGrid, Trash2, Save, ArrowLeft, ChevronsRight, Check, X, MessageSquare
+    LayoutGrid, Trash2, Save, ArrowLeft, ChevronsRight, Check, X, MessageSquare, HelpCircle
 } from 'lucide-react';
 
 export function PromptConfigPanel({ prompt, isCreating, users, onUpdatePrompt, onCreatePrompt, onDeletePrompt, onBack }) {
@@ -34,6 +34,7 @@ export function PromptConfigPanel({ prompt, isCreating, users, onUpdatePrompt, o
 
     const [userSearch, setUserSearch] = useState('');
     const [selectedAvailableUserIds, setSelectedAvailableUserIds] = useState([]);
+    const [isPublic, setIsPublic] = useState(false);
 
     const filteredUsers = users.filter(u => u.name.toLowerCase().includes(userSearch.toLowerCase()));
 
@@ -166,9 +167,28 @@ export function PromptConfigPanel({ prompt, isCreating, users, onUpdatePrompt, o
                 <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[400px]">
                     <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
                         <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">使用者權限設定</h3>
+                        <div className="flex items-center gap-2">
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input 
+                                    type="checkbox" 
+                                    checked={isPublic}
+                                    onChange={(e) => setIsPublic(e.target.checked)}
+                                    className="sr-only peer"
+                                />
+                                <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                                <span className="ml-2 text-sm font-medium text-slate-600">設定為公開</span>
+                            </label>
+                            <div className="relative group">
+                                <HelpCircle size={14} className="text-slate-400 cursor-help" />
+                                <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-slate-800 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50">
+                                    所有使用者皆可以使用
+                                    <div className="absolute bottom-full right-2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-slate-800"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div className="flex-1 flex overflow-hidden">
+                    <div className={`flex-1 flex overflow-hidden ${isPublic ? 'opacity-40 pointer-events-none' : ''}`}>
                         {/* Left: Available Users */}
                         <div className="flex-1 flex flex-col min-w-0 border-r border-slate-100">
                             <div className="p-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">

@@ -124,10 +124,10 @@ export function TreeNode({ node, level = 0, selectedFolderId, onSelectFolder, fi
            )}
         </div>
         
-        <div className="flex items-center gap-2 text-sm min-w-0 overflow-hidden flex-1 justify-between">
+        <div className="flex items-center gap-2 text-sm min-w-0 flex-1 justify-between">
            <div className="flex items-center gap-2 min-w-0">
              {hasChildren && expanded ? <FolderOpen size={16} className="text-yellow-500 flex-shrink-0"/> : <Folder size={16} className="text-yellow-500 flex-shrink-0"/>}
-             <span className={`truncate ${isSelected ? 'font-semibold' : 'font-medium'}`}>{node.label}</span>
+             <span className={`break-words leading-snug ${isSelected ? 'font-semibold' : 'font-medium'}`} title={node.label}>{node.label}</span>
            </div>
            {fileCount > 0 && (
              <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${isSelected ? 'bg-blue-200 text-blue-700' : 'bg-slate-200 text-slate-500'}`}>

@@ -2,39 +2,45 @@
 export const KB_TREE_DATA = [
   {
     id: 'org',
-    label: '組織/單位公用',
+    label: '國土署',
     type: 'folder',
     children: [
-      { 
-        id: 'org_land', 
-        label: '國土管理署', 
-        type: 'folder',
-        ownerType: 'dept',
-        children: [
-          { id: 'org_land_law', label: '國土法規', type: 'folder', children: [] },
-          { id: 'org_land_admin', label: '行政法規', type: 'folder', children: [] }
-        ] 
-      },
-      { 
-        id: 'org_building', 
-        label: '建築管理組', 
-        type: 'folder',
-        ownerType: 'dept',
-        children: [
-          { id: 'org_building_method', label: '建築辦法', type: 'folder', children: [] },
-          { id: 'org_building_admin', label: '行政辦法', type: 'folder', children: [] }
-        ] 
-      },
-      { 
-        id: 'org_section5', 
-        label: '五科', 
-        type: 'folder',
-        ownerType: 'dept',
-        children: [
-          { id: 'org_section5_business', label: 'OO業務', type: 'folder', children: [] },
-          { id: 'org_section5_standard', label: 'OO規範', type: 'folder', children: [] }
-        ] 
-      }
+      { id: 'org_plan', label: '國土計畫組', type: 'folder', ownerType: 'dept', children: [
+        { id: 'org_plan_policy', label: '計畫政策', type: 'folder', children: [] },
+        { id: 'org_plan_review', label: '審議紀錄', type: 'folder', children: [] }
+      ] },
+      { id: 'org_land_plan', label: '國土組國土規劃科', type: 'folder', ownerType: 'dept', children: [
+        { id: 'org_land_plan_zoning', label: '使用分區', type: 'folder', children: [] },
+        { id: 'org_land_plan_spatial', label: '空間規劃', type: 'folder', children: [] }
+      ] },
+      { id: 'org_land_dev', label: '國土組國土發展科', type: 'folder', ownerType: 'dept', children: [
+        { id: 'org_land_dev_strategy', label: '發展策略', type: 'folder', children: [] },
+        { id: 'org_land_dev_region', label: '區域計畫', type: 'folder', children: [] }
+      ] },
+      { id: 'org_spec_plan', label: '國土組特域規劃科', type: 'folder', ownerType: 'dept', children: [
+        { id: 'org_spec_plan_coast', label: '海岸管理', type: 'folder', children: [] },
+        { id: 'org_spec_plan_mountain', label: '山地管理', type: 'folder', children: [] }
+      ] },
+      { id: 'org_land_ctrl', label: '國土組國土管制科', type: 'folder', ownerType: 'dept', children: [
+        { id: 'org_land_ctrl_enforce', label: '管制執行', type: 'folder', children: [] },
+        { id: 'org_land_ctrl_audit', label: '違規查處', type: 'folder', children: [] }
+      ] },
+      { id: 'org_hr', label: '人事室', type: 'folder', ownerType: 'dept', children: [
+        { id: 'org_hr_general', label: '綜合業務', type: 'folder', children: [] },
+        { id: 'org_hr_rules', label: '人事規章', type: 'folder', children: [] }
+      ] },
+      { id: 'org_hr_gen1', label: '人事室綜合人事科', type: 'folder', ownerType: 'dept', children: [
+        { id: 'org_hr_gen1_appoint', label: '任免遷調', type: 'folder', children: [] },
+        { id: 'org_hr_gen1_assess', label: '考核管理', type: 'folder', children: [] }
+      ] },
+      { id: 'org_hr_gen2', label: '人事室綜合人事二科', type: 'folder', ownerType: 'dept', children: [
+        { id: 'org_hr_gen2_welfare', label: '待遇福利', type: 'folder', children: [] },
+        { id: 'org_hr_gen2_attend', label: '差勤管理', type: 'folder', children: [] }
+      ] },
+      { id: 'org_hr_gen3', label: '人事室綜合人事三科', type: 'folder', ownerType: 'dept', children: [
+        { id: 'org_hr_gen3_training', label: '訓練進修', type: 'folder', children: [] },
+        { id: 'org_hr_gen3_manpower', label: '人力規劃', type: 'folder', children: [] }
+      ] }
     ]
   },
   { 
@@ -52,8 +58,8 @@ export const KB_TREE_DATA = [
     label: '與我共享',
     type: 'folder',
     children: [
-      { id: 'shared_land_plan', label: '國土計畫組', type: 'folder', ownerType: 'dept', children: [] },
-      { id: 'shared_urban', label: '城鄉分署', type: 'folder', ownerType: 'dept', children: [] },
+      { id: 'shared_plan', label: '國土計畫組', type: 'folder', ownerType: 'dept', children: [] },
+      { id: 'shared_hr', label: '人事室', type: 'folder', ownerType: 'dept', children: [] },
       { id: 'shared_wang', label: '王小明', type: 'folder', ownerType: 'user', children: [] }
     ]
   }
@@ -106,9 +112,15 @@ export const MOCK_SYNONYMS = [
 // --- New NLMA Terminology Mock Data ---
 
 export const MOCK_TERM_CATEGORIES = [
-    { id: 1, name: '國土計畫組', description: '掌理國土規劃、土地使用分區等' },
-    { id: 2, name: '建築管理組', description: '掌理建築法規、營建管理等' },
-    { id: 3, name: '都市更新組', description: '掌理都市更新政策、危老重建等' },
+    { id: 1, name: '國土計畫組', description: '掌理國土計畫擬定、審議及推動相關事項' },
+    { id: 2, name: '國土組國土規劃科', description: '掌理國土空間規劃、土地使用分區等' },
+    { id: 3, name: '國土組國土發展科', description: '掌理國土發展策略、區域計畫推動等' },
+    { id: 4, name: '國土組特域規劃科', description: '掌理特定區域規劃、海岸及山地管理等' },
+    { id: 5, name: '國土組國土管制科', description: '掌理國土使用管制、違規查處等' },
+    { id: 6, name: '人事室', description: '掌理機關人事行政綜合業務' },
+    { id: 7, name: '人事室綜合人事科', description: '掌理人事任免、遷調、考核等' },
+    { id: 8, name: '人事室綜合人事二科', description: '掌理待遇福利、差勤管理等' },
+    { id: 9, name: '人事室綜合人事三科', description: '掌理訓練進修、人力規劃等' },
 ];
 
 export const MOCK_TERM_DEFINITIONS = [
@@ -121,7 +133,7 @@ export const MOCK_TERM_DEFINITIONS = [
         is_legal_binding: true,
         is_current: true,
         version_tag: '113年修訂',
-        categories: [2] // Linked by ID to Categories
+        categories: [2] // 國土署國土組國土規劃科
     },
     { 
         id: 't2', 
@@ -132,29 +144,29 @@ export const MOCK_TERM_DEFINITIONS = [
         is_legal_binding: true,
         is_current: true,
         version_tag: '114年通檢版',
-        categories: [1]
+        categories: [1] // 國土署國土計畫組
     },
     { 
         id: 't3', 
-        term_name: '建蔽率', 
-        definition: '指建築面積占基地面積之比率。', 
+        term_name: '國土使用管制', 
+        definition: '指對國土空間內各使用分區及其分類之使用行為所為之管制。', 
         source_type: '法律', 
-        source_title: '建築技術規則建築設計施工編第1條', 
+        source_title: '國土計畫法施行細則第6條', 
         is_legal_binding: true,
         is_current: true, 
         version_tag: '現行版',
-        categories: [2]
+        categories: [5] // 國土署國土組國土管制科
     },
     {
         id: 't4',
-        term_name: '都市更新單元',
-        definition: '指依本條例規定劃定應實施都市更新之地區。',
+        term_name: '特定區域計畫',
+        definition: '指為特殊需要而就特定區域所擬定之計畫。',
         source_type: '法律',
-        source_title: '都市更新條例第3條',
+        source_title: '國土計畫法第3條',
         is_legal_binding: true,
         is_current: true,
-        version_tag: '108年修訂',
-        categories: [3]
+        version_tag: '114年修訂',
+        categories: [4] // 國土署國土組特域規劃科
     }
 ];
 
@@ -179,30 +191,40 @@ export const MOCK_TERM_ANNOTATIONS = [
 
 
 const REALISTIC_FILES = [
-  { name: '員工差勤管理辦法.pdf', type: 'pdf', folder: 'org_section5_standard' },
-  { name: '2024年度資安宣導手冊.pdf', type: 'pdf', folder: 'org_section5_standard' },
-  { name: '資訊設備使用規範.pdf', type: 'pdf', folder: 'org_section5_standard' },
-  { name: '第10次專案會議記錄.docx', type: 'docx', folder: 'org_section5_business' },
-  { name: '需求訪談紀錄_20240215.docx', type: 'docx', folder: 'org_section5_business' },
-  { name: '系統測試計畫書.docx', type: 'docx', folder: 'org_section5_business' },
-  { name: '使用者操作手冊_v2.docx', type: 'docx', folder: 'shared_land_plan' },
+  { name: '員工差勤管理辦法.pdf', type: 'pdf', folder: 'org_hr_rules' },
+  { name: '2024年度資安宣導手冊.pdf', type: 'pdf', folder: 'org_hr_gen2_welfare' },
+  { name: '資訊設備使用規範.pdf', type: 'pdf', folder: 'org_hr_gen1_appoint' },
+  { name: '第10次專案會議記錄.docx', type: 'docx', folder: 'org_plan_review' },
+  { name: '國土計畫總體規劃報告.docx', type: 'docx', folder: 'org_plan_policy' },
+  { name: '使用分區劃定作業說明.docx', type: 'docx', folder: 'org_land_plan_zoning' },
+  { name: '空間規劃審議紀錄.docx', type: 'docx', folder: 'org_land_plan_spatial' },
+  { name: '區域發展策略報告.docx', type: 'docx', folder: 'org_land_dev_strategy' },
+  { name: '區域計畫執行進度.pdf', type: 'pdf', folder: 'org_land_dev_region' },
+  { name: '海岸地區管理辦法.pdf', type: 'pdf', folder: 'org_spec_plan_coast' },
+  { name: '山地地區開發審議.pdf', type: 'pdf', folder: 'org_spec_plan_mountain' },
+  { name: '國土使用管制執行計畫.docx', type: 'docx', folder: 'org_land_ctrl_enforce' },
+  { name: '違規使用查處報告.docx', type: 'docx', folder: 'org_land_ctrl_audit' },
+  { name: '人事綜合業務月報.pdf', type: 'pdf', folder: 'org_hr_general' },
+  { name: '差勤管理實施要點.pdf', type: 'pdf', folder: 'org_hr_gen2_attend' },
+  { name: '考核結果彙整表.xlsx', type: 'xlsx', folder: 'org_hr_gen1_assess' },
+  { name: '年度訓練計畫.docx', type: 'docx', folder: 'org_hr_gen3_training' },
+  { name: '人力配置規劃書.docx', type: 'docx', folder: 'org_hr_gen3_manpower' },
+  { name: '使用者操作手冊_v2.docx', type: 'docx', folder: 'shared_plan' },
   { name: '異常狀況處理報告.docx', type: 'docx', folder: 'personal_a' },
-  { name: '勞工退休金提繳申報表.pdf', type: 'pdf', folder: 'shared_land_plan' },
-  { name: '供應商評鑑表.pdf', type: 'pdf', folder: 'org_section5_business' },
-  { name: '年度預算編列準則.pdf', type: 'pdf', folder: 'org_section5_standard' },
-  { name: '教育訓練計畫書.docx', type: 'docx', folder: 'shared_land_plan' },
-  { name: '資安事件通報單.docx', type: 'docx', folder: 'org_section5_standard' },
-  { name: '客戶滿意度調查報告.pdf', type: 'pdf', folder: 'org_section5_business' },
-  { name: '軟體授權清單.xlsx', type: 'lsx', folder: 'shared_land_plan' }
+  { name: '勞工退休金提繳申報表.pdf', type: 'pdf', folder: 'shared_plan' },
+  { name: '福利措施一覽表.pdf', type: 'pdf', folder: 'org_hr_gen2_welfare' },
+  { name: '教育訓練完訓統計.docx', type: 'docx', folder: 'org_hr_gen3_training' },
+  { name: '國土計畫法釋義彙編.pdf', type: 'pdf', folder: 'org_plan_policy' },
+  { name: '軟體授權清單.xlsx', type: 'xlsx', folder: 'shared_hr' }
 ];
 
 export const MASTER_FILES = Array.from({ length: 45 }).map((_, i) => {
   let name, folderId;
   
   if (i < 5) {
-     name = ['專案規格書_v1.pdf', '會議記錄_2024.docx', '我的筆記.txt', '員工請假辦法.pdf', 'Q1行銷檢討.pptx'][i];
+     name = ['專案規格書_v1.pdf', '會議記錄_2024.docx', '我的筆記.txt', '員工請假辦法.pdf', 'Q1工作成果報告.pptx'][i];
      // Map these to valid folders
-     folderId = i === 0 || i === 1 ? 'org_section5_business' : i === 2 ? 'personal_a' : i === 3 ? 'org_section5_standard' : 'shared_land_plan';
+     folderId = i === 0 || i === 1 ? 'org_plan_review' : i === 2 ? 'personal_a' : i === 3 ? 'org_hr_rules' : 'shared_plan';
   } else if (i >= 40) {
       if (i === 40) { name = '20240129_工作日報.docx'; folderId = 'personal_b'; }
       else if (i === 41) { name = '20240128_工作日報.docx'; folderId = 'personal_b'; }
@@ -210,14 +232,15 @@ export const MASTER_FILES = Array.from({ length: 45 }).map((_, i) => {
       else if (i === 43) { name = '個人工作計畫.xlsx'; folderId = 'personal_a'; }
       else { name = `測試文件_${i + 1}.pdf`; folderId = 'personal_b'; }
   } else {
-      // Use realistic files for indices 5 to 19 (approx)
+      // Use realistic files for indices 5 to 29 (expanded)
       const realisticIndex = i - 5;
       if (realisticIndex < REALISTIC_FILES.length) {
           name = REALISTIC_FILES[realisticIndex].name;
           folderId = REALISTIC_FILES[realisticIndex].folder;
       } else {
+          const orgSubFolders = ['org_plan_policy', 'org_plan_review', 'org_land_plan_zoning', 'org_land_plan_spatial', 'org_land_dev_strategy', 'org_land_dev_region', 'org_spec_plan_coast', 'org_spec_plan_mountain', 'org_land_ctrl_enforce', 'org_land_ctrl_audit', 'org_hr_general', 'org_hr_rules', 'org_hr_gen1_appoint', 'org_hr_gen1_assess', 'org_hr_gen2_welfare', 'org_hr_gen2_attend', 'org_hr_gen3_training', 'org_hr_gen3_manpower'];
           name = `歸檔文件_${i + 1}.pdf`; 
-          folderId = i % 2 === 0 ? 'org_section5_business' : 'org_building_method';
+          folderId = orgSubFolders[i % orgSubFolders.length];
       }
   }
 
@@ -233,11 +256,17 @@ export const MASTER_FILES = Array.from({ length: 45 }).map((_, i) => {
 });
 
 export const MOCK_USERS = [
-  { id: 'user_me', name: '陳小華', dept: '國土署建管組五科', role: 'user', type: 'user' },
-  { id: 'user_admin', name: '李大華', dept: '國土署建管組五科', role: 'admin', type: 'user' },
-  { id: 'dept_section5', name: '五科 - 全體', type: 'dept' },
-  { id: 'dept_building', name: '建管組 - 全體', type: 'dept' },
-  { id: 'dept_land', name: '國土署 - 全體', type: 'dept' },
+  { id: 'user_me', name: '陳小華', dept: '國土組國土規劃科', role: 'user', type: 'user' },
+  { id: 'user_admin', name: '李大華', dept: '人事室', role: 'admin', type: 'user' },
+  { id: 'dept_plan', name: '國土計畫組 - 全體', type: 'dept' },
+  { id: 'dept_land_plan', name: '國土組國土規劃科 - 全體', type: 'dept' },
+  { id: 'dept_land_dev', name: '國土組國土發展科 - 全體', type: 'dept' },
+  { id: 'dept_spec_plan', name: '國土組特域規劃科 - 全體', type: 'dept' },
+  { id: 'dept_land_ctrl', name: '國土組國土管制科 - 全體', type: 'dept' },
+  { id: 'dept_hr', name: '人事室 - 全體', type: 'dept' },
+  { id: 'dept_hr_gen1', name: '人事室綜合人事科 - 全體', type: 'dept' },
+  { id: 'dept_hr_gen2', name: '人事室綜合人事二科 - 全體', type: 'dept' },
+  { id: 'dept_hr_gen3', name: '人事室綜合人事三科 - 全體', type: 'dept' },
 ];
 
 export const MOCK_BOTS = [
@@ -405,16 +434,16 @@ export const MOCK_ADMIN_MODELS = [
 ];
 
 export const MOCK_AUDIT_KB_LOGS = [
-    { id: 'kbl1', action: 'upload', target: '專案規格書_v2.pdf', targetType: 'file', user: '王小明', dept: '資訊室', time: '2024-02-05 09:30', details: 'Uploaded new version of specs.' },
-    { id: 'kbl2', action: 'delete', target: '舊版規章.pdf', targetType: 'file', user: '王小明', dept: '資訊室', time: '2024-02-05 10:00', details: 'Removed outdated document.' },
+    { id: 'kbl1', action: 'upload', target: '專案規格書_v2.pdf', targetType: 'file', user: '王小明', dept: '國土組國土規劃科', time: '2024-02-05 09:30', details: 'Uploaded new version of specs.' },
+    { id: 'kbl2', action: 'delete', target: '舊版規章.pdf', targetType: 'file', user: '王小明', dept: '國土組國土規劃科', time: '2024-02-05 10:00', details: 'Removed outdated document.' },
     { id: 'kbl3', action: 'create', target: '2024 年度計畫', targetType: 'folder', user: '李大華', dept: '人事室', time: '2024-02-04 14:15', details: 'Created new project folder.' },
-    { id: 'kbl4', action: 'view', target: '員工手冊.pdf', targetType: 'file', user: '陳小美', dept: '行銷部', time: '2024-02-05 11:20', details: 'Viewed document content.' },
+    { id: 'kbl4', action: 'view', target: '員工手冊.pdf', targetType: 'file', user: '陳小美', dept: '國土組國土發展科', time: '2024-02-05 11:20', details: 'Viewed document content.' },
 ];
 
 export const MOCK_AUDIT_CHAT_LOGS = [
     { id: 'cl1', appType: 'GAI - 互動問答', title: 'Python 教學', user: '李大華', dept: '人事室', time: '2024-02-05 09:45', content: 'User: 如何使用 Python 讀取 CSV?\nAI: 您可以使用 pandas 庫...' },
-    { id: 'cl2', appType: 'DOC - 首長信箱', title: '陳情回覆草稿', user: '王小明', dept: '資訊室', time: '2024-02-04 16:30', content: 'User: 幫我擬一份關於噪音的陳情回覆\nAI: 好的，這是草稿...' },
-    { id: 'cl3', appType: 'GAI - 文件翻譯', title: '規格書翻譯', user: '陳小美', dept: '行銷部', time: '2024-02-05 10:15', content: 'User: 翻譯這份文件\nAI: 翻譯完成，請下載。' },
+    { id: 'cl2', appType: 'DOC - 首長信箱', title: '陳情回覆草稿', user: '王小明', dept: '國土組國土規劃科', time: '2024-02-04 16:30', content: 'User: 幫我擬一份關於噪音的陳情回覆\nAI: 好的，這是草稿...' },
+    { id: 'cl3', appType: 'GAI - 文件翻譯', title: '規格書翻譯', user: '陳小美', dept: '國土組國土發展科', time: '2024-02-05 10:15', content: 'User: 翻譯這份文件\nAI: 翻譯完成，請下載。' },
     { id: 'cl4', appType: 'DOC - 通用公文撰寫', title: '開會通知單撰寫', user: '李大華', dept: '人事室', time: '2024-02-06 14:00', content: 'User: 幫我寫一份開會通知\nAI: 好的，這是草稿...' },
 ];
 
@@ -430,9 +459,9 @@ export const MOCK_ADMIN_STATS = {
         { name: '公文生成', value: 800 },
     ],
     deptUsage: [
-        { name: '資訊室', value: 3500 },
+        { name: '國土計畫組', value: 3500 },
         { name: '人事室', value: 2100 },
-        { name: '行銷部', value: 1800 },
+        { name: '國土組國土規劃科', value: 1800 },
     ],
     kbTrend: [
         { date: '1/29', count: 120 },
@@ -454,9 +483,9 @@ export const MOCK_ADMIN_STATS = {
 };
 
 export const MOCK_ACCOUNTS = [
-  { id: 'u101', username: 'alex.lin', name: '林小宏', email: 'alex.lin@nlma.gov.tw', orgUnit: '1', status: 'active', role: 'admin', note: '系統管理員', createdAt: '2023-01-01', updatedAt: '2024-02-01' },
-  { id: 'u102', username: 'sara.chen', name: '陳莎拉', email: 'sara.chen@nlma.gov.tw', orgUnit: '2', status: 'active', role: 'user', note: '建築執照審查人員', createdAt: '2023-03-15', updatedAt: '2024-01-20' },
-  { id: 'u103', username: 'john.wu', name: '吳約翰', email: 'john.wu@nlma.gov.tw', orgUnit: '3', status: 'inactive', role: 'user', note: '留職停薪', createdAt: '2023-06-10', updatedAt: '2023-12-01' },
-  { id: 'u104', username: 'emily.chang', name: '張愛美', email: 'emily.chang@nlma.gov.tw', orgUnit: '1', status: 'active', role: 'user', note: '', createdAt: '2023-11-05', updatedAt: '2024-02-10' },
-  { id: 'u105', username: 'david.wang', name: '王大衛', email: 'david.wang@nlma.gov.tw', orgUnit: '2', status: 'active', role: 'user', note: '新進人員', createdAt: '2024-02-01', updatedAt: '2024-02-01' },
+  { id: 'u101', username: 'alex.lin', name: '林小宏', email: 'alex.lin@nlma.gov.tw', orgUnit: '1', status: 'active', role: 'admin', note: '系統管理員', createdAt: '2023-01-01', updatedAt: '2024-02-01', permissionUnits: [{ deptId: 'dept_plan', isAdmin: true }, { deptId: 'dept_hr', isAdmin: true }] },
+  { id: 'u102', username: 'sara.chen', name: '陳莎拉', email: 'sara.chen@nlma.gov.tw', orgUnit: '2', status: 'active', role: 'user', note: '國土規劃業務人員', createdAt: '2023-03-15', updatedAt: '2024-01-20', permissionUnits: [{ deptId: 'dept_land_plan', isAdmin: true }] },
+  { id: 'u103', username: 'john.wu', name: '吳約翰', email: 'john.wu@nlma.gov.tw', orgUnit: '6', status: 'inactive', role: 'user', note: '留職停薪', createdAt: '2023-06-10', updatedAt: '2023-12-01', permissionUnits: [] },
+  { id: 'u104', username: 'emily.chang', name: '張愛美', email: 'emily.chang@nlma.gov.tw', orgUnit: '7', status: 'active', role: 'user', note: '人事任免業務', createdAt: '2023-11-05', updatedAt: '2024-02-10', permissionUnits: [{ deptId: 'dept_hr_gen1', isAdmin: true }, { deptId: 'dept_hr_gen2', isAdmin: true }] },
+  { id: 'u105', username: 'david.wang', name: '王大衛', email: 'david.wang@nlma.gov.tw', orgUnit: '3', status: 'active', role: 'user', note: '新進人員', createdAt: '2024-02-01', updatedAt: '2024-02-01', permissionUnits: [] },
 ];
