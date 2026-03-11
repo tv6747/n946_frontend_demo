@@ -609,9 +609,10 @@ export default function App() {
           case MODES.PROMPT: return { title: '提示詞優化', desc: '測試與優化提示詞效果' };
           case MODES.ADMIN_APIS: return { title: 'API 管理', desc: '管理外部服務 API 連接' };
           case MODES.ADMIN_AUDIT:
-              if (adminAuditView === 'kb_logs') return { title: '知識庫紀錄', desc: '查看知識庫變更與存取紀錄' };
+              if (adminAuditView === 'kb_logs') return { title: '操作紀錄', desc: '查看系統操作變更紀錄' };
               if (adminAuditView === 'chat_records') return { title: '對話紀錄', desc: '查看系統對話歷程' };
               if (adminAuditView === 'stats') return { title: '統計圖表', desc: '系統使用數據統計' };
+              if (adminAuditView === 'kb_stats') return { title: '知識庫統計', desc: '知識庫文件統計與問答分析' };
               return { title: '稽核管理', desc: '系統活動紀錄與報表' };
           case MODES.ADMIN_TOOLS: return { title: '工具管理', desc: '管理與配置AI工具與插件' };
           case MODES.ADMIN_LANGFLOW: return { title: 'LangFlow', desc: '低代碼流程設計與管理' };

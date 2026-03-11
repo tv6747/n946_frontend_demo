@@ -434,10 +434,18 @@ export const MOCK_ADMIN_MODELS = [
 ];
 
 export const MOCK_AUDIT_KB_LOGS = [
-    { id: 'kbl1', action: 'upload', target: '專案規格書_v2.pdf', targetType: 'file', user: '王小明', dept: '國土組國土規劃科', time: '2024-02-05 09:30', details: 'Uploaded new version of specs.' },
-    { id: 'kbl2', action: 'delete', target: '舊版規章.pdf', targetType: 'file', user: '王小明', dept: '國土組國土規劃科', time: '2024-02-05 10:00', details: 'Removed outdated document.' },
-    { id: 'kbl3', action: 'create', target: '2024 年度計畫', targetType: 'folder', user: '李大華', dept: '人事室', time: '2024-02-04 14:15', details: 'Created new project folder.' },
-    { id: 'kbl4', action: 'view', target: '員工手冊.pdf', targetType: 'file', user: '陳小美', dept: '國土組國土發展科', time: '2024-02-05 11:20', details: 'Viewed document content.' },
+    { id: 'ol1', action: '新增', target: '帳號 david.wang', targetType: 'account', module: '帳號管理', user: '林小宏', dept: '國土計畫組', time: '2024-02-06 09:15', details: '新增使用者帳號 david.wang（王大衛），組織單位：國土組國土發展科。' },
+    { id: 'ol2', action: '修改', target: '應用「互動問答」設定', targetType: 'app', module: '應用管理', user: '林小宏', dept: '國土計畫組', time: '2024-02-06 10:00', details: '修改互動問答應用的模型參數：temperature 由 0.7 調整為 0.5，新增使用者權限：陳莎拉。' },
+    { id: 'ol3', action: '上傳', target: '專案規格書_v2.pdf', targetType: 'file', module: '知識庫', user: '王大衛', dept: '國土組國土發展科', time: '2024-02-05 09:30', details: '上傳新版專案規格書至「國土組國土發展科」知識庫資料夾。' },
+    { id: 'ol4', action: '刪除', target: '舊版規章.pdf', targetType: 'file', module: '知識庫', user: '王大衛', dept: '國土組國土發展科', time: '2024-02-05 10:00', details: '刪除過期文件「舊版規章.pdf」。' },
+    { id: 'ol5', action: '修改', target: '提示詞「公文撰寫助理」', targetType: 'prompt', module: '提示詞管理', user: '林小宏', dept: '國土計畫組', time: '2024-02-05 11:30', details: '更新提示詞內容，增加「請避免使用過於情緒化的字眼」限制條件。設定為公開。' },
+    { id: 'ol6', action: '停用', target: '帳號 john.wu', targetType: 'account', module: '帳號管理', user: '林小宏', dept: '國土計畫組', time: '2024-02-05 14:00', details: '停用帳號 john.wu（吳約翰），原因：留職停薪。' },
+    { id: 'ol7', action: '新增', target: '模型 Gemini 1.5 Pro', targetType: 'model', module: '模型管理', user: '林小宏', dept: '國土計畫組', time: '2024-02-04 16:20', details: '新增語言模型 Gemini 1.5 Pro，API Endpoint: generativelanguage.googleapis.com。狀態設為停用。' },
+    { id: 'ol8', action: '建立', target: '資料夾「2024 年度計畫」', targetType: 'folder', module: '知識庫', user: '張愛美', dept: '人事室綜合人事科', time: '2024-02-04 14:15', details: '在人事室知識庫建立新資料夾「2024 年度計畫」。' },
+    { id: 'ol9', action: '修改', target: '帳號 sara.chen 權限', targetType: 'account', module: '帳號管理', user: '林小宏', dept: '國土計畫組', time: '2024-02-04 10:45', details: '新增 sara.chen（陳莎拉）「國土組國土規劃科」部門管理員權限。' },
+    { id: 'ol10', action: '新增', target: '應用「每日新聞摘要」', targetType: 'app', module: '應用管理', user: '林小宏', dept: '國土計畫組', time: '2024-02-03 15:30', details: '建立新應用「每日新聞摘要」，使用 GPT-4o 模型，設定自動彙整並摘要每日產業新聞。' },
+    { id: 'ol11', action: '上傳', target: '員工差勤管理辦法.pdf', targetType: 'file', module: '知識庫', user: '張愛美', dept: '人事室綜合人事科', time: '2024-02-03 09:00', details: '上傳最新版「員工差勤管理辦法」至人事室知識庫。' },
+    { id: 'ol12', action: '刪除', target: '提示詞「舊版客服模板」', targetType: 'prompt', module: '提示詞管理', user: '林小宏', dept: '國土計畫組', time: '2024-02-02 17:00', details: '刪除不再使用的提示詞模板「舊版客服模板」。' },
 ];
 
 export const MOCK_AUDIT_CHAT_LOGS = [

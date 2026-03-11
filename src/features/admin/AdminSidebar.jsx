@@ -87,7 +87,7 @@ export function AdminSidebar({
                     onClick={() => onAuditViewChange('kb_logs')}
                     className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center gap-3 ${auditView === 'kb_logs' ? 'bg-white text-blue-700 shadow-sm border border-slate-200' : 'text-slate-600 hover:bg-slate-100'}`}
                 >
-                    <Database size={18} /> 知識庫紀錄
+                    <Database size={18} /> 操作紀錄
                 </button>
                 <button 
                     onClick={() => onAuditViewChange('chat_logs')}
@@ -100,6 +100,12 @@ export function AdminSidebar({
                     className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center gap-3 ${auditView === 'stats' ? 'bg-white text-blue-700 shadow-sm border border-slate-200' : 'text-slate-600 hover:bg-slate-100'}`}
                 >
                     <BarChart2 size={18} /> 統計圖表
+                </button>
+                <button 
+                    onClick={() => onAuditViewChange('kb_stats')}
+                    className={`w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center gap-3 ${auditView === 'kb_stats' ? 'bg-white text-blue-700 shadow-sm border border-slate-200' : 'text-slate-600 hover:bg-slate-100'}`}
+                >
+                    <Database size={18} /> 知識庫統計
                 </button>
             </div>
         </div>

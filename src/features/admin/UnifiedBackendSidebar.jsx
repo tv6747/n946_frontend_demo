@@ -326,7 +326,7 @@ export function UnifiedBackendSidebar({
                     : 'text-slate-600 hover:bg-slate-100'
                 }`}
               >
-                知識庫紀錄
+                操作紀錄
               </button>
               <button
                 onClick={() => {
@@ -353,6 +353,19 @@ export function UnifiedBackendSidebar({
                 }`}
               >
                 統計圖表
+              </button>
+              <button
+                onClick={() => {
+                  onFeatureChange('ADMIN_AUDIT');
+                  onAuditViewChange('kb_stats');
+                }}
+                className={`w-full text-left px-4 py-2 rounded-lg text-sm transition-colors ${
+                  isAuditViewActive('kb_stats')
+                    ? 'bg-white text-blue-700 shadow-sm border border-slate-200'
+                    : 'text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                知識庫統計
               </button>
             </div>
           )}
