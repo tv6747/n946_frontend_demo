@@ -50,7 +50,7 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
 
   const filteredUsers = users.filter(u => u.name.includes(userSearch));
   const enabledTools = MOCK_TOOLS.filter(t => t.status === 'active');
-  const enabledModels = MOCK_LLM_MODELS.filter(m => m.status === 'active');
+  const enabledModels = MOCK_LLM_MODELS.filter(m => m.status === 'active' && m.type !== 'embedding');
 
   // Determine which files to show in "Associated Files" list (Right Panel)
   // Determine which files to show in "Associated Files" list (Right Panel)

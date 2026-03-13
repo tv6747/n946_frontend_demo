@@ -303,7 +303,7 @@ export const MODES = {
 
 - **語言列表** (`LANGUAGES`): 自動偵測、正體中文、簡體中文、日語、韓語、英語、法語、德語、西班牙語
 - **系統提示預設** (`SYSTEM_PROMPTS`): 通用助手、親切客服、專業嚴謹、創意發想、程式專家
-- **模型列表** (`LLM_MODELS`): GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro, Llama 3 70B
+- **模型列表** (`LLM_MODELS`): GPT-4o, Claude 3.5 Sonnet, Text Embedding 3 Large, Gemini 1.5 Pro, gpt-oss-20b
 - **提示詞範本** (`PROMPT_TEMPLATES`): 通用預設、台灣公文正式語氣、重點摘要專家、創意文案寫手、資深程式架構師
 
 ### 4. 歡迎訊息配置 (`WELCOME_CONFIG`)
@@ -446,7 +446,7 @@ const LOCAL_PPT_TEMPLATES = [
 
 | 分頁 | 選取邏輯 | 左側 | 右側 |
 |------|---------|------|------|
-| **語言模型** | 單選 (Radio) | 可用模型列表 | 已設定的單一模型 |
+| **語言模型** | 單選 (Radio) | 可用模型列表 (自動排除 Embedding 類型) | 已設定的單一模型 |
 | **參數** | 單選 (Radio) | 可用參數組合列表 | 已設定的單一參數 |
 | **提示詞** | 單選 (Radio) | 可用提示詞列表 | 已設定的單一提示詞 |
 | **工具** | 多選 (Checkbox) + 啟用開關 | 可用工具庫 | 已啟用工具（含 `defaultOn` 切換） |
@@ -511,8 +511,8 @@ const LOCAL_PPT_TEMPLATES = [
 ### 5. 語料庫管理 (`CORPUS_MANAGEMENT`)
 
 **管理工具**:
-- `ProperNounPanel`: 專有名詞與定義管理
-- `SynonymPanel`: 近似詞與標準詞對應管理
+- `ProperNounPanel`: 專有名詞與定義管理 (已移除函釋說明提示)
+- `SynonymPanel`: 近似詞與標準詞對應管理 (支援編輯標準詞說明)
 - `CorpusFeature`: 語料庫主框架
 - `ImportConflictManager`: 匯入衝突處理
 - `SynonymManager`: 同義詞管理
@@ -540,7 +540,7 @@ selectedCorpusId: 'proper_noun' | 'synonym'
 
 | 分頁 | 選取邏輯 | 說明 |
 |------|---------|------|
-| **語言模型** | 多選 (Checkbox) + ⭐ 星號預設 | 可選取多個模型，透過星號標記預設模型 |
+| **語言模型** | 多選 (Checkbox) + ⭐ 星號預設 | 可選取多個模型 (自動排除 Embedding 類型)，透過星號標記預設模型 |
 | **參數** | 單選 (Radio) | 僅可設定一組參數 |
 | **提示詞** | 多選 (Checkbox) + ⭐ 星號預設 | 可選取多個提示詞，透過星號標記預設 |
 | **工具** | 多選 (Checkbox) + 啟用開關 | 可啟用多個工具，含 `defaultOn` 切換 |
@@ -560,7 +560,7 @@ selectedCorpusId: 'proper_noun' | 'synonym'
 - 工具管理 (`ADMIN_TOOLS`): `ToolManagementPanel`
 - 帳號管理 (`ADMIN_ACCOUNT`): `AccountManagementPanel` + `AccountEditPanel`
 - 稽核管理 (`ADMIN_AUDIT`): `AuditManagement`
-  - 子檢視: `kb_logs`, `chat_records`, `stats`
+  - 子檢視: `kb_logs`, `chat_records`, `stats` (支援互動查詢及日期區間過濾，統計圖表自動排除非生成式模型)
 - LangFlow (`ADMIN_LANGFLOW`): `LangFlowPanel`
 
 **側邊欄**: `UnifiedBackendSidebar` (整合所有管理功能的導航)

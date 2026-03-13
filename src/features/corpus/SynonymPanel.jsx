@@ -9,10 +9,10 @@ export function SynonymPanel() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
 
-  // Modal Form State
   const [formData, setFormData] = useState({
       id: null,
       term: '',
+      description: '',
       synonyms: '',
       category: ''
   });
@@ -28,6 +28,7 @@ export function SynonymPanel() {
       setFormData({
           id: item.id,
           term: item.term,
+          description: item.description || '',
           synonyms: item.synonyms.join(', '),
           category: item.category
       });
@@ -47,12 +48,12 @@ export function SynonymPanel() {
       }
       // Demo logic: just close modal and alert
       if (isEditMode) {
-          alert(`已更新標準詞: ${formData.term}\n近似詞: ${formData.synonyms}`);
+          alert(`已更新標準詞: ${formData.term}\n說明: ${formData.description}\n近似詞: ${formData.synonyms}`);
       } else {
-          alert(`已新增標準詞: ${formData.term}\n近似詞: ${formData.synonyms}`);
+          alert(`已新增標準詞: ${formData.term}\n說明: ${formData.description}\n近似詞: ${formData.synonyms}`);
       }
       setIsModalOpen(false);
-      setFormData({ id: null, term: '', synonyms: '', category: '' });
+      setFormData({ id: null, term: '', description: '', synonyms: '', category: '' });
       setIsEditMode(false);
   };
 
@@ -148,6 +149,16 @@ export function SynonymPanel() {
                             placeholder="例如：人工智能"
                             value={formData.term}
                             onChange={(e) => setFormData({...formData, term: e.target.value})}
+                        />
+                    </div>
+
+                    <div className="space-y-1">
+                        <label className="block text-sm font-medium text-slate-700">標準詞說明</label>
+                        <textarea 
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 h-20 resize-none"
+                            placeholder="輸入標準詞的說明或定義..."
+                            value={formData.description}
+                            onChange={(e) => setFormData({...formData, description: e.target.value})}
                         />
                     </div>
 

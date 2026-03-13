@@ -200,6 +200,7 @@ function StatsView() {
     const [endDate, setEndDate] = useState(formatDate(today));
     const [orgFilter, setOrgFilter] = useState('all');
     const [appFilter, setAppFilter] = useState('all');
+    const [queryKey, setQueryKey] = useState(0); // Increment to trigger re-calculation
 
     // Build app options: apps + bots
     const appOptions = [
@@ -239,8 +240,9 @@ function StatsView() {
     // Category definitions for each chart
     const deptCategories = MOCK_TERM_CATEGORIES.slice(0, 5).map(c => c.name); // Top 5 depts
     const appCategories = [...MOCK_ADMIN_APPS.slice(0, 4).map(a => a.name), ...MOCK_BOTS.map(b => b.name)]; // 4 apps + 2 bots
-    const modelCategories = MOCK_LLM_MODELS.filter(m => m.status === 'active').map(m => m.name); // Active models
-    const tokenModelCategories = MOCK_LLM_MODELS.filter(m => m.status === 'active').map(m => m.name);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const modelCategories = React.useMemo(() => MOCK_LLM_MODELS.filter(m => m.status === 'active' && m.type !== 'embedding').map(m => m.name), [queryKey]); // Active models
+    const tokenModelCategories = modelCategories;
 
     const CHART_COLORS = [
         'bg-blue-500', 'bg-emerald-500', 'bg-purple-500', 'bg-orange-500', 
@@ -382,7 +384,7 @@ function StatsView() {
                     {/* Query Button */}
                     <button 
                         className="px-5 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2"
-                        onClick={() => { /* mock query */ }}
+                        onClick={() => setQueryKey(k => k + 1)}
                     >
                         <Search size={14} />
                         查詢

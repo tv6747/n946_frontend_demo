@@ -79,7 +79,7 @@ export function SynonymManager({ searchTerm, selectedCategory, onEdit, onAddSyno
                             <td className="px-6 py-4 align-top text-right">
                                 <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button 
-                                        onClick={() => onEdit && onEdit({id: item.id, term: item.main_term, synonyms: item.synonyms.map(s => s.synonym_term), category: item.category})}
+                                        onClick={() => onEdit && onEdit({id: item.id, term: item.main_term, synonyms: item.synonyms.map(s => s.synonym_term), category: item.category, description: item.description})}
                                         className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" 
                                         title="編輯"
                                     >

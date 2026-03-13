@@ -40,7 +40,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
   const [selectedAvailableParamId, setSelectedAvailableParamId] = useState(null); // Single-select for params
 
   const filteredUsers = users.filter(u => u.name.includes(userSearch));
-  const enabledModels = MOCK_LLM_MODELS.filter(m => m.status === 'active');
+  const enabledModels = MOCK_LLM_MODELS.filter(m => m.status === 'active' && m.type !== 'embedding');
   const enabledPrompts = MOCK_LLM_PROMPTS; // Prompts don't have active status currently
   const enabledTools = MOCK_TOOLS.filter(t => t.status === 'active'); // Filter active tools
 

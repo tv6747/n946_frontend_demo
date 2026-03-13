@@ -48,6 +48,18 @@ export const MOCK_LLM_MODELS = [
     topK: 40,
     status: 'inactive',
     createdAt: '2024-02-10'
+  },
+  {
+    id: 'model_5',
+    name: 'gpt-oss-20b',
+    type: 'generative',
+    url: 'http://10.166.57.21:12345/v1',
+    apiKey: null,
+    temperature: 0.7,
+    topP: 0.9,
+    topK: 40,
+    status: 'active',
+    createdAt: '2026-03-13'
   }
 ];
 

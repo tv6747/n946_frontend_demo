@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Search, BookOpen, Tag, Info, AlertCircle, Edit2, Trash2 } from 'lucide-react';
+import { Search, BookOpen, Tag, AlertCircle, Edit2, Trash2 } from 'lucide-react';
 import { MOCK_TERM_DEFINITIONS, MOCK_TERM_CATEGORIES, MOCK_TERM_ANNOTATIONS } from '../../data/mockData';
 
 export function TermDefinitionManager({ searchTerm, selectedCategory, onEdit }) {
@@ -55,12 +55,7 @@ export function TermDefinitionManager({ searchTerm, selectedCategory, onEdit }) 
                                 <div className="text-sm text-slate-700 leading-relaxed line-clamp-3" title={term.definition}>
                                     {term.definition}
                                 </div>
-                                {term.annotations.length > 0 && (
-                                    <div className="mt-2 flex items-center gap-1 text-xs text-blue-600">
-                                        <Info size={12} />
-                                        <span>{term.annotations.length} 筆函釋說明</span>
-                                    </div>
-                                )}
+
                             </td>
                             <td className="px-6 py-4 align-top">
                                 <div className="space-y-2">
