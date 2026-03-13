@@ -16,12 +16,12 @@ export const MOCK_TOOLS = [
     port: 3100,
     status: 'active'
   },
-  {
-    id: 3,
-    name: 'OCR',
-    description: '光學字元辨識服務，可將圖片中的文字轉換為可編輯的文本格式，支援多語言辨識。',
-    sseEndpoint: 'http://172.16.10.25:4000/sse/ocr-service',
-    port: 4000,
-    status: 'active'
-  }
+  // {
+  //   id: 3,
+  //   name: 'OCR',
+  //   description: '光學字元辨識服務，可將圖片中的文字轉換為可編輯的文本格式，支援多語言辨識。',
+  //   sseEndpoint: 'http://172.16.10.25:4000/sse/ocr-service',
+  //   port: 4000,
+  //   status: 'active'
+  // }
 ];

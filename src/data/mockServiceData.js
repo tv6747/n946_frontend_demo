@@ -18,7 +18,7 @@ export const MOCK_APPLICATIONS = [
       enableFileUpload: true,
       enableFeedback: true
     },
-    tools: [{ id: '1', defaultOn: true }, { id: '3', defaultOn: false }], // Google Search, OCR
+    tools: [{ id: '1', defaultOn: true }, { id: '2', defaultOn: false }], // Google Search, DuckDuckGo
     availableModels: ['model_1', 'model_2'],
     defaultModelId: 'model_1', // Default model for the application
     welcomeMessage: '您好！我是智能助理，有什麼可以幫您的嗎？',
