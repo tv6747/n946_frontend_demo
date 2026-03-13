@@ -140,7 +140,13 @@ export function ModelManagementPanel() {
                                    {model.apiKey || '(未設定)'}
                                </div>
                           </div>
+                          <div>
+                               <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Model Provider</label>
+                               <div className="text-xs font-mono text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100 truncate">
+                                   {model.provider || 'N/A'}
+                               </div>
                           </div>
+                      </div>
 
                       {/* Actions */}
 
@@ -166,7 +172,7 @@ export function ModelManagementPanel() {
                       </button>
                   </header>
                   <div className="p-5 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
                               <label className="block text-xs font-bold text-slate-700 mb-1.5">模型名稱</label>
                               <input 
@@ -186,6 +192,21 @@ export function ModelManagementPanel() {
                               >
                                   <option value="generative">生成式模型</option>
                                   <option value="embedding">詞向量模型</option>
+                              </select>
+                          </div>
+                          <div>
+                              <label className="block text-xs font-bold text-slate-700 mb-1.5">模型提供</label>
+                              <select
+                                value={formData.provider || 'OPENAI'} 
+                                onChange={(e) => setFormData({...formData, provider: e.target.value})}
+                                disabled={formData.type === 'embedding'}
+                                className={`w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition-colors ${formData.type === 'embedding' ? 'bg-slate-100 cursor-not-allowed opacity-60' : 'bg-slate-50'}`}
+                              >
+                                  <option value="OPENAI">OPENAI</option>
+                                  <option value="AZURE_OPENAI">AZURE_OPENAI</option>
+                                  <option value="ANTHROPIC">ANTHROPIC</option>
+                                  <option value="GOOGLE">GOOGLE</option>
+                                  <option value="LOCAL">LOCAL</option>
                               </select>
                           </div>
                       </div>

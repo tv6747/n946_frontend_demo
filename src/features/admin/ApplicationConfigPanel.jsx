@@ -15,6 +15,21 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
   const [defaultSettingsTab, setDefaultSettingsTab] = useState('model');
   const [settingsMode, setSettingsMode] = useState('chat'); // 'chat' | 'canvas'
   const [isPublic, setIsPublic] = useState(false);
+  const [customGroups, setCustomGroups] = useState({
+    GAI: [],
+    DOC: []
+  });
+
+  // Available groups based on the selected Level/Page
+  const availableGroups = useMemo(() => {
+     const lvl = formData.level || 'GAI';
+     const base = ['通用功能'];
+     if (lvl === 'DOC') {
+         base.push('例行函稿');
+     }
+     const custom = customGroups[lvl] || [];
+     return [...base, ...custom];
+  }, [formData.level, customGroups]);
   
   // Sync with prop changes
   React.useEffect(() => {
@@ -341,40 +356,101 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
               <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
                   {/* Left Side: Name, Page, Level */}
                   <div className="space-y-6">
-                      {/* Name */}
-                      <div className="space-y-1">
-                          <label className="block text-sm font-medium text-slate-700">應用名稱</label>
-                          <input 
-                                value={formData.name || ''}
-                                onChange={(e) => handleChange({ name: e.target.value })}
-                                placeholder="例如：公文查詢助手"
-                                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
-                            />
+                      {/* Name & Flow Grid */}
+                      <div className="grid grid-cols-2 gap-4">
+                          {/* Name */}
+                          <div className="space-y-1">
+                              <label className="block text-sm font-medium text-slate-700">應用名稱</label>
+                              <input 
+                                    value={formData.name || ''}
+                                    onChange={(e) => handleChange({ name: e.target.value })}
+                                    placeholder="例如：公文查詢助手"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
+                                />
+                          </div>
+                          {/* Flow */}
+                          <div className="space-y-1">
+                              <label className="block text-sm font-medium text-slate-700">應用流程</label>
+                              <select 
+                                  value={formData.flow || 'LLM_CHAT'}
+                                  onChange={(e) => handleChange({ flow: e.target.value })}
+                                  className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
+                              >
+                                  <option value="LLM_CHAT">一般對話</option>
+                                  <option value="LLM_CHAT_RAG">檢索文件對話</option>
+                                  <option value="LLM_CHAT_CHAIN">生成預覽對話</option>
+                              </select>
+                          </div>
                       </div>
 
-                      {/* Page */}
-                      {/* <div className="space-y-1">
-                          <label className="block text-sm font-medium text-slate-700">功能頁 (原本的應用層級)</label>
-                          <input 
-                                value={formData.page || ''}
-                                onChange={(e) => handleChange({ page: e.target.value })}
-                                placeholder="例如：/document-query"
-                                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all font-mono"
-                            />
-                      </div> */}
-
-                      {/* Level */}
-                      <div className="space-y-1">
-                          <label className="block text-sm font-medium text-slate-700">功能頁</label>
-                          <select
-                                value={formData.level || 'GAI'}
-                                onChange={(e) => handleChange({ level: e.target.value })}
-                                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
-                            >
-                                <option value="GAI">GAI 互動平台</option>
-                                <option value="DOC">智慧公文輔助系統</option>
-                            </select>
-
+                      {/* Level & Group Grid */}
+                      <div className="grid grid-cols-2 gap-4">
+                          {/* Level */}
+                          <div className="space-y-1">
+                              <label className="block text-sm font-medium text-slate-700">功能頁</label>
+                              <select
+                                    value={formData.level || 'GAI'}
+                                    onChange={(e) => handleChange({ level: e.target.value, group: '通用功能' })}
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
+                                >
+                                    <option value="GAI">GAI 互動平台</option>
+                                    <option value="DOC">智慧公文輔助系統</option>
+                                </select>
+                          </div>
+                          {/* Group */}
+                          <div className="space-y-1">
+                               <label className="block text-sm font-medium text-slate-700 flex justify-between">
+                                   群組
+                                   <button 
+                                      onClick={() => {
+                                           const newGroup = window.prompt("請輸入新群組名稱：");
+                                           if (newGroup && newGroup.trim()) {
+                                               const name = newGroup.trim();
+                                               if (availableGroups.includes(name)) {
+                                                    alert('群組已存在');
+                                                    return;
+                                               }
+                                               const lvl = formData.level || 'GAI';
+                                               setCustomGroups(prev => ({
+                                                   ...prev,
+                                                   [lvl]: [...(prev[lvl] || []), name]
+                                               }));
+                                               handleChange({ group: name });
+                                           }
+                                      }}
+                                      className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1 font-semibold"
+                                   >
+                                       <Plus size={12} /> 新增
+                                   </button>
+                               </label>
+                               <div className="flex items-center gap-2">
+                                  <select
+                                      value={formData.group || '通用功能'}
+                                      onChange={(e) => handleChange({ group: e.target.value })}
+                                      className="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all min-w-0"
+                                  >
+                                      {availableGroups.map(g => <option key={g} value={g}>{g}</option>)}
+                                  </select>
+                                  {!['通用功能', '例行函稿'].includes(formData.group || '通用功能') && (
+                                      <button 
+                                          onClick={() => {
+                                              if (window.confirm(`確定要刪除群組「${formData.group}」嗎？`)) {
+                                                  const lvl = formData.level || 'GAI';
+                                                  setCustomGroups(prev => ({
+                                                      ...prev,
+                                                      [lvl]: (prev[lvl] || []).filter(g => g !== formData.group)
+                                                  }));
+                                                  handleChange({ group: '通用功能' });
+                                              }
+                                          }}
+                                          className="p-2.5 text-red-500 hover:bg-red-50 border border-slate-200 rounded-lg transition-colors shadow-sm"
+                                          title="刪除群組"
+                                      >
+                                          <Trash2 size={16} strokeWidth={2.5} />
+                                      </button>
+                                  )}
+                               </div>
+                          </div>
                       </div>
                       
                       {/* Feature Settings (New) */}
@@ -409,6 +485,21 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                                       className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 transition-colors"
                                   />
                                   <span className="text-sm text-slate-700 group-hover:text-blue-700 transition-colors">啟用回饋機制</span>
+                              </label>
+
+                              <label className="flex items-center gap-2 cursor-pointer group">
+                                  <input 
+                                      type="checkbox"
+                                      checked={formData.featureSettings?.includeHistory ?? true}
+                                      onChange={(e) => handleChange({ 
+                                          featureSettings: { 
+                                              ...formData.featureSettings, 
+                                              includeHistory: e.target.checked 
+                                          } 
+                                      })}
+                                      className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 transition-colors"
+                                  />
+                                  <span className="text-sm text-slate-700 group-hover:text-blue-700 transition-colors">參考對話紀錄</span>
                               </label>
                           </div>
                       </div>
@@ -498,7 +589,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
           <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[400px]">
                <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">預設設定</h3>
-                   {formData.supportCanvas && (                   <div className="flex items-center gap-2">
+                   {formData.flow === 'LLM_CHAT_CHAIN' && (                   <div className="flex items-center gap-2">
                        <span className="text-xs text-slate-400">模式</span>
                        <div className="flex items-center bg-slate-200/60 p-0.5 rounded-lg">
                            <button onClick={() => setSettingsMode('chat')}

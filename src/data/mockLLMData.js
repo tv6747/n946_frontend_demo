@@ -11,6 +11,7 @@ export const MOCK_LLM_MODELS = [
     topP: 0.9,
     topK: 40,
     status: 'active',
+    provider: 'OPENAI',
     createdAt: '2024-01-15'
   },
   {
@@ -23,6 +24,7 @@ export const MOCK_LLM_MODELS = [
     topP: 0.95,
     topK: 50,
     status: 'active',
+    provider: 'ANTHROPIC',
     createdAt: '2024-01-20'
   },
   {
@@ -35,6 +37,7 @@ export const MOCK_LLM_MODELS = [
     topP: 1,
     topK: 0,
     status: 'active',
+    provider: 'OPENAI',
     createdAt: '2024-02-01'
   },
   {
@@ -47,6 +50,7 @@ export const MOCK_LLM_MODELS = [
     topP: 0.9,
     topK: 40,
     status: 'inactive',
+    provider: 'GOOGLE',
     createdAt: '2024-02-10'
   },
   {
@@ -59,6 +63,7 @@ export const MOCK_LLM_MODELS = [
     topP: 0.9,
     topK: 40,
     status: 'active',
+    provider: 'LOCAL',
     createdAt: '2026-03-13'
   }
 ];

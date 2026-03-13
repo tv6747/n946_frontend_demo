@@ -295,15 +295,29 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
                   {/* Left Column: Name, Status, Toggles */}
                   <div className="space-y-6">
                       
-                      {/* 1. Name */}
-                      <div className="space-y-1">
-                          <label className="block text-sm font-medium text-slate-700">機器人名稱</label>
-                          <input 
-                                value={formData.name || ''}
-                                onChange={(e) => handleChange({ name: e.target.value })}
-                                placeholder="例如：人資小幫手"
-                                className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
-                            />
+                      {/* 1. Name & Flow Grid */}
+                      <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                              <label className="block text-sm font-medium text-slate-700">機器人名稱</label>
+                              <input 
+                                    value={formData.name || ''}
+                                    onChange={(e) => handleChange({ name: e.target.value })}
+                                    placeholder="例如：人資小幫手"
+                                    className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
+                                />
+                          </div>
+                          <div className="space-y-1">
+                              <label className="block text-sm font-medium text-slate-700">應用流程</label>
+                              <select 
+                                  value={formData.flow || 'LLM_CHAT'}
+                                  onChange={(e) => handleChange({ flow: e.target.value })}
+                                  className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
+                              >
+                                  <option value="LLM_CHAT">一般對話</option>
+                                  <option value="LLM_CHAT_RAG">檢索文件對話</option>
+                                  <option value="LLM_CHAT_CHAIN">生成預覽對話</option>
+                              </select>
+                          </div>
                       </div>
 
                       {/* 2. Status */}
@@ -353,6 +367,19 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
                                     onChange={(e) => handleChange({ enableFeedback: e.target.checked })}
                                 />
                                 <span className="text-sm font-medium text-slate-700">啟用回饋機制</span>
+                            </label>
+
+                            <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
+                                <div className={`w-5 h-5 rounded border flex items-center justify-center ${formData.includeHistory ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300'}`}>
+                                    {formData.includeHistory && <Check size={14} />}
+                                </div>
+                                <input 
+                                    type="checkbox" 
+                                    className="hidden"
+                                    checked={!!formData.includeHistory}
+                                    onChange={(e) => handleChange({ includeHistory: e.target.checked })}
+                                />
+                                <span className="text-sm font-medium text-slate-700">參考對話紀錄</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
                                 <div className={`w-5 h-5 rounded border flex items-center justify-center ${formData.showInstructions ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300'}`}>

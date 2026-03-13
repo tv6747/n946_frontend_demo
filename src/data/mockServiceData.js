@@ -8,6 +8,7 @@ export const MOCK_APPLICATIONS = [
     name: '互動問答',
     level: 'GAI',
     page: 'interactive',
+    flow: 'LLM_CHAT',
     supportCanvas: false,
     defaultSettings: {
       modelId: 'model_1',
@@ -16,7 +17,8 @@ export const MOCK_APPLICATIONS = [
     },
     featureSettings: {
       enableFileUpload: true,
-      enableFeedback: true
+      enableFeedback: true,
+      includeHistory: true
     },
     tools: [{ id: '1', defaultOn: true }, { id: '2', defaultOn: false }], // Google Search, DuckDuckGo
     availableModels: ['model_1', 'model_2'],
@@ -42,6 +44,7 @@ export const MOCK_APPLICATIONS = [
     name: '知識庫',
     level: 'GAI',
     page: 'kb_manage',
+    flow: 'LLM_CHAT_RAG',
     supportCanvas: false,
     defaultSettings: {
       modelId: 'model_1',
@@ -71,6 +74,7 @@ export const MOCK_APPLICATIONS = [
     name: 'PPT 互動產出',
     level: 'GAI',
     page: 'ppt_gen',
+    flow: 'LLM_CHAT_CHAIN',
     supportCanvas: true,
     defaultSettings: {
       modelId: 'model_2',
@@ -99,7 +103,8 @@ export const MOCK_APPLICATIONS = [
     id: 'app_translation',
     name: '文件翻譯',
     level: 'GAI',
-    page: 'doc_trans',
+    page: 'translation',
+    flow: 'LLM_CHAT',
     supportCanvas: false,
     defaultSettings: {
       modelId: 'model_1',
@@ -108,7 +113,8 @@ export const MOCK_APPLICATIONS = [
     },
     featureSettings: {
       enableFileUpload: true,
-      enableFeedback: true
+      enableFeedback: true,
+      includeHistory: true
     },
     availableModels: ['model_1', 'model_2'],
     defaultModelId: 'model_1',
@@ -223,7 +229,8 @@ export const MOCK_APPLICATIONS = [
     name: '例行函稿 - 山坡地社區點監測',
     level: 'DOC',
     page: 'draft_hill',
-    supportCanvas: true,
+    flow: 'LLM_CHAT_CHAIN',
+    supportCanvas: false,
     defaultSettings: {
       modelId: 'model_1',
       paramId: 'param_2',
@@ -231,7 +238,8 @@ export const MOCK_APPLICATIONS = [
     },
     featureSettings: {
       enableFileUpload: true,
-      enableFeedback: true
+      enableFeedback: true,
+      includeHistory: true
     },
     availableModels: ['model_1'],
     welcomeMessage: '請輸入山坡地監測數據，系統將生成監測報告函稿。',
@@ -255,7 +263,8 @@ export const MOCK_APPLICATIONS = [
     name: '例行函稿 - 禁建限區',
     level: 'DOC',
     page: 'draft_area',
-    supportCanvas: true,
+    flow: 'LLM_CHAT_CHAIN',
+    supportCanvas: false,
     defaultSettings: {
       modelId: 'model_1',
       paramId: 'param_2',
@@ -263,7 +272,8 @@ export const MOCK_APPLICATIONS = [
     },
     featureSettings: {
       enableFileUpload: true,
-      enableFeedback: true
+      enableFeedback: true,
+      includeHistory: true
     },
     availableModels: ['model_1'],
     welcomeMessage: '輸入管制區號，系統將生成相關公文。',
@@ -287,7 +297,8 @@ export const MOCK_APPLICATIONS = [
     name: '例行函稿 - 室內裝修',
     level: 'DOC',
     page: 'draft_decor',
-    supportCanvas: true,
+    flow: 'LLM_CHAT_CHAIN',
+    supportCanvas: false,
     defaultSettings: {
       modelId: 'model_1',
       paramId: 'param_2',
@@ -295,7 +306,8 @@ export const MOCK_APPLICATIONS = [
     },
     featureSettings: {
       enableFileUpload: true,
-      enableFeedback: true
+      enableFeedback: true,
+      includeHistory: true
     },
     availableModels: ['model_1'],
     welcomeMessage: '請輸入裝修申請案號，系統將協助處理相關文件。',
@@ -319,10 +331,12 @@ export const MOCK_APPLICATIONS = [
     name: '通用公文撰寫',
     level: 'DOC',
     page: 'doc_assist',
+    flow: 'LLM_CHAT',
     supportCanvas: true,
     featureSettings: {
       enableFileUpload: true,
-      enableFeedback: true
+      enableFeedback: true,
+      includeHistory: true
     },
     defaultSettings: {
       modelId: 'model_1',
@@ -353,6 +367,7 @@ export const MOCK_APPLICATIONS = [
     name: '公文檔案上傳生成案件歷程',
     level: 'DOC',
     page: 'draft_doc_gen',
+    flow: 'LLM_CHAT',
     supportCanvas: false,
     defaultSettings: {
       modelId: 'model_1',
@@ -361,7 +376,8 @@ export const MOCK_APPLICATIONS = [
     },
     featureSettings: {
       enableFileUpload: true,
-      enableFeedback: true
+      enableFeedback: true,
+      includeHistory: true
     },
     availableModels: ['model_1'],
     welcomeMessage: '請上傳公文檔案以生成案件歷程。',
