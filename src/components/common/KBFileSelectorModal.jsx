@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { X } from 'lucide-react';
+import { X, Search } from 'lucide-react';
 import { KBSidebar } from '../../features/kb/KBSidebar';
 import { KBManagerPanel } from '../../features/kb/KBManagerPanel';
 import { KB_TREE_DATA, MASTER_FILES, MOCK_FAVORITE_LISTS } from '../../data/mockData';
@@ -13,16 +13,27 @@ export function KBFileSelectorModal({ isOpen, onClose, onInsertSelected }) {
   const [selectedFavListId, setSelectedFavListId] = useState(null);
   const [favSelectedFileIds, setFavSelectedFileIds] = useState([]);
 
+  const [searchQuery, setSearchQuery] = useState('');
+
   const displayFiles = useMemo(() => {
+    let baseFiles = [];
     // 常用清單模式：依據選取的清單的 fileIds 過濾
     if (selectedFavListId) {
       const favList = MOCK_FAVORITE_LISTS.find(l => l.id === selectedFavListId);
       if (favList) {
-        return MASTER_FILES.filter(f => favList.fileIds.includes(f.id));
+        baseFiles = MASTER_FILES.filter(f => favList.fileIds.includes(f.id));
       }
+    } else {
+      baseFiles = MASTER_FILES.filter(f => f.folderId === selectedFolderId);
     }
-    return MASTER_FILES.filter(f => f.folderId === selectedFolderId);
-  }, [selectedFolderId, selectedFavListId]);
+
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      return baseFiles.filter(f => f.name.toLowerCase().includes(query));
+    }
+
+    return baseFiles;
+  }, [selectedFolderId, selectedFavListId, searchQuery]);
 
   const handleSelectFavList = (listId) => {
     setSelectedFavListId(listId);
@@ -43,10 +54,22 @@ export function KBFileSelectorModal({ isOpen, onClose, onInsertSelected }) {
         
         {/* Header */}
         <div className="px-6 py-4 border-b border-slate-200 flex justify-between items-center bg-slate-50 flex-shrink-0">
-          <div>
+          <div className="flex-shrink-0 mr-4">
             <h2 className="text-lg font-bold text-slate-800">加入知識庫檔案</h2>
             <p className="text-xs text-slate-500">瀏覽知識庫並選擇要加入對話的文件</p>
           </div>
+
+          <div className="flex-1 max-w-lg mx-auto relative">
+             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+             <input 
+               type="text" 
+               placeholder="搜尋目前的資料夾或清單..." 
+               value={searchQuery}
+               onChange={(e) => setSearchQuery(e.target.value)}
+               className="w-full pl-9 pr-4 py-2 bg-white border border-slate-300 rounded-lg text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+             />
+          </div>
+
           <button 
             onClick={onClose}
             className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200/50 rounded-full transition-colors"

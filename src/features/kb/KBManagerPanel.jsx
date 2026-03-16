@@ -282,7 +282,7 @@ export function KBManagerPanel({
                     ) : (
                       <>
                         <span className="truncate">{pathString}</span>
-                        {isPersonalFolder && (
+                        {isPersonalFolder && !isSelectorMode && (
                           <button 
                             onClick={() => setIsEditingFolderName(true)}
                             className="p-1 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-colors flex-shrink-0"
@@ -329,7 +329,7 @@ export function KBManagerPanel({
                           className="px-3 py-1.5 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-1 font-medium text-xs disabled:opacity-50 disabled:cursor-not-allowed"
                           title="將選取的文件加入對話"
                         >
-                          加入 ({activeSelectedIds.length})
+                          加入
                         </button>
                       </>
                     ) : (
@@ -396,17 +396,19 @@ export function KBManagerPanel({
                 </div>
              </div>
 
-             {/* Right Side: Search (Always Visible) */}
-             <div className="flex items-center gap-3">
-               <div className="relative">
-                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                 <input 
-                   type="text" 
-                   placeholder={isFavListMode ? "搜尋此清單..." : "搜尋此資料夾..."} 
-                   className="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 w-64 transition-all"
-                 />
-               </div>
-             </div>
+             {/* Right Side: Search */}
+             {!isSelectorMode && (
+                 <div className="flex items-center gap-3">
+                   <div className="relative">
+                     <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                     <input 
+                       type="text" 
+                       placeholder={isFavListMode ? "搜尋此清單..." : "搜尋此資料夾..."} 
+                       className="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-50 w-64 transition-all"
+                     />
+                   </div>
+                 </div>
+             )}
            </div>
          )}
        </div>
