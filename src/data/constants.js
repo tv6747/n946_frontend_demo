@@ -23,7 +23,7 @@ export const MODES = {
 
 export const FEATURES = {
   INTERACTIVE: { id: 'interactive', label: '互動問答', mode: MODES.CHAT, placeholder: '輸入您的問題...' },
-  KB_MANAGEMENT: { id: 'kb_manage', label: '知識庫', mode: MODES.KB, placeholder: '' },
+  KB_MANAGEMENT: { id: 'kb_manage', label: '知識庫管理', mode: MODES.KB, placeholder: '' },
   CORPUS_MANAGEMENT: { id: 'corpus_manage', label: '語料庫管理', mode: MODES.CORPUS_MGR, placeholder: '' },
   DOC_TRANS: { id: 'doc_trans', label: '文件翻譯', mode: MODES.TRANS, placeholder: '' },
   PPT_GEN: { id: 'ppt_gen', label: 'PPT 互動產出', mode: MODES.PPT, placeholder: '描述您想要製作的簡報主題...' },

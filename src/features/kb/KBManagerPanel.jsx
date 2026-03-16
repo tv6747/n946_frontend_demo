@@ -29,7 +29,8 @@ export function KBManagerPanel({
   onOpenAddToListModal,
   onRemoveFromFavList,
   favSelectedFileIds = [], onFavSelectionChange,
-  folderDisplayName = '', onFolderNameChange
+  folderDisplayName = '', onFolderNameChange,
+  isSelectorMode = false, onInsertSelected
 }) {
   
   // Pagination State
@@ -319,78 +320,78 @@ export function KBManagerPanel({
 
                     <div className="w-px h-4 bg-slate-200 mx-1"></div>
 
-                    {isFavListMode ? (
-                      /* ===== 常用清單模式：下載 + 從清單移除 ===== */
+                    {isSelectorMode ? (
+                      /* ===== 選擇器模式：只有插入按鈕 ===== */
                       <>
                         <button 
-                          onClick={() => alert(`下載 ${activeSelectedIds.length} 個檔案`)} 
-                          className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
-                          title="下載"
+                          onClick={() => onInsertSelected && onInsertSelected(selectedFilesObjects)}
+                          disabled={activeSelectedIds.length === 0}
+                          className="px-3 py-1.5 bg-blue-600 text-white hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-1 font-medium text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="將選取的文件加入對話"
                         >
-                          <Download size={16} />
+                          加入 ({activeSelectedIds.length})
                         </button>
-                        {/* 從清單移除按鈕：僅勾選時可用 */}
-                        {activeSelectedIds.length > 0 && (
-                          <button 
-                            onClick={() => onRemoveFromFavList && onRemoveFromFavList(activeSelectedIds)}
-                            className="p-1.5 text-slate-500 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors flex items-center gap-1 text-xs font-medium"
-                            title="從清單移除（不影響原始文件）"
-                          >
-                            <MinusCircle size={16} />
-                          </button>
-                        )}
                       </>
                     ) : (
-                      /* ===== 文件導覽模式：原始工具按鈕 + 加入清單 ===== */
-                      <>
-                        {/* 加入清單 */}
-                        {activeSelectedIds.length > 0 && (
-                          <button 
-                            onClick={() => onOpenAddToListModal && onOpenAddToListModal()}
-                            className="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                            title="加入常用清單"
-                          >
-                            <ListPlus size={16} />
-                          </button>
-                        )}
-
-                        {/* 分享 */}
-                        {activeSelectedIds.length > 0 && !isSharedFolder && (userRole === 'admin' || selectedFolderId.startsWith('personal')) && (
-                          <button onClick={onShare} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="分享">
-                             <Users size={16} />
-                          </button>
-                        )}
-
-                        {/* 下載 */}
-                        <button 
-                          onClick={() => alert(`下載 ${activeSelectedIds.length} 個檔案`)} 
-                          className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
-                          title="下載"
-                        >
-                          <Download size={16} />
-                        </button>
-
-                        {/* 刪除 */}
-                        {activeSelectedIds.length > 0 && !isSharedFolder && (userRole === 'admin' || selectedFolderId.startsWith('personal')) && (
-                          <button onClick={() => onRemove(activeSelectedIds)} className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="刪除">
-                             <Trash2 size={16} />
-                          </button>
-                        )}
-                        
-                        {/* 問答 */}
-                        {activeSelectedIds.length > 0 && (
+                        isFavListMode ? (
+                          /* ===== 常用清單模式：下載 + 從清單移除 ===== */
                           <>
-                            <div className="w-px h-4 bg-slate-200 mx-1"></div>
                             <button 
-                                onClick={onStartChat}
-                                className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1 font-medium text-xs"
-                                title="使用已選文件問答"
+                              onClick={() => alert(`下載 ${activeSelectedIds.length} 個檔案`)} 
+                              className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                              title="下載"
                             >
-                                <MessageSquare size={16} /> 問答
+                              <Download size={16} />
                             </button>
+                            {/* 從清單移除按鈕：僅勾選時可用 */}
+                            {activeSelectedIds.length > 0 && (
+                              <button 
+                                onClick={() => onRemoveFromFavList && onRemoveFromFavList(activeSelectedIds)}
+                                className="p-1.5 text-slate-500 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors flex items-center gap-1 text-xs font-medium"
+                                title="從清單移除（不影響原始文件）"
+                              >
+                                <MinusCircle size={16} />
+                              </button>
+                            )}
                           </>
-                        )}
-                      </>
+                        ) : (
+                          /* ===== 文件導覽模式：原始工具按鈕 + 加入清單 ===== */
+                          <>
+                            {/* 加入清單 */}
+                            {activeSelectedIds.length > 0 && (
+                              <button 
+                                onClick={() => onOpenAddToListModal && onOpenAddToListModal()}
+                                className="p-1.5 text-slate-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                                title="加入常用清單"
+                              >
+                                <ListPlus size={16} />
+                              </button>
+                            )}
+
+                            {/* 分享 */}
+                            {activeSelectedIds.length > 0 && !isSharedFolder && (userRole === 'admin' || selectedFolderId.startsWith('personal')) && (
+                              <button onClick={onShare} className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="分享">
+                                <Users size={16} />
+                              </button>
+                            )}
+
+                            {/* 下載 */}
+                            <button 
+                              onClick={() => alert(`下載 ${activeSelectedIds.length} 個檔案`)} 
+                              className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" 
+                              title="下載"
+                            >
+                              <Download size={16} />
+                            </button>
+
+                            {/* 刪除 */}
+                            {activeSelectedIds.length > 0 && !isSharedFolder && (userRole === 'admin' || selectedFolderId.startsWith('personal')) && (
+                              <button onClick={() => onRemove(activeSelectedIds)} className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="刪除">
+                                <Trash2 size={16} />
+                              </button>
+                            )}
+                          </>
+                        )
                     )}
                 </div>
              </div>

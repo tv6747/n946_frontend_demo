@@ -2,7 +2,7 @@ import { Plus, UploadCloud, ChevronDown, Bot, Circle, FolderPlus, FolderMinus, F
 import { TreeNode } from '../../components/common/TreeNode';
 import { useMemo, useState } from 'react';
 
-export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBotsSection, bots, selectedBotId, onSelectBot, onUpload, files, selectedFileIds, onSelectionChange, onCreateBot, userRole = 'user', onMoveFolder, onMoveFile, checkable, checkedFolderIds, onCheck, customActionButton, favoriteLists, selectedFavListId, onSelectFavList, onToggleFavDefault, onCreateFavList, onDeleteFavList, onFavStartChat, isFavListMode }) {
+export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBotsSection, bots, selectedBotId, onSelectBot, onUpload, files, selectedFileIds, onSelectionChange, onCreateBot, userRole = 'user', onMoveFolder, onMoveFile, checkable, checkedFolderIds, onCheck, customActionButton, favoriteLists, selectedFavListId, onSelectFavList, onToggleFavDefault, onCreateFavList, onDeleteFavList, onFavStartChat, isFavListMode, isSelectorMode }) {
   const [isSectionExpanded, setIsSectionExpanded] = useState(true);
   const [isBotSectionExpanded, setIsBotSectionExpanded] = useState(true);
   const [isFavSectionExpanded, setIsFavSectionExpanded] = useState(true);
@@ -39,7 +39,7 @@ export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBots
         )}
 
         {/* Folder / List Actions - 根據模式動態切換 */}
-        {!onCreateBot && (
+        {!onCreateBot && !isSelectorMode && (
             <div className="grid grid-cols-3 gap-2 mb-3">
                 {isFavListMode ? (
                   /* ===== 常用清單模式：新增/刪除改為清單操作，回收桶 disabled ===== */
@@ -94,7 +94,7 @@ export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBots
         )}
 
         {/* Upload Button for KB Manage Mode - 常用清單模式下 disabled */}
-        {onUpload && (
+        {onUpload && !isSelectorMode && (
           <button 
             onClick={onUpload}
             disabled={isFavListMode || !canModify}
@@ -184,13 +184,13 @@ export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBots
                     </span>
                   </div>
                   {/* Q&A Button: 常駐顯示藍色高亮，提示使用者可隨時啟動問答 */}
-                  <button
+                  {/*<button
                     onClick={(e) => { e.stopPropagation(); onFavStartChat && onFavStartChat(list.id); }}
                     className="flex-shrink-0 p-1.5 rounded-md bg-blue-50 text-blue-500 hover:bg-blue-100 hover:text-blue-600 transition-colors"
                     title="使用此清單文件問答"
                   >
                     <MessageSquare size={13} />
-                  </button>
+                  </button>*/}
                 </div>
               ))}
             </div>

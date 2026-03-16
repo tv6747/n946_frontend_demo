@@ -12,6 +12,7 @@ export function AccountEditPanel({ account, onSave, onCancel }) {
     name: '',
     email: '',
     note: '',
+    isAdmin: false,
     permissionUnits: [], // [{deptId, isAdmin}]
     createdAt: new Date().toISOString().split('T')[0],
     updatedAt: new Date().toISOString().split('T')[0],
@@ -23,6 +24,7 @@ export function AccountEditPanel({ account, onSave, onCancel }) {
     if (account && account !== 'NEW') {
       setFormData({
         ...account,
+        isAdmin: !!account.isAdmin,
         permissionUnits: account.permissionUnits || [],
       });
     }
@@ -245,10 +247,30 @@ export function AccountEditPanel({ account, onSave, onCancel }) {
             </div>
 
             {/* Section 4: Permission Units - Transfer List */}
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[380px]">
-                <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">權限單位</h3>
+            <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                    <label className="block text-sm font-semibold text-slate-700 mb-1">系統管理員</label>
+                      <div className="flex items-center gap-3 py-2">
+                            <label className="relative inline-flex items-center cursor-pointer">
+                            <input 
+                                type="checkbox" 
+                                name="isAdmin"
+                                checked={!!formData.isAdmin}
+                                onChange={(e) => setFormData(prev => ({ ...prev, isAdmin: e.target.checked }))}
+                                className="sr-only peer"
+                            />
+                            <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                            <span className="ml-2 text-sm font-medium text-slate-600">
+                                {formData.isAdmin ? '是 (擁有所有權限)' : '否 (依下方部門設定)'}
+                            </span>
+                        </label>
+                    </div>
                 </div>
+
+                <div className={`bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[380px] transition-all ${formData.isAdmin ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
+                    <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">權限單位</h3>
+                    </div>
                 
                 <div className="flex-1 flex overflow-hidden">
                     {/* Left: Available Departments */}
@@ -349,6 +371,7 @@ export function AccountEditPanel({ account, onSave, onCancel }) {
                              </div>
                         </div>
                     </div>
+                     </div>
                 </div>
             </div>
             

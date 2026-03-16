@@ -14,7 +14,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
   const [activeTab, setActiveTab] = useState('welcome'); // 'welcome', 'questions'
   const [defaultSettingsTab, setDefaultSettingsTab] = useState('model');
   const [settingsMode, setSettingsMode] = useState('chat'); // 'chat' | 'canvas'
-  const [isPublic, setIsPublic] = useState(false);
+  const [isPublic, setIsPublic] = useState(app.page === 'kb_manage' ? true : false);
   const [customGroups, setCustomGroups] = useState({
     GAI: [],
     DOC: []
@@ -348,6 +348,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
       <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
           
           {/* Basic Settings Block (Large Block) */}
+          {formData.page !== 'kb_manage' && (
           <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-200 bg-slate-50">
                   <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">基本設定</h3>
@@ -584,8 +585,10 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                   </div>
               </div>
           </section>
+          )}
 
           {/* Unified Default Settings with Tabs */}
+          {formData.page !== 'kb_manage' && (
           <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[400px]">
                <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">預設設定</h3>
@@ -912,6 +915,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                   </>)}
               </div>
           </section>
+          )}
 
 
 

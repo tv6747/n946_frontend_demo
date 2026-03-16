@@ -41,7 +41,7 @@ export const MOCK_APPLICATIONS = [
   },
   {
     id: 'app_kb',
-    name: '知識庫',
+    name: '知識庫管理',
     level: 'GAI',
     page: 'kb_manage',
     flow: 'LLM_CHAT_RAG',
@@ -53,7 +53,7 @@ export const MOCK_APPLICATIONS = [
     },
     availableModels: ['model_1', 'model_2'],
     defaultModelId: 'model_1',
-    welcomeMessage: '歡迎使用知識庫管理系統！您可以上傳、管理文件，並進行智能問答。',
+    welcomeMessage: '歡迎使用知識庫管理系統！您可以上傳、管理文件。',
     defaultQuestions: [
       '如何上傳文件到知識庫？',
       '支援哪些檔案格式？',
@@ -61,7 +61,7 @@ export const MOCK_APPLICATIONS = [
     ],
     permissions: {
       allowedUsers: ['user_1', 'user_2', 'user_3'],
-      isPublic: false
+      isPublic: true
     },
     createdAt: '2024-01-18',
   settings: {

@@ -175,7 +175,11 @@ export function AccountManagementPanel() {
                                    </span>
                                 </td>
                                 <td className="px-6 py-4">
-                                    {(acc.permissionUnits || []).filter(pu => pu.isAdmin).length > 0 ? (
+                                    {acc.isAdmin ? (
+                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-purple-50 text-purple-700 border border-purple-200">
+                                            系統管理員
+                                        </span>
+                                    ) : (acc.permissionUnits || []).filter(pu => pu.isAdmin).length > 0 ? (
                                         <div className="flex flex-wrap gap-1">
                                             {acc.permissionUnits.filter(pu => pu.isAdmin).map(pu => (
                                                 <span key={pu.deptId} className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">

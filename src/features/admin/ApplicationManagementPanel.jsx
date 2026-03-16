@@ -128,85 +128,90 @@ export function ApplicationManagementPanel() {
                           </div>
                       </div> */}
                       
-                      {/* Default Settings */}
-                      <div>
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">預設設定</label>
-                          <div className="space-y-1">
-                              <div className="flex items-center gap-1.5">
-                                  <span className="text-[10px] text-slate-500 w-12">模型:</span>
-                                  <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs font-medium truncate flex-1">
-                                      {getModelName(app.defaultSettings.modelId)}
-                                  </span>
-                              </div>
-                              <div className="flex items-center gap-1.5">
-                                  <span className="text-[10px] text-slate-500 w-12">參數:</span>
-                                  <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-medium truncate flex-1">
-                                      {getParamName(app.defaultSettings.paramId)}
-                                  </span>
-                              </div>
-                          </div>
-                      </div>
-
-                      {/* Available Models */}
-                      <div>
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">可選語言模型</label>
-                          <div className="flex flex-wrap gap-1">
-                              {app.availableModels.map(modelId => {
-                                  const model = MOCK_LLM_MODELS.find(m => m.id === modelId);
-                                  if (!model || model.status !== 'active') return null;
-                                  return (
-                                      <span key={modelId} className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-xs font-medium">
-                                          {model.name}
+                      {/* Settings Details: Hidden for KB Management */}
+                      {app.page !== 'kb_manage' && (
+                        <>
+                          {/* Default Settings */}
+                          <div>
+                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">預設設定</label>
+                              <div className="space-y-1">
+                                  <div className="flex items-center gap-1.5">
+                                      <span className="text-[10px] text-slate-500 w-12">模型:</span>
+                                      <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-xs font-medium truncate flex-1">
+                                          {getModelName(app.defaultSettings.modelId)}
                                       </span>
-                                  );
-                              })}
-                          </div>
-                      </div>
-
-                      {/* Activated Tools */}
-                      <div>
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">已加入工具</label>
-                          <div className="flex flex-wrap gap-1">
-                              {!app.tools || app.tools.length === 0 ? (
-                                  <span className="text-xs text-slate-400 italic">無已加入工具</span>
-                              ) : (app.tools || []).map((t, idx) => {
-                                  const id = typeof t === 'object' ? t.id : t;
-                                  const isDefault = typeof t === 'object' ? t.defaultOn : false;
-                                  const tool = MOCK_TOOLS.find(mt => String(mt.id) === String(id));
-                                  if (!tool) return null;
-                                  return (
-                                      <span key={idx} className={`px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1 ${isDefault ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-600'}`}>
-                                          {tool.name}
-                                          {isDefault && <span className="text-[8px] opacity-70 border border-orange-300 rounded px-0.5 leading-none">預設</span>}
-                                      </span>
-                                  );
-                              })}
-                          </div>
-                      </div>
-
-                      {/* Welcome Message */}
-                      <div>
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">歡迎詞</label>
-                          <div className="text-xs text-slate-600 bg-slate-50 p-2 rounded border border-slate-100 line-clamp-2">
-                              {app.welcomeMessage}
-                          </div>
-                      </div>
-
-                      {/* Default Questions */}
-                      <div>
-                          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">預設問題</label>
-                          <div className="text-xs text-slate-600 space-y-0.5">
-                              {app.defaultQuestions.slice(0, 2).map((q, idx) => (
-                                  <div key={idx} className="flex items-start gap-1.5">
-                                      <span className="text-blue-500 mt-0.5">•</span>
-                                      <span className="line-clamp-1">{q}</span>
                                   </div>
-                              ))}
-                              {app.defaultQuestions.length > 2 && (
-                                  <div className="text-[10px] text-slate-400 pl-3">+{app.defaultQuestions.length - 2} 更多...</div>
-                              )}
+                                  <div className="flex items-center gap-1.5">
+                                      <span className="text-[10px] text-slate-500 w-12">參數:</span>
+                                      <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-medium truncate flex-1">
+                                          {getParamName(app.defaultSettings.paramId)}
+                                      </span>
+                                  </div>
+                              </div>
                           </div>
-                      </div>
+
+                          {/* Available Models */}
+                          <div>
+                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">可選語言模型</label>
+                              <div className="flex flex-wrap gap-1">
+                                  {app.availableModels.map(modelId => {
+                                      const model = MOCK_LLM_MODELS.find(m => m.id === modelId);
+                                      if (!model || model.status !== 'active') return null;
+                                      return (
+                                          <span key={modelId} className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-xs font-medium">
+                                              {model.name}
+                                          </span>
+                                      );
+                                  })}
+                              </div>
+                          </div>
+
+                          {/* Activated Tools */}
+                          <div>
+                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">已加入工具</label>
+                              <div className="flex flex-wrap gap-1">
+                                  {!app.tools || app.tools.length === 0 ? (
+                                      <span className="text-xs text-slate-400 italic">無已加入工具</span>
+                                  ) : (app.tools || []).map((t, idx) => {
+                                      const id = typeof t === 'object' ? t.id : t;
+                                      const isDefault = typeof t === 'object' ? t.defaultOn : false;
+                                      const tool = MOCK_TOOLS.find(mt => String(mt.id) === String(id));
+                                      if (!tool) return null;
+                                      return (
+                                          <span key={idx} className={`px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1 ${isDefault ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-600'}`}>
+                                              {tool.name}
+                                              {isDefault && <span className="text-[8px] opacity-70 border border-orange-300 rounded px-0.5 leading-none">預設</span>}
+                                          </span>
+                                      );
+                                  })}
+                              </div>
+                          </div>
+
+                          {/* Welcome Message */}
+                          <div>
+                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">歡迎詞</label>
+                              <div className="text-xs text-slate-600 bg-slate-50 p-2 rounded border border-slate-100 line-clamp-2">
+                                  {app.welcomeMessage}
+                              </div>
+                          </div>
+
+                          {/* Default Questions */}
+                          <div>
+                              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">預設問題</label>
+                              <div className="text-xs text-slate-600 space-y-0.5">
+                                  {app.defaultQuestions.slice(0, 2).map((q, idx) => (
+                                      <div key={idx} className="flex items-start gap-1.5">
+                                          <span className="text-blue-500 mt-0.5">•</span>
+                                          <span className="line-clamp-1">{q}</span>
+                                      </div>
+                                  ))}
+                                  {app.defaultQuestions.length > 2 && (
+                                      <div className="text-[10px] text-slate-400 pl-3">+{app.defaultQuestions.length - 2} 更多...</div>
+                                  )}
+                              </div>
+                          </div>
+                        </>
+                      )}
 
                       {/* Permissions */}
                       <div className="pt-2 border-t border-slate-100">

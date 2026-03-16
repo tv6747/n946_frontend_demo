@@ -13,6 +13,7 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, ra
   const [messages, setMessages] = useState([]);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   const [feedbackText, setFeedbackText] = useState('');
+  const [localRagContext, setLocalRagContext] = useState(null);
   const isDraftMode = currentFeature.id.startsWith('draft_') && !currentFeature.id.startsWith('draft_doc_gen') || currentFeature.id === 'doc_assist';
   // Default to 50% for drafts, 70% otherwise
   const { leftWidth, startResizing } = useResizable(isDraftMode ? 50 : 50);
@@ -52,12 +53,33 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, ra
     }, 1000);
   };
 
+  const handleSendMessage = (text, files) => {
+    // 1. Set the local rag context if there are files attached
+    if (files && files.length > 0) {
+      setLocalRagContext(files);
+    }
+
+    // 2. Add message to the list
+    setMessages(prev => [...prev, { id: Date.now(), role: 'user', content: text }]);
+    
+    // 3. Mock AI Reply
+    setTimeout(() => {
+      setMessages(prev => [
+        ...prev,
+        { id: Date.now() + 1, role: 'ai', content: `收到您的訊息「${text}」。\n這是一個模擬的 AI 回覆。` }
+      ]);
+    }, 1000);
+  };
+
   const lastAIResponse = messages.filter(m => m.role === 'ai').pop()?.content;
   const userRequest = messages.filter(m => m.role === 'user').pop()?.content;
 
+  // Use localRagContext if available, otherwise fallback to prop ragContext
+  const activeRagContext = localRagContext || ragContext;
+
   const renderChatArea = () => (
     <>
-       {ragContext && (
+       {activeRagContext && (
          <div className="bg-indigo-50 border-b border-indigo-100 px-4 py-2 flex items-center justify-between text-xs text-indigo-700 z-10 flex-shrink-0">
             <div className="flex items-center gap-2">
                <BrainCircuit size={14} className="text-indigo-500" />
@@ -72,16 +94,16 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, ra
                     <>基於勾選的 </>
                   )}
                   <span className="relative group cursor-help underline decoration-dotted underline-offset-4 decoration-indigo-400 font-bold">
-                     {ragContext.length} 個檔案
+                     {activeRagContext.length} 個檔案
                       {/* Light Theme Tooltip (Read Only) */}
                      <div className="absolute top-full left-1/2 -translate-x-1/2 w-64 pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                          <div className="bg-white text-slate-700 border border-slate-200 rounded-xl p-3 shadow-xl">
                              <div className="font-bold border-b border-slate-100 pb-2 mb-2 text-xs text-slate-400 uppercase tracking-wider">已選文件清單</div>
-                             {ragContext.length === 0 ? (
+                             {activeRagContext.length === 0 ? (
                                <div className="text-slate-400 py-2 text-center text-xs italic">未選擇任何文件</div>
                              ) : (
                                <ul className="space-y-1 max-h-40 overflow-y-auto custom-scrollbar">
-                                  {ragContext.map(f => (
+                                  {activeRagContext.map(f => (
                                      <li key={f.id} className="flex items-center gap-2 text-xs py-1 px-1 hover:bg-slate-50 rounded">
                                         <FileText size={12} className="text-indigo-400 flex-shrink-0" />
                                         <span className="truncate font-medium" title={f.name}>{f.name}</span>
@@ -118,7 +140,8 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, ra
      showLLMSettings: showLLMSettings && !shouldHideLLMSettings,
      onOpenLLMSettings,
      allowUpload: true, // Force enable for all chat inputs
-     showInstructions: currentFeature.showInstructions
+     showInstructions: currentFeature.showInstructions,
+     onSendMessage: handleSendMessage
   };
 
   // 如果不是草稿模式 (例如一般問答)，直接回傳單欄介面

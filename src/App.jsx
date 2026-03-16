@@ -553,9 +553,6 @@ export default function App() {
                 onLLMSubModuleChange={setLLMSubModule}
              />
         ) : currentFeature.mode === MODES.KB ? (
-           kbMode === 'qa' ? (
-              <CommonHistorySidebar currentFeatureId="kb_qa" />
-           ) : (
                <KBSidebar 
                  treeData={kbTreeData}
                  selectedFolderId={selectedFolderId}
@@ -579,9 +576,6 @@ export default function App() {
                  onDeleteFavList={handleDeleteFavList}
                  onFavStartChat={handleFavStartChat}
                />
-           )
-
-
         ) : (
           <CommonHistorySidebar currentFeatureId={currentFeature.id} />
         )}
@@ -644,33 +638,7 @@ export default function App() {
             </div>
         )}
 
-        {/* KB Toggle Switch: Only show in KB Mode */}
-        {currentFeature.mode === MODES.KB && (
-          <div className="ml-2 flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
-             {/* Swapped order: QA first (left), Manage second (right) */}
-             <button 
-               onClick={() => {
-                 // 切換至問答模式時，若使用者尚未手動勾選，自動帶入星號預設清單
-                 if (kbSelectedFileIds.length === 0 && defaultFavList && defaultFavList.fileIds.length > 0) {
-                   setKbSelectedFileIds(defaultFavList.fileIds);
-                   setQaFromDefaultList(true);
-                 } else {
-                   setQaFromDefaultList(false);
-                 }
-                 setKbMode('qa');
-               }}
-               className={`px-3 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-1.5 ${kbMode === 'qa' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-             >
-               <MessageSquare size={14} /> 問答
-             </button>
-             <button 
-               onClick={() => setKbMode('manage')}
-               className={`px-3 py-1 text-xs font-medium rounded-md transition-all flex items-center gap-1.5 ${kbMode === 'manage' ? 'bg-white text-blue-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-             >
-               <Folder size={14} /> 管理
-             </button>
-          </div>
-        )}
+        {/* KB Toggle Switch: Removed as per new requirement */}
       </div>
 
       <div className="flex items-center gap-3 relative">
@@ -754,7 +722,6 @@ export default function App() {
        </>
     }>
         {currentFeature.mode === MODES.KB && (
-            kbMode === 'manage' ? (
               <KBManagerPanel 
                 selectedFolderId={selectedFolderId}
                 files={displayFiles} 
@@ -780,17 +747,6 @@ export default function App() {
                 folderDisplayName={selectedFolderId.split('_').pop() || selectedFolderId}
                 onFolderNameChange={(newName) => alert(`資料夾重新命名為：${newName} (Demo)`)}
               />
-            ) : (
-              // RAG QA Mode
-              <ChatInterface 
-                currentFeature={{...currentFeature, id: 'kb_qa'}} 
-                ragContext={kbSelectedFilesObjects}
-                ragContextLabel={qaFromDefaultList && defaultFavList ? defaultFavList.name : null}
-                onExport={() => setIsExportModalOpen(true)}
-                onSave={() => setIsSaveModalOpen(true)}
-                onOpenLLMSettings={openLLMSettings}
-              />
-            )
           )}
           
 
