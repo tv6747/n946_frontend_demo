@@ -282,7 +282,7 @@ export function KBManagerPanel({
                     ) : (
                       <>
                         <span className="truncate">{pathString}</span>
-                        {isPersonalFolder && !isSelectorMode && (
+                        {isPersonalFolder && selectedFolderId !== 'personal' && !isSelectorMode && (
                           <button 
                             onClick={() => setIsEditingFolderName(true)}
                             className="p-1 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-md transition-colors flex-shrink-0"

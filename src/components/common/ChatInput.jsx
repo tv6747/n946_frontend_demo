@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Settings, Send, BookOpen, Plus, Database, Upload, X, FileText } from 'lucide-react';
+import { Settings, Send, BookOpen, Database, Upload, X, FileText } from 'lucide-react';
 import { KBFileSelectorModal } from './KBFileSelectorModal';
 
 export function ChatInput({ 
@@ -10,29 +10,14 @@ export function ChatInput({
   showInstructions,
   onSendMessage
 }) {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isKBModalOpen, setIsKBModalOpen] = useState(false);
   const [selectedKBFiles, setSelectedKBFiles] = useState([]);
   const [inputText, setInputText] = useState('');
   
-  const menuRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Close menu when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setIsMenuOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   const handleUploadClick = () => {
-    setIsMenuOpen(false);
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
@@ -102,38 +87,22 @@ export function ChatInput({
       <div className="max-w-5xl mx-auto relative">
         <div className="relative border border-slate-300 rounded-lg flex items-center p-2 gap-2 bg-white">
           {allowUpload && (
-             <div className="relative" ref={menuRef}>
+             <>
                <button 
-                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                 className={`p-2 rounded-full transition-colors ${isMenuOpen ? 'bg-blue-100 text-blue-600' : 'text-slate-400 hover:bg-slate-100 hover:text-slate-600'}`} 
-                 title="新增附件"
+                 onClick={handleUploadClick}
+                 className="p-2 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded-full transition-colors"
+                 title="上傳檔案"
                >
-                 <Plus size={20}/>
+                 <Upload size={20}/>
                </button>
-               
-               {/* 展開的 Menu Menu Card */}
-               {isMenuOpen && (
-                 <div className="absolute bottom-[calc(100%+12px)] left-0 bg-white border border-slate-200 rounded-xl shadow-lg shadow-slate-200/50 py-2 w-48 animate-in fade-in slide-in-from-bottom-2 duration-200 z-50">
-                    <button 
-                      className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
-                      onClick={handleUploadClick}
-                    >
-                      <Upload size={16} className="text-slate-400" />
-                      <span>上傳檔案</span>
-                    </button>
-                    <button 
-                      className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 transition-colors"
-                      onClick={() => {
-                        setIsKBModalOpen(true);
-                        setIsMenuOpen(false);
-                      }}
-                    >
-                      <Database size={16} className="text-slate-400" />
-                      <span>加入知識庫檔案</span>
-                    </button>
-                 </div>
-               )}
-             </div>
+               <button 
+                 onClick={() => setIsKBModalOpen(true)}
+                 className="p-2 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded-full transition-colors"
+                 title="加入知識庫檔案"
+               >
+                 <Database size={20}/>
+               </button>
+             </>
           )}
           {showInstructions && (
              <button className="p-2 text-slate-400 hover:bg-slate-100 rounded-full" title="使用說明"><BookOpen size={20}/></button>

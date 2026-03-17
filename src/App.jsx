@@ -115,23 +115,24 @@ export default function App() {
     setSelectedFolderId(folderId);
   };
 
-  // Effect to reset folder when switching roles (Admin doesn't see Personal/Shared)
+  // Effect to reset folder when switching roles
   useEffect(() => {
     if (userRole === 'admin') {
-      if (selectedFolderId === 'personal' || selectedFolderId.startsWith('shared_')) {
-        setSelectedFolderId('org');
-      }
       
       // Force switch to GAI system if not already and not in allowed systems
-      if (currentSystem !== 'GAI' && currentSystem !== 'BACKEND') {
+      if (currentSystem !== 'GAI' && currentSystem !== 'BACKEND' && currentSystem !== 'DOC') {
           setCurrentSystem('GAI');
       }
 
       // Force switch to allowed feature if current is restricted
       // KB_MANAGEMENT, BOT_MANAGEMENT, CORPUS_MANAGEMENT, or ADMIN features
       const allowedFeatures = [
+          FEATURES.INTERACTIVE.id,
           FEATURES.KB_MANAGEMENT.id, 
           FEATURES.BOT_MANAGEMENT.id, 
+          FEATURES.DOC_TRANS.id,
+          FEATURES.PPT_GEN.id,
+          FEATURES.PROMPT_OPT.id,
           FEATURES.ADMIN_SERVICE.id,
           FEATURES.ADMIN_LLM.id,
           FEATURES.ADMIN_MODELS.id,
@@ -144,12 +145,16 @@ export default function App() {
           FEATURES.ADMIN_AUDIT.id,
           FEATURES.ADMIN_TOOLS.id,
           FEATURES.ADMIN_LANGFLOW.id,
-          FEATURES.ADMIN_ACCOUNT.id
+          FEATURES.ADMIN_ACCOUNT.id,
+          // Add DOC system features
+          ...Object.keys(FEATURES).filter(key => key.startsWith('DRAFT_') || key === 'DOC_ASSIST').map(key => FEATURES[key].id)
       ];
       if (!allowedFeatures.includes(currentFeature.id)) {
           // If in Backend mode, default to LLM Management
           if (currentSystem === 'BACKEND') {
              setCurrentFeature(FEATURES.ADMIN_SERVICE);
+          } else if (currentSystem === 'DOC') {
+             setCurrentFeature(FEATURES.DOC_ASSIST);
           } else {
              setCurrentFeature(FEATURES.KB_MANAGEMENT);
              setKbMode('qa'); // Default to QA mode for KB
@@ -403,9 +408,21 @@ export default function App() {
   const systemFeatures = useMemo(() => {
      if (userRole === 'admin') {
         if (currentSystem === 'GAI') {
-            return ['KB_MANAGEMENT'];
+            return Object.keys(FEATURES).filter(key => 
+              !key.startsWith('DRAFT_') && 
+              key !== 'DOC_ASSIST' &&
+              key !== 'CORPUS_MANAGEMENT' && 
+              key !== 'BOT_MANAGEMENT' &&
+              !key.startsWith('ADMIN_')
+            );
         } else if (currentSystem === 'BACKEND') {
-            return ['ADMIN_SERVICE', 'BOT_MANAGEMENT', 'ADMIN_PROPER_NOUN', 'ADMIN_SYNONYM', 'ADMIN_MODELS', 'ADMIN_PROMPTS', 'ADMIN_PROMPT_OPT', 'ADMIN_APIS', 'ADMIN_TOOLS', 'ADMIN_AUDIT'];
+            return Object.keys(FEATURES).filter(key => 
+                key.startsWith('ADMIN_') || 
+                key === 'BOT_MANAGEMENT' || 
+                key === 'CORPUS_MANAGEMENT'
+            );
+        } else if (currentSystem === 'DOC') {
+            return Object.keys(FEATURES).filter(key => key.startsWith('DRAFT_') || key === 'DOC_ASSIST');
         }
      }
 
@@ -426,11 +443,6 @@ export default function App() {
   }, [currentSystem, userRole]);
 
   const handleSystemSelect = (system) => {
-    if (userRole === 'admin' && system === 'DOC') {
-        alert("權限不足：管理員僅能存取 GAI 互動平台與後台管理");
-        return;
-    }
-
     setCurrentSystem(system);
     setIsSystemMenuOpen(false);
     
@@ -499,6 +511,17 @@ export default function App() {
                           <div className={`font-bold text-sm ${currentSystem === 'GAI' ? 'text-blue-700' : 'text-slate-700'}`}>GAI 互動平台</div>
                       </div>
                  </div>
+                 <div 
+                   className={`px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition-colors ${currentSystem === 'DOC' ? 'bg-blue-50/50' : ''}`}
+                   onClick={() => handleSystemSelect('DOC')}
+                 >
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${currentSystem === 'DOC' ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-500'}`}>
+                          <Folder size={18} />
+                      </div>
+                      <div>
+                          <div className={`font-bold text-sm ${currentSystem === 'DOC' ? 'text-blue-700' : 'text-slate-700'}`}>智慧公文輔助系統</div>
+                      </div>
+                 </div>
                  {userRole === 'admin' && (
                   <div 
                     className={`px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition-colors ${currentSystem === 'BACKEND' ? 'bg-blue-50/50' : ''}`}
@@ -509,19 +532,6 @@ export default function App() {
                        </div>
                        <div>
                            <div className={`font-bold text-sm ${currentSystem === 'BACKEND' ? 'text-blue-700' : 'text-slate-700'}`}>後台管理</div>
-                       </div>
-                  </div>
-                 )}
-                 {userRole !== 'admin' && (
-                  <div 
-                    className={`px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition-colors ${currentSystem === 'DOC' ? 'bg-blue-50/50' : ''}`}
-                    onClick={() => handleSystemSelect('DOC')}
-                  >
-                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${currentSystem === 'DOC' ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-500'}`}>
-                           <Folder size={18} />
-                       </div>
-                       <div>
-                           <div className={`font-bold text-sm ${currentSystem === 'DOC' ? 'text-blue-700' : 'text-slate-700'}`}>智慧公文輔助系統</div>
                        </div>
                   </div>
                  )}

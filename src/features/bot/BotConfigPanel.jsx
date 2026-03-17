@@ -313,7 +313,6 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
                                   onChange={(e) => handleChange({ flow: e.target.value })}
                                   className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
                               >
-                                  <option value="LLM_CHAT">一般對話</option>
                                   <option value="LLM_CHAT_RAG">檢索文件對話</option>
                                   <option value="LLM_CHAT_CHAIN">生成預覽對話</option>
                               </select>
@@ -339,73 +338,139 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
                           </div>
                       </div>
 
-                      {/* 3. Feature Toggles */}
-                      <div className="space-y-1">
-                         <label className="block text-sm font-medium text-slate-700">功能設定</label>
-                         <div className="flex flex-col gap-3 py-2">
-                            <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
-                                <div className={`w-5 h-5 rounded border flex items-center justify-center ${formData.allowUpload ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300'}`}>
-                                    {formData.allowUpload && <Check size={14} />}
-                                </div>
-                                <input 
-                                    type="checkbox" 
-                                    className="hidden"
-                                    checked={!!formData.allowUpload}
-                                    onChange={(e) => handleChange({ allowUpload: e.target.checked })}
-                                />
-                                <span className="text-sm font-medium text-slate-700">啟用檔案上傳</span>
-                            </label>
+                      {/* Feature Settings (New Layout) */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-2">
+                         {/* Left: General Settings */}
+                         <div className="space-y-3">
+                            <label className="block text-sm font-medium text-slate-700">功能設定</label>
+                            <div className="flex flex-col gap-3 pt-1">
+                                <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors group">
+                                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${formData.allowUpload ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300 group-hover:border-blue-400'}`}>
+                                        {formData.allowUpload && <Check size={14} />}
+                                    </div>
+                                    <input 
+                                        type="checkbox" 
+                                        className="hidden"
+                                        checked={!!formData.allowUpload}
+                                        onChange={(e) => handleChange({ allowUpload: e.target.checked })}
+                                    />
+                                    <span className="text-sm font-medium text-slate-700">啟用檔案上傳</span>
+                                </label>
 
-                            <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
-                                <div className={`w-5 h-5 rounded border flex items-center justify-center ${formData.enableFeedback ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300'}`}>
-                                    {formData.enableFeedback && <Check size={14} />}
-                                </div>
-                                <input 
-                                    type="checkbox" 
-                                    className="hidden"
-                                    checked={!!formData.enableFeedback}
-                                    onChange={(e) => handleChange({ enableFeedback: e.target.checked })}
-                                />
-                                <span className="text-sm font-medium text-slate-700">啟用回饋機制</span>
-                            </label>
+                                <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors group">
+                                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${formData.enableFeedback ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300 group-hover:border-blue-400'}`}>
+                                        {formData.enableFeedback && <Check size={14} />}
+                                    </div>
+                                    <input 
+                                        type="checkbox" 
+                                        className="hidden"
+                                        checked={!!formData.enableFeedback}
+                                        onChange={(e) => handleChange({ enableFeedback: e.target.checked })}
+                                    />
+                                    <span className="text-sm font-medium text-slate-700">啟用回饋機制</span>
+                                </label>
 
-                            <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
-                                <div className={`w-5 h-5 rounded border flex items-center justify-center ${formData.includeHistory ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300'}`}>
-                                    {formData.includeHistory && <Check size={14} />}
-                                </div>
-                                <input 
-                                    type="checkbox" 
-                                    className="hidden"
-                                    checked={!!formData.includeHistory}
-                                    onChange={(e) => handleChange({ includeHistory: e.target.checked })}
-                                />
-                                <span className="text-sm font-medium text-slate-700">參考對話紀錄</span>
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
-                                <div className={`w-5 h-5 rounded border flex items-center justify-center ${formData.showInstructions ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300'}`}>
-                                    {formData.showInstructions && <Check size={14} />}
-                                </div>
-                                <input 
-                                    type="checkbox" 
-                                    className="hidden"
-                                    checked={!!formData.showInstructions}
-                                    onChange={(e) => handleChange({ showInstructions: e.target.checked })}
-                                />
-                                <span className="text-sm font-medium text-slate-700">顯示使用文件</span>
-                            </label>
+                                <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors group">
+                                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${formData.includeHistory ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300 group-hover:border-blue-400'}`}>
+                                        {formData.includeHistory && <Check size={14} />}
+                                    </div>
+                                    <input 
+                                        type="checkbox" 
+                                        className="hidden"
+                                        checked={!!formData.includeHistory}
+                                        onChange={(e) => handleChange({ includeHistory: e.target.checked })}
+                                    />
+                                    <span className="text-sm font-medium text-slate-700">參考對話紀錄</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors group">
+                                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${formData.showInstructions ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300 group-hover:border-blue-400'}`}>
+                                        {formData.showInstructions && <Check size={14} />}
+                                    </div>
+                                    <input 
+                                        type="checkbox" 
+                                        className="hidden"
+                                        checked={!!formData.showInstructions}
+                                        onChange={(e) => handleChange({ showInstructions: e.target.checked })}
+                                    />
+                                    <span className="text-sm font-medium text-slate-700">顯示使用文件</span>
+                                </label>
 
-                            <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
-                                <div className={`w-5 h-5 rounded border flex items-center justify-center ${formData.showCitations ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300'}`}>
-                                    {formData.showCitations && <Check size={14} />}
-                                </div>
-                                <input 
-                                    type="checkbox" 
-                                    className="hidden"
-                                    checked={!!formData.showCitations}
-                                    onChange={(e) => handleChange({ showCitations: e.target.checked })}
-                                />
-                                <span className="text-sm font-medium text-slate-700">顯示引用來源</span>
-                            </label>
+                                <label className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors group">
+                                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${formData.showCitations ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300 group-hover:border-blue-400'}`}>
+                                        {formData.showCitations && <Check size={14} />}
+                                    </div>
+                                    <input 
+                                        type="checkbox" 
+                                        className="hidden"
+                                        checked={!!formData.showCitations}
+                                        onChange={(e) => handleChange({ showCitations: e.target.checked })}
+                                    />
+                                    <span className="text-sm font-medium text-slate-700">顯示引用來源</span>
+                                </label>
+                             </div>
+                         </div>
+
+                         {/* Right: Retrieval Settings */}
+                         <div className="space-y-4 pr-2">
+                             <label className="block text-sm font-medium text-slate-700">檢索設定</label>
+                             <div className="space-y-4 pt-1">
+                                 {/* Similarity */}
+                                 <div className="space-y-2">
+                                     <div className="flex justify-between items-center">
+                                         <span className="text-xs text-slate-500">相似度</span>
+                                         <span className="text-xs font-mono font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                                             {(formData.similarity ?? 0.9).toFixed(1)}
+                                         </span>
+                                     </div>
+                                     <input 
+                                         type="range"
+                                         min="0"
+                                         max="1"
+                                         step="0.1"
+                                         value={formData.similarity ?? 0.9}
+                                         onChange={(e) => handleChange({ similarity: parseFloat(e.target.value) })}
+                                         className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 hover:accent-blue-700 transition-all"
+                                     />
+                                 </div>
+
+                                 {/* Top K */}
+                                 <div className="space-y-2">
+                                     <div className="flex justify-between items-center">
+                                         <span className="text-xs text-slate-500">候選清單長度(Top K)</span>
+                                         <span className="text-xs font-mono font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                                             {formData.topK ?? 30}
+                                         </span>
+                                     </div>
+                                     <input 
+                                         type="range"
+                                         min="0"
+                                         max="50"
+                                         step="1"
+                                         value={formData.topK ?? 30}
+                                         onChange={(e) => handleChange({ topK: parseInt(e.target.value) })}
+                                         className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 hover:accent-blue-700 transition-all"
+                                     />
+                                 </div>
+
+                                 {/* Top Reranker */}
+                                 <div className="space-y-2">
+                                     <div className="flex justify-between items-center">
+                                         <span className="text-xs text-slate-500">最終結果數量(Top Reranker)</span>
+                                         <span className="text-xs font-mono font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                                             {formData.topReranker ?? 5}
+                                         </span>
+                                     </div>
+                                     <input 
+                                         type="range"
+                                         min="0"
+                                         max="50"
+                                         step="1"
+                                         value={formData.topReranker ?? 5}
+                                         onChange={(e) => handleChange({ topReranker: parseInt(e.target.value) })}
+                                         className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 hover:accent-blue-700 transition-all"
+                                     />
+                                 </div>
+                             </div>
                          </div>
                       </div>
                   </div>

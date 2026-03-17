@@ -377,7 +377,6 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                                   onChange={(e) => handleChange({ flow: e.target.value })}
                                   className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
                               >
-                                  <option value="LLM_CHAT">一般對話</option>
                                   <option value="LLM_CHAT_RAG">檢索文件對話</option>
                                   <option value="LLM_CHAT_CHAIN">生成預覽對話</option>
                               </select>
@@ -454,54 +453,134 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                           </div>
                       </div>
                       
-                      {/* Feature Settings (New) */}
-                      <div className="space-y-3 pt-2">
-                          <label className="block text-sm font-medium text-slate-700 mb-2">功能設定</label>
-                          <div className="flex flex-col gap-3">
-                              <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input 
-                                      type="checkbox"
-                                      checked={formData.featureSettings?.enableFileUpload ?? true}
-                                      onChange={(e) => handleChange({ 
-                                          featureSettings: { 
-                                              ...formData.featureSettings, 
-                                              enableFileUpload: e.target.checked 
-                                          } 
-                                      })}
-                                      className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 transition-colors"
-                                  />
-                                  <span className="text-sm text-slate-700 group-hover:text-blue-700 transition-colors">啟用檔案上傳</span>
-                              </label>
-                              
-                              <label className="flex items-center gap-2 cursor-pointer group">
-                                  <input 
-                                      type="checkbox"
-                                      checked={formData.featureSettings?.enableFeedback ?? true}
-                                      onChange={(e) => handleChange({ 
-                                          featureSettings: { 
-                                              ...formData.featureSettings, 
-                                              enableFeedback: e.target.checked 
-                                          } 
-                                      })}
-                                      className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 transition-colors"
-                                  />
-                                  <span className="text-sm text-slate-700 group-hover:text-blue-700 transition-colors">啟用回饋機制</span>
-                              </label>
+                      {/* Feature Settings (New Layout) */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
+                          {/* Left: General Settings */}
+                          <div className="space-y-3">
+                              <label className="block text-sm font-medium text-slate-700 mb-2">功能設定</label>
+                              <div className="flex flex-col gap-3">
+                                  <label className="flex items-center gap-2 cursor-pointer group">
+                                      <input 
+                                          type="checkbox"
+                                          checked={formData.featureSettings?.enableFileUpload ?? true}
+                                          onChange={(e) => handleChange({ 
+                                              featureSettings: { 
+                                                  ...formData.featureSettings, 
+                                                  enableFileUpload: e.target.checked 
+                                              } 
+                                          })}
+                                          className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 transition-colors"
+                                      />
+                                      <span className="text-sm text-slate-700 group-hover:text-blue-700 transition-colors">啟用檔案上傳</span>
+                                  </label>
+                                  
+                                  <label className="flex items-center gap-2 cursor-pointer group">
+                                      <input 
+                                          type="checkbox"
+                                          checked={formData.featureSettings?.enableFeedback ?? true}
+                                          onChange={(e) => handleChange({ 
+                                              featureSettings: { 
+                                                  ...formData.featureSettings, 
+                                                  enableFeedback: e.target.checked 
+                                              } 
+                                          })}
+                                          className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 transition-colors"
+                                      />
+                                      <span className="text-sm text-slate-700 group-hover:text-blue-700 transition-colors">啟用回饋機制</span>
+                                  </label>
+    
+                                  <label className="flex items-center gap-2 cursor-pointer group">
+                                      <input 
+                                          type="checkbox"
+                                          checked={formData.featureSettings?.includeHistory ?? true}
+                                          onChange={(e) => handleChange({ 
+                                              featureSettings: { 
+                                                  ...formData.featureSettings, 
+                                                  includeHistory: e.target.checked 
+                                              } 
+                                          })}
+                                          className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 transition-colors"
+                                      />
+                                      <span className="text-sm text-slate-700 group-hover:text-blue-700 transition-colors">參考對話紀錄</span>
+                                  </label>
+                              </div>
+                          </div>
 
-                              <label className="flex items-center gap-2 cursor-pointer group">
+                          {/* Right: Retrieval Settings */}
+                          <div className="space-y-4 pr-2">
+                              <label className="block text-sm font-medium text-slate-700 mb-2">檢索設定</label>
+                              
+                              {/* Similarity */}
+                              <div className="space-y-2">
+                                  <div className="flex justify-between items-center">
+                                      <span className="text-xs text-slate-500">相似度</span>
+                                      <span className="text-xs font-mono font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                                          {(formData.featureSettings?.similarity ?? 0.9).toFixed(1)}
+                                      </span>
+                                  </div>
                                   <input 
-                                      type="checkbox"
-                                      checked={formData.featureSettings?.includeHistory ?? true}
+                                      type="range"
+                                      min="0"
+                                      max="1"
+                                      step="0.1"
+                                      value={formData.featureSettings?.similarity ?? 0.9}
                                       onChange={(e) => handleChange({ 
                                           featureSettings: { 
                                               ...formData.featureSettings, 
-                                              includeHistory: e.target.checked 
+                                              similarity: parseFloat(e.target.value) 
                                           } 
                                       })}
-                                      className="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500 transition-colors"
+                                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 hover:accent-blue-700 transition-all"
                                   />
-                                  <span className="text-sm text-slate-700 group-hover:text-blue-700 transition-colors">參考對話紀錄</span>
-                              </label>
+                              </div>
+
+                              {/* Top K */}
+                              <div className="space-y-2">
+                                  <div className="flex justify-between items-center">
+                                      <span className="text-xs text-slate-500">候選清單長度(Top K)</span>
+                                      <span className="text-xs font-mono font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                                          {formData.featureSettings?.topK ?? 30}
+                                      </span>
+                                  </div>
+                                  <input 
+                                      type="range"
+                                      min="0"
+                                      max="50"
+                                      step="1"
+                                      value={formData.featureSettings?.topK ?? 30}
+                                      onChange={(e) => handleChange({ 
+                                          featureSettings: { 
+                                              ...formData.featureSettings, 
+                                              topK: parseInt(e.target.value) 
+                                          } 
+                                      })}
+                                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 hover:accent-blue-700 transition-all"
+                                  />
+                              </div>
+
+                              {/* Top Reranker */}
+                              <div className="space-y-2">
+                                  <div className="flex justify-between items-center">
+                                      <span className="text-xs text-slate-500">最終結果數量(Top Reranker)</span>
+                                      <span className="text-xs font-mono font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
+                                          {formData.featureSettings?.topReranker ?? 5}
+                                      </span>
+                                  </div>
+                                  <input 
+                                      type="range"
+                                      min="0"
+                                      max="50"
+                                      step="1"
+                                      value={formData.featureSettings?.topReranker ?? 5}
+                                      onChange={(e) => handleChange({ 
+                                          featureSettings: { 
+                                              ...formData.featureSettings, 
+                                              topReranker: parseInt(e.target.value) 
+                                          } 
+                                      })}
+                                      className="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 hover:accent-blue-700 transition-all"
+                                  />
+                              </div>
                           </div>
                       </div>
                   </div>

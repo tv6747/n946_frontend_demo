@@ -9,12 +9,8 @@ export function KBSidebar({ treeData, selectedFolderId, onSelectFolder, showBots
 
   // Filter Tree Data based on Role
   const filteredTreeData = useMemo(() => {
-     if (userRole === 'admin') {
-         return treeData.filter(node => node.id !== 'personal' && node.id !== 'shared_root');
-     } else {
-         return treeData;
-     }
-  }, [treeData, userRole]);
+    return treeData;
+  }, [treeData]);
 
   // Check permissions
   const canModify = useMemo(() => {

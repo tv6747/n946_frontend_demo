@@ -8,7 +8,7 @@ export const MOCK_APPLICATIONS = [
     name: '互動問答',
     level: 'GAI',
     page: 'interactive',
-    flow: 'LLM_CHAT',
+    flow: 'LLM_CHAT_RAG',
     supportCanvas: false,
     defaultSettings: {
       modelId: 'model_1',
@@ -104,7 +104,7 @@ export const MOCK_APPLICATIONS = [
     name: '文件翻譯',
     level: 'GAI',
     page: 'translation',
-    flow: 'LLM_CHAT',
+    flow: 'LLM_CHAT_RAG',
     supportCanvas: false,
     defaultSettings: {
       modelId: 'model_1',
@@ -331,7 +331,7 @@ export const MOCK_APPLICATIONS = [
     name: '通用公文撰寫',
     level: 'DOC',
     page: 'doc_assist',
-    flow: 'LLM_CHAT',
+    flow: 'LLM_CHAT_RAG',
     supportCanvas: true,
     featureSettings: {
       enableFileUpload: true,
@@ -367,7 +367,7 @@ export const MOCK_APPLICATIONS = [
     name: '公文檔案上傳生成案件歷程',
     level: 'DOC',
     page: 'draft_doc_gen',
-    flow: 'LLM_CHAT',
+    flow: 'LLM_CHAT_RAG',
     supportCanvas: false,
     defaultSettings: {
       modelId: 'model_1',
