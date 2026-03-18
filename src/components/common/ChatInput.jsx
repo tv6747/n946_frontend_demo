@@ -8,6 +8,7 @@ export function ChatInput({
   onOpenLLMSettings, 
   allowUpload, 
   showInstructions,
+  showKB,
   onSendMessage
 }) {
   const [isKBModalOpen, setIsKBModalOpen] = useState(false);
@@ -95,13 +96,15 @@ export function ChatInput({
                >
                  <Upload size={20}/>
                </button>
-               <button 
-                 onClick={() => setIsKBModalOpen(true)}
-                 className="p-2 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded-full transition-colors"
-                 title="加入知識庫檔案"
-               >
-                 <Database size={20}/>
-               </button>
+               {showKB && (
+                 <button 
+                   onClick={() => setIsKBModalOpen(true)}
+                   className="p-2 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded-full transition-colors"
+                   title="加入知識庫檔案"
+                 >
+                   <Database size={20}/>
+                 </button>
+               )}
              </>
           )}
           {showInstructions && (

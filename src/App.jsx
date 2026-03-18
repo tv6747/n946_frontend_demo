@@ -146,6 +146,8 @@ export default function App() {
           FEATURES.ADMIN_TOOLS.id,
           FEATURES.ADMIN_LANGFLOW.id,
           FEATURES.ADMIN_ACCOUNT.id,
+          FEATURES.BOT_HR.id,
+          FEATURES.BOT_SECURITY.id,
           // Add DOC system features
           ...Object.keys(FEATURES).filter(key => key.startsWith('DRAFT_') || key === 'DOC_ASSIST').map(key => FEATURES[key].id)
       ];
@@ -413,6 +415,7 @@ export default function App() {
               key !== 'DOC_ASSIST' &&
               key !== 'CORPUS_MANAGEMENT' && 
               key !== 'BOT_MANAGEMENT' &&
+              key !== 'PROMPT_OPT' &&
               !key.startsWith('ADMIN_')
             );
         } else if (currentSystem === 'BACKEND') {

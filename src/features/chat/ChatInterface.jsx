@@ -141,6 +141,7 @@ export function ChatInterface({ currentFeature, onExport, onSave, ragContext, ra
      onOpenLLMSettings,
      allowUpload: true, // Force enable for all chat inputs
      showInstructions: currentFeature.showInstructions,
+     showKB: isInteractive,
      onSendMessage: handleSendMessage
   };
 

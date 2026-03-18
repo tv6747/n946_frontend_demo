@@ -251,7 +251,9 @@ export function KBManagerPanel({
                       <div className="flex items-center gap-2 cursor-pointer" onClick={() => setIsEditingName(true)}>
                         <span className="truncate border-b border-dashed border-slate-300 hover:border-slate-500 transition-colors">{favListName}</span>
                         {/* 鉛筆按鈕常駐顯示 */}
-                        <Pencil size={14} className="text-slate-400 hover:text-blue-500 transition-colors flex-shrink-0" />
+                        {!isSelectorMode && (
+                          <Pencil size={14} className="text-slate-400 hover:text-blue-500 transition-colors flex-shrink-0" />
+                        )}
                       </div>
                     )}
                   </>
