@@ -514,8 +514,15 @@ const LOCAL_PPT_TEMPLATES = [
 ### 5. 語料庫管理 (`CORPUS_MANAGEMENT`)
 
 **管理工具**:
-- `ProperNounPanel`: 專有名詞與定義管理 (已移除函釋說明提示)
-- `SynonymPanel`: 近似詞與標準詞對應管理 (支援編輯標準詞說明)
+- `ProperNounPanel`: 專有名詞與定義管理 (已移除函釋說明提示)。
+  - 支援設定三種類型的辨識模型：
+    - Type 0 (適用所有場合)：支援全系統字詞辨識。
+    - Type 1 (檔案辨識專用)：專門處理錄音檔。
+    - Type 2 (即時辨識專用)：專門處裡即時語音轉文字。
+  - 機率值調整：支援 0 ~ 1 區間的滑桿，結合輸入框精準設定。
+- `SynonymPanel`: (原「近似詞語料庫」更名為「勘誤表管理」) 近似詞與標準詞對應管理。
+  - 將輸入欄位變更為「勘誤前詞彙」與「勘誤後詞彙」。
+  - 修正時原「勘誤前詞彙」為唯讀鎖定狀態。
 - `CorpusFeature`: 語料庫主框架
 - `ImportConflictManager`: 匯入衝突處理
 - `SynonymManager`: 同義詞管理
@@ -565,11 +572,12 @@ selectedCorpusId: 'proper_noun' | 'synonym'
 
 **其他管理模組**:
 - 專有名詞語料庫 (`ADMIN_PROPER_NOUN`): `ProperNounPanel`
-- 近似詞語料庫 (`ADMIN_SYNONYM`): `SynonymPanel`
+- 勘誤表管理 / 近似詞語料庫 (`ADMIN_SYNONYM`): `SynonymPanel`
 - 提示詞優化 (`ADMIN_PROMPT_OPT`): `PromptOptimizerInterface`
 - API 管理 (`ADMIN_APIS`): `APIManagementPanel`
 - 工具管理 (`ADMIN_TOOLS`): `ToolManagementPanel`
 - 帳號管理 (`ADMIN_ACCOUNT`): `AccountManagementPanel` + `AccountEditPanel`
+  - 後台權限設定：採用階層化 Checkbox Tree，支援單點或群集父子節點自動收合與勾選連動，並隨「系統管理員」或「已授權單位」連動權限狀態。
 - 稽核管理 (`ADMIN_AUDIT`): `AuditManagement`
   - 子檢視: `kb_logs`, `chat_records`, `stats` (支援互動查詢及日期區間過濾，統計圖表自動排除非生成式模型)
 - LangFlow (`ADMIN_LANGFLOW`): `LangFlowPanel`

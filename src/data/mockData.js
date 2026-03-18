@@ -95,18 +95,17 @@ export const CORPUS_PAGES = [
 ];
 
 export const MOCK_GLOSSARIES = [
-    { id: 1, main_term: '行動電話', description: '可隨身攜帶之無線通訊設備', category: '電子產品', created_at: '2023-01-01' },
-    { id: 2, main_term: '人工智慧', description: '由機器展示的智慧', category: '科技', created_at: '2023-02-15' },
-    { id: 3, main_term: '筆記型電腦', description: '包含螢幕與鍵盤的可攜式電腦', category: '電子產品', created_at: '2023-03-10' },
+    { id: 1, word_before: '行動電話', word_after: '手機', sync_status: 1, updated_at: '2024-03-18 10:00' },
+    { id: 2, word_before: '人工智慧', word_after: 'AI', sync_status: 0, updated_at: '2024-03-18 11:30' },
+    { id: 3, word_before: '筆記型電腦', word_after: '筆電', sync_status: 1, updated_at: '2024-03-17 09:15' },
 ];
 
-export const MOCK_SYNONYMS = [
-    { id: 1, glossary_id: 1, synonym_term: '手機', remark: '一般口語' },
-    { id: 2, glossary_id: 1, synonym_term: '手提電話', remark: '港澳用語' },
-    { id: 3, glossary_id: 2, synonym_term: 'AI', remark: '英文縮寫' },
-    { id: 4, glossary_id: 2, synonym_term: '機器智慧', remark: '學術用語' },
-    { id: 5, glossary_id: 3, synonym_term: '筆電', remark: '台灣縮寫' },
-    { id: 6, glossary_id: 3, synonym_term: 'Laptop', remark: '英文' },
+export const MOCK_SYNONYMS = [];
+
+export const MOCK_CORPUS_MODELS = [
+  { id: 'type_0', name: 'Type 0（適用所有場合）', description: '屬於通用型號，在系統的所有頁面都可以看到並選擇這個模型' },
+  { id: 'type_1', name: 'Type 1（檔案辨識專用）', description: '專門用來處理已經錄好的音檔。這個模型選項只會在「音檔上傳」或「錄音上傳」的頁面出現' },
+  { id: 'type_2', name: 'Type 2（即時辨識專用）', description: '專門用來處理即時語音轉文字。這個模型選項只會在「即時辨識」的頁面出現' },
 ];
 
 // --- New NLMA Terminology Mock Data ---
@@ -127,46 +126,38 @@ export const MOCK_TERM_DEFINITIONS = [
     { 
         id: 't1', 
         term_name: '容積率', 
-        definition: '指基地內建築物總樓地板面積與基地面積之比。', 
-        source_type: '法律',
-        source_title: '建築技術規則建築設計施工編第161條',
-        is_legal_binding: true,
-        is_current: true,
-        version_tag: '113年修訂',
-        categories: [2] // 國土署國土組國土規劃科
+        type: 'user', // user or pinyin
+        probability: 0.95,
+        sync_status: 1, // 0: 等待整合, 1: 已整合, 2: 等待刪除
+        model: 'type_0',
+        updated_at: '2024-03-18 09:30'
     },
     { 
         id: 't2', 
-        term_name: '第一種農業發展地區', 
-        definition: '指具優良農業生產環境、維持糧食安全功能或曾經投資建設重大農業改良設施之地區。', 
-        source_type: '法律',
-        source_title: '國土計畫法第20條',
-        is_legal_binding: true,
-        is_current: true,
-        version_tag: '114年通檢版',
-        categories: [1] // 國土署國土計畫組
+        term_name: '農業發展地區', 
+        type: 'user',
+        probability: 0.88,
+        sync_status: 0,
+        model: 'type_1',
+        updated_at: '2024-03-18 10:15'
     },
     { 
         id: 't3', 
         term_name: '國土使用管制', 
-        definition: '指對國土空間內各使用分區及其分類之使用行為所為之管制。', 
-        source_type: '法律', 
-        source_title: '國土計畫法施行細則第6條', 
-        is_legal_binding: true,
-        is_current: true, 
-        version_tag: '現行版',
-        categories: [5] // 國土署國土組國土管制科
+        type: 'user', 
+        probability: 0.92,
+        sync_status: 1,
+        model: 'type_2',
+        updated_at: '2024-03-17 14:20'
     },
     {
         id: 't4',
-        term_name: '特定區域計畫',
-        definition: '指為特殊需要而就特定區域所擬定之計畫。',
-        source_type: '法律',
-        source_title: '國土計畫法第3條',
-        is_legal_binding: true,
-        is_current: true,
-        version_tag: '114年修訂',
-        categories: [4] // 國土署國土組特域規劃科
+        term_name: 'guo tu shou',
+        type: 'pinyin',
+        probability: 0, // Ignored for pinyin
+        sync_status: 2,
+        model: 'all',
+        updated_at: '2024-03-16 11:00'
     }
 ];
 

@@ -266,7 +266,7 @@ export function UnifiedBackendSidebar({
                 }`}
               >
                 <FileSpreadsheet size={16} />
-                專有名詞
+                詞庫管理
               </button>
               <button
                 onClick={() => onFeatureChange('ADMIN_SYNONYM')}
@@ -277,7 +277,7 @@ export function UnifiedBackendSidebar({
                 }`}
               >
                 <FileText size={16} />
-                近似詞
+                勘誤表管理
               </button>
             </div>
           )}

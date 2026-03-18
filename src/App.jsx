@@ -610,8 +610,8 @@ export default function App() {
               if (llmSubModule === 'models') return { title: '模型管理', desc: '管理系統可用的語言模型' };
               if (llmSubModule === 'params') return { title: '模型參數管理', desc: '設定模型的運作參數與限制' };
               return { title: '語言模型管理', desc: '' };
-          case MODES.ADMIN_PROPER_NOUN: return { title: '專有名詞語料庫', desc: '維護專有名詞與定義語料庫' };
-          case MODES.ADMIN_SYNONYM: return { title: '近似詞語料庫', desc: '維護標準名詞及其對應的同義詞與變體' };
+          case MODES.ADMIN_PROPER_NOUN: return { title: '詞庫管理', desc: '維護詞庫內容與同步狀態' };
+          case MODES.ADMIN_SYNONYM: return { title: '勘誤表管理', desc: '維護字詞修正對應關係與同步狀態' };
           case MODES.ADMIN_PROMPTS: return { title: '提示詞管理', desc: '管理與優化系統提示詞' };
           case MODES.PROMPT: return { title: '提示詞優化', desc: '測試與優化提示詞效果' };
           case MODES.ADMIN_APIS: return { title: 'API 管理', desc: '管理外部服務 API 連接' };

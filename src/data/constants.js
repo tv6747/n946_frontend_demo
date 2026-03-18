@@ -40,8 +40,8 @@ export const FEATURES = {
   
   // Admin Features
   ADMIN_SERVICE: { id: 'admin_service', label: '服務管理', mode: MODES.ADMIN_SERVICE, placeholder: '' },
-  ADMIN_PROPER_NOUN: { id: 'admin_proper_noun', label: '專有名詞語料庫', mode: MODES.ADMIN_PROPER_NOUN, placeholder: '' },
-  ADMIN_SYNONYM: { id: 'admin_synonym', label: '近似詞語料庫', mode: MODES.ADMIN_SYNONYM, placeholder: '' },
+  ADMIN_PROPER_NOUN: { id: 'admin_proper_noun', label: '詞庫管理', mode: MODES.ADMIN_PROPER_NOUN, placeholder: '' },
+  ADMIN_SYNONYM: { id: 'admin_synonym', label: '勘誤表管理', mode: MODES.ADMIN_SYNONYM, placeholder: '' },
   ADMIN_MODELS: { id: 'admin_models', label: '模型管理', mode: MODES.ADMIN_MODELS, placeholder: '' },
   ADMIN_PARAMS: { id: 'admin_params', label: '模型參數管理', mode: MODES.ADMIN_PARAMS, placeholder: '' },
   ADMIN_PROMPTS: { id: 'admin_prompts', label: '提示詞管理', mode: MODES.ADMIN_PROMPTS, placeholder: '' },

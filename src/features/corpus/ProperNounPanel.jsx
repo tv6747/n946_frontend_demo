@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import { Search, Filter, ChevronDown, UploadCloud, X, Save, Plus } from 'lucide-react';
 import { TermDefinitionManager } from './TermDefinitionManager';
-import { MOCK_TERM_CATEGORIES } from '../../data/mockData';
+import { MOCK_CORPUS_MODELS } from '../../data/mockData';
 
 export function ProperNounPanel() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedType, setSelectedType] = useState('all');
+  const [selectedModel, setSelectedModel] = useState('all');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingTerm, setEditingTerm] = useState(null);
-
-  const categoryOptions = MOCK_TERM_CATEGORIES.map(c => ({ value: c.id, label: c.name }));
 
   const handleEdit = (term) => {
       setEditingTerm(term);
@@ -37,20 +36,18 @@ export function ProperNounPanel() {
   const handleAddNew = () => {
       setEditingTerm({
         term_name: '',
-        definition: '',
-        source_type: '法律',
-        source_title: '',
-        is_legal_binding: false,
-        is_current: true,
-        version_tag: '',
-        categories: []
+        type: 'user',
+        probability: 0.5,
+        sync_status: 0,
+        model: 'all',
+        updated_at: new Date().toISOString().substring(0, 16).replace('T', ' ')
       });
       setIsAddModalOpen(true);
   };
 
   const handleSaveNew = () => {
       // In a real app, this would call an API to save the new term
-      alert('新增專有名詞: ' + editingTerm.term_name);
+      alert('新增詞彙: ' + editingTerm.term_name);
       setIsAddModalOpen(false);
       setEditingTerm(null);
   };
@@ -65,41 +62,64 @@ export function ProperNounPanel() {
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                 <input 
                     type="text" 
-                    placeholder="搜尋名詞、定義內容..."
+                    placeholder="搜尋詞彙..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="w-full bg-slate-100 border-transparent focus:bg-white border focus:border-blue-500 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder:text-slate-400"
                 />
              </div>
              
-             <div className="relative min-w-[180px]">
+             <div className="relative min-w-[140px]">
                  <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 z-10 pointer-events-none" />
                  <select 
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    value={selectedType}
+                    onChange={(e) => setSelectedType(e.target.value)}
                     className="w-full appearance-none bg-white border border-slate-200 hover:border-slate-300 rounded-lg pl-9 pr-8 py-2.5 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer font-medium text-slate-600"
                  >
-                     <option value="all">所有業務範疇</option>
-                     {categoryOptions.map(opt => (
-                         <option key={opt.value} value={opt.value}>{opt.label}</option>
+                     <option value="all">所有詞庫</option>
+                     <option value="user">用戶詞庫</option>
+                     <option value="pinyin">拼音詞庫</option>
+                 </select>
+                 <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+             </div>
+
+             <div className="relative min-w-[140px]">
+                 <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 z-10 pointer-events-none" />
+                 <select 
+                    value={selectedModel}
+                    onChange={(e) => setSelectedModel(e.target.value)}
+                    className="w-full appearance-none bg-white border border-slate-200 hover:border-slate-300 rounded-lg pl-9 pr-8 py-2.5 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer font-medium text-slate-600"
+                 >
+                     <option value="all">所有模型</option>
+                     {MOCK_CORPUS_MODELS.map(opt => (
+                         <option key={opt.id} value={opt.id}>{opt.name}</option>
                      ))}
                  </select>
                  <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
              </div>
          </div>
-         <button
-            onClick={handleAddNew}
-            className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-colors shadow-sm"
-         >
-            <Plus size={16} /> 新增專有名詞
-         </button>
+         <div className="flex items-center gap-2">
+             <button
+                onClick={() => alert('已送出同步請求')}
+                className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-lg transition-colors shadow-sm"
+             >
+                <UploadCloud size={16} /> 同步至會議系統
+             </button>
+             <button
+                onClick={handleAddNew}
+                className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-colors shadow-sm"
+             >
+                <Plus size={16} /> 新增詞彙
+             </button>
+         </div>
       </header>
 
       {/* Content Area Rendering */}
       <div className="flex-1 overflow-hidden flex flex-col">
           <TermDefinitionManager 
               searchTerm={searchTerm} 
-              selectedCategory={selectedCategory}
+              selectedType={selectedType}
+              selectedModel={selectedModel}
               onEdit={handleEdit}
           />
       </div>
@@ -109,7 +129,7 @@ export function ProperNounPanel() {
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
               <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden animate-in zoom-in-95 duration-200">
                   <header className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                      <h3 className="font-bold text-slate-800 text-lg">{isAddModalOpen ? '新增專有名詞' : '編輯專有名詞'}</h3>
+                      <h3 className="font-bold text-slate-800 text-lg">{isAddModalOpen ? '新增詞彙' : '編輯詞彙'}</h3>
                       <button 
                         onClick={handleClose}
                         className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-1 rounded-full transition-colors"
@@ -121,101 +141,79 @@ export function ProperNounPanel() {
                   <div className="p-6 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
                       {/* Term Name */}
                       <div>
-                          <label className="block text-sm font-bold text-slate-700 mb-2">專有名詞</label>
+                          <label className="block text-sm font-bold text-slate-700 mb-2">詞彙</label>
                           <input 
                             type="text" 
                             value={editingTerm.term_name || ''}
                             onChange={(e) => handleFieldChange('term_name', e.target.value)}
                             className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
-                            placeholder="輸入專有名詞"
+                            placeholder="輸入詞彙"
                           />
                       </div>
 
-                      {/* Definition */}
+                      {/* Dictionary Type */}
                       <div>
-                          <label className="block text-sm font-bold text-slate-700 mb-2">定義內容</label>
-                          <textarea 
-                            value={editingTerm.definition || ''}
-                            onChange={(e) => handleFieldChange('definition', e.target.value)}
-                            rows={4}
-                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all resize-none"
-                            placeholder="輸入定義內容"
-                          />
-                      </div>
-
-                      {/* Source Title */}
-                      <div>
-                          <label className="block text-sm font-bold text-slate-700 mb-2">來源</label>
-                          <input 
-                            type="text" 
-                            value={editingTerm.source_title || ''}
-                            onChange={(e) => handleFieldChange('source_title', e.target.value)}
+                          <label className="block text-sm font-bold text-slate-700 mb-2">詞庫類型</label>
+                          <select 
+                            value={editingTerm.type || 'user'}
+                            onChange={(e) => {
+                                handleFieldChange('type', e.target.value);
+                                if (e.target.value === 'pinyin') {
+                                    handleFieldChange('probability', 0);
+                                }
+                            }}
                             className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
-                            placeholder="輸入來源"
-                          />
+                          >
+                              <option value="user">用戶詞庫</option>
+                              <option value="pinyin">拼音詞庫</option>
+                          </select>
                       </div>
 
-                      {/* Categories */}
+                      {/* Probability */}
                       <div>
-                          <label className="block text-sm font-bold text-slate-700 mb-2">分類</label>
-                          <div className="flex flex-wrap gap-2">
-                              {MOCK_TERM_CATEGORIES.map(cat => {
-                                  const isSelected = (editingTerm.categories || []).includes(cat.id);
-                                  return (
-                                      <button
-                                          key={cat.id}
-                                          onClick={() => {
-                                              const currentCats = editingTerm.categories || [];
-                                              const newCats = isSelected 
-                                                  ? currentCats.filter(c => c !== cat.id)
-                                                  : [...currentCats, cat.id];
-                                              handleFieldChange('categories', newCats);
-                                          }}
-                                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                                              isSelected 
-                                                  ? 'bg-blue-100 text-blue-700 border-2 border-blue-300' 
-                                                  : 'bg-slate-100 text-slate-600 border-2 border-transparent hover:border-slate-300'
-                                          }`}
-                                      >
-                                          {cat.name}
-                                      </button>
-                                  );
-                              })}
+                          <div className="flex justify-between items-center mb-2">
+                              <label className="block text-sm font-bold text-slate-700">機率</label>
+                              <span className="text-sm font-mono text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                                  {editingTerm.probability.toFixed(2)}
+                              </span>
+                          </div>
+                          <div className="flex items-center gap-4">
+                              <input 
+                                type="range" 
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                value={editingTerm.probability}
+                                onChange={(e) => handleFieldChange('probability', parseFloat(e.target.value))}
+                                disabled={editingTerm.type === 'pinyin'}
+                                className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                              />
+                              <input 
+                                type="number" 
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                value={editingTerm.probability}
+                                onChange={(e) => handleFieldChange('probability', parseFloat(e.target.value))}
+                                disabled={editingTerm.type === 'pinyin'}
+                                className="w-20 px-3 py-1.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all disabled:bg-slate-100 disabled:text-slate-400"
+                              />
                           </div>
                       </div>
-
-                      {/* Version Tag */}
+                      
+                      {/* Model */}
                       <div>
-                          <label className="block text-sm font-bold text-slate-700 mb-2">版本標籤</label>
-                          <input 
-                            type="text" 
-                            value={editingTerm.version_tag || ''}
-                            onChange={(e) => handleFieldChange('version_tag', e.target.value)}
-                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all font-mono"
-                            placeholder="例如: v1.0.0"
-                          />
-                      </div>
-
-                      {/* Toggles */}
-                      <div className="space-y-3 pt-2">
-                          <label className="flex items-center gap-3 cursor-pointer">
-                              <input 
-                                type="checkbox" 
-                                checked={!!editingTerm.is_legal_binding}
-                                onChange={(e) => handleFieldChange('is_legal_binding', e.target.checked)}
-                                className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-200"
-                              />
-                              <span className="text-sm font-medium text-slate-700">法定用語</span>
-                          </label>
-                          <label className="flex items-center gap-3 cursor-pointer">
-                              <input 
-                                type="checkbox" 
-                                checked={!!editingTerm.is_current}
-                                onChange={(e) => handleFieldChange('is_current', e.target.checked)}
-                                className="w-5 h-5 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-200"
-                              />
-                              <span className="text-sm font-medium text-slate-700">現行版本</span>
-                          </label>
+                          <label className="block text-sm font-bold text-slate-700 mb-2">模型 (可選)</label>
+                          <select 
+                            value={editingTerm.model || 'all'}
+                            onChange={(e) => handleFieldChange('model', e.target.value)}
+                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
+                          >
+                              <option value="all">所有模型</option>
+                              {MOCK_CORPUS_MODELS.map(opt => (
+                                  <option key={opt.id} value={opt.id}>{opt.name}</option>
+                              ))}
+                          </select>
                       </div>
                   </div>
 

@@ -1,20 +1,20 @@
 import React, { useMemo } from 'react';
 import { Search, BookOpen, Tag, AlertCircle, Edit2, Trash2 } from 'lucide-react';
-import { MOCK_TERM_DEFINITIONS, MOCK_TERM_CATEGORIES, MOCK_TERM_ANNOTATIONS } from '../../data/mockData';
+import { MOCK_TERM_DEFINITIONS, MOCK_CORPUS_MODELS } from '../../data/mockData';
 
-export function TermDefinitionManager({ searchTerm, selectedCategory, onEdit }) {
+export function TermDefinitionManager({ searchTerm, selectedType, selectedModel, onEdit }) {
   // Filter Data
   const filteredData = useMemo(() => {
     return MOCK_TERM_DEFINITIONS.filter(term => {
-      const matchSearch = term.term_name.includes(searchTerm) || term.definition.includes(searchTerm);
-      const matchCategory = selectedCategory === 'all' || term.categories.includes(parseInt(selectedCategory));
-      return matchSearch && matchCategory;
+      const matchSearch = term.term_name.includes(searchTerm);
+      const matchType = selectedType === 'all' || term.type === selectedType;
+      const matchModel = selectedModel === 'all' || term.model === 'all' || term.model === selectedModel;
+      return matchSearch && matchType && matchModel;
     }).map(term => ({
         ...term,
-        categoryDetails: term.categories.map(catId => MOCK_TERM_CATEGORIES.find(c => c.id === catId)),
-        annotations: MOCK_TERM_ANNOTATIONS.filter(a => a.term_id === term.id)
+        modelDetails: MOCK_CORPUS_MODELS.find(m => m.id === term.model)
     }));
-  }, [searchTerm, selectedCategory]);
+  }, [searchTerm, selectedType, selectedModel]);
 
   return (
     <div className="flex flex-col h-full bg-slate-50 w-full">
@@ -26,10 +26,11 @@ export function TermDefinitionManager({ searchTerm, selectedCategory, onEdit }) 
             <table className="w-full text-left text-sm">
                 <thead>
                     <tr className="bg-slate-50 border-b border-slate-200 text-slate-500">
-                        <th className="px-6 py-3 font-medium w-1/5">專有名詞</th>
-                        <th className="px-6 py-3 font-medium w-2/5">定義內容</th>
-                        <th className="px-6 py-3 font-medium w-1/6">來源 / 分類</th>
-                        <th className="px-6 py-3 font-medium w-1/6">狀態 / 版本</th>
+                        <th className="px-6 py-3 font-medium w-1/5">詞彙</th>
+                        <th className="px-6 py-3 font-medium w-1/5">詞庫類型</th>
+                        <th className="px-6 py-3 font-medium w-1/6">機率</th>
+                        <th className="px-6 py-3 font-medium w-1/6">同步狀態</th>
+                        <th className="px-6 py-3 font-medium w-1/6">更新時間</th>
                         <th className="px-6 py-3 font-medium text-right">操作</th>
                     </tr>
                 </thead>
@@ -37,44 +38,44 @@ export function TermDefinitionManager({ searchTerm, selectedCategory, onEdit }) 
                     {filteredData.map((term) => (
                         <tr key={term.id} className="group hover:bg-slate-50 transition-colors">
                             <td className="px-6 py-4 align-top">
-                                <div className="font-bold text-slate-800 text-base flex items-center gap-2 flex-wrap">
-                                    {term.term_name}
-                                    {term.is_legal_binding && (
-                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100 uppercase tracking-wide">
-                                            <AlertCircle size={10} className="fill-current" /> 法定
-                                        </span>
-                                    )}
-                                    {!term.is_current && (
-                                        <span className="inline-flex px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold border border-slate-200">
-                                            非現行
-                                        </span>
-                                    )}
-                                </div>
+                                <div className="font-bold text-slate-800 text-base">{term.term_name}</div>
                             </td>
                             <td className="px-6 py-4 align-top">
-                                <div className="text-sm text-slate-700 leading-relaxed line-clamp-3" title={term.definition}>
-                                    {term.definition}
-                                </div>
-
-                            </td>
-                            <td className="px-6 py-4 align-top">
-                                <div className="space-y-2">
-                                    <div className="flex items-center gap-1.5 text-xs">
-                                        <BookOpen size={12} className="text-blue-500"/>
-                                        <span className="font-medium text-slate-700">{term.source_title}</span>
+                                <div className="space-y-1">
+                                    <div className="text-sm font-medium text-slate-700">
+                                        {term.type === 'user' ? '用戶詞庫' : '拼音詞庫'}
                                     </div>
-                                    <div className="flex flex-wrap gap-1">
-                                        {term.categoryDetails.map((c, idx) => (
-                                            <span key={idx} className="inline-block px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-500 border border-slate-200">
-                                                {c.name}
-                                            </span>
-                                        ))}
+                                    <div className="text-xs text-slate-500 flex items-center gap-1">
+                                        <Tag size={12} className="text-slate-400" />
+                                        {term.modelDetails ? term.modelDetails.name : '適用於所有模型'}
                                     </div>
                                 </div>
                             </td>
                             <td className="px-6 py-4 align-top">
-                                <div className="font-mono text-slate-600 text-xs bg-slate-50 px-2 py-1 rounded border border-slate-100 inline-block">
-                                    {term.version_tag}
+                                <div className="text-sm text-slate-700 font-mono">
+                                    {term.type === 'pinyin' ? '-' : term.probability.toFixed(2)}
+                                </div>
+                            </td>
+                            <td className="px-6 py-4 align-top">
+                                {term.sync_status === 0 && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-bold border border-amber-200">
+                                        等待整合
+                                    </span>
+                                )}
+                                {term.sync_status === 1 && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
+                                        已整合
+                                    </span>
+                                )}
+                                {term.sync_status === 2 && (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-50 text-red-700 text-xs font-bold border border-red-200">
+                                        等待刪除
+                                    </span>
+                                )}
+                            </td>
+                            <td className="px-6 py-4 align-top">
+                                <div className="font-mono text-slate-600 text-sm">
+                                    {term.updated_at}
                                 </div>
                             </td>
                             <td className="px-6 py-4 align-top text-right">

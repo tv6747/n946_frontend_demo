@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, ChevronsRight, Check, X, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Save, ChevronsRight, Check, X, HelpCircle, Search as SearchIcon, ChevronDown, ChevronRight } from 'lucide-react';
 import { MOCK_TERM_CATEGORIES, MOCK_USERS } from '../../data/mockData';
+
+export const ALL_BACKEND_PERMISSIONS = [
+  { id: 'grp_account', label: '帳號管理', children: [{ id: 'bp_account', label: '帳號管理' }] },
+  { id: 'grp_service', label: '服務管理', children: [{ id: 'bp_app', label: '應用管理' }, { id: 'bp_bot', label: '答詢機器人管理' }] },
+  { id: 'grp_model', label: '語言模型管理', children: [{ id: 'bp_model_mgr', label: '模型管理' }, { id: 'bp_model_param', label: '模型參數管理' }] },
+  { id: 'grp_prompt', label: '提示詞', children: [{ id: 'bp_prompt_mgr', label: '提示詞管理' }, { id: 'bp_prompt_opt', label: '提示詞優化' }] },
+  { id: 'grp_tool', label: '工具管理', children: [{ id: 'bp_tool', label: '工具管理' }] },
+  { id: 'grp_corpus', label: '語料庫管理', children: [{ id: 'bp_dict', label: '詞庫管理' }, { id: 'bp_errata', label: '勘誤表管理' }] },
+  { id: 'grp_api', label: 'API 管理', children: [{ id: 'bp_api', label: 'API 管理' }] },
+  { id: 'grp_audit', label: '稽核管理', children: [{ id: 'bp_audit_op', label: '操作紀錄' }, { id: 'bp_audit_chat', label: '對話紀錄' }, { id: 'bp_audit_stat', label: '統計圖表' }, { id: 'bp_audit_kb', label: '知識庫統計' }] }
+];
 
 export function AccountEditPanel({ account, onSave, onCancel }) {
   const isNew = !account || account === 'NEW';
@@ -14,11 +25,22 @@ export function AccountEditPanel({ account, onSave, onCancel }) {
     note: '',
     isAdmin: false,
     permissionUnits: [], // [{deptId, isAdmin}]
+    backendPermissions: [], // string[] of permission ids
     createdAt: new Date().toISOString().split('T')[0],
     updatedAt: new Date().toISOString().split('T')[0],
   });
 
   const [selectedAvailableDeptIds, setSelectedAvailableDeptIds] = useState([]);
+  
+  // Backend Permissions State
+  const [permSearchTerm, setPermSearchTerm] = useState('');
+  const [expandedPerms, setExpandedPerms] = useState(
+    ALL_BACKEND_PERMISSIONS.reduce((acc, p) => ({ ...acc, [p.id]: true }), {})
+  );
+
+  const toggleExpand = (parentId) => {
+    setExpandedPerms(prev => ({ ...prev, [parentId]: !prev[parentId] }));
+  };
 
   useEffect(() => {
     if (account && account !== 'NEW') {
@@ -26,6 +48,7 @@ export function AccountEditPanel({ account, onSave, onCancel }) {
         ...account,
         isAdmin: !!account.isAdmin,
         permissionUnits: account.permissionUnits || [],
+        backendPermissions: account.backendPermissions || [],
       });
     }
   }, [account]);
@@ -107,6 +130,51 @@ export function AccountEditPanel({ account, onSave, onCancel }) {
   const getDeptName = (id) => {
     const dept = MOCK_USERS.find(u => u.id === id);
     return dept ? dept.name : '(未知)';
+  };
+
+  // --- Backend Permissions logic ---
+  const isBackendPermsEnabled = formData.isAdmin || formData.permissionUnits.length > 0;
+
+  // Filtering logic for tree
+  const filteredTree = ALL_BACKEND_PERMISSIONS.map(parent => {
+    const parentMatches = parent.label.toLowerCase().includes(permSearchTerm.toLowerCase());
+    const matchedChildren = parent.children.filter(child => 
+      child.label.toLowerCase().includes(permSearchTerm.toLowerCase())
+    );
+    
+    if (parentMatches) {
+        return parent; // Include all children if parent matches search
+    }
+    if (matchedChildren.length > 0) {
+        return { ...parent, children: matchedChildren }; 
+    }
+    return null;
+  }).filter(Boolean);
+
+  const handleToggleParent = (parent) => {
+    const childIds = parent.children.map(c => c.id);
+    const allChecked = childIds.every(id => formData.backendPermissions.includes(id));
+    
+    setFormData(prev => {
+        let newPerms = [...prev.backendPermissions];
+        if (allChecked) {
+            newPerms = newPerms.filter(id => !childIds.includes(id));
+        } else {
+            childIds.forEach(id => {
+                if (!newPerms.includes(id)) newPerms.push(id);
+            });
+        }
+        return { ...prev, backendPermissions: newPerms };
+    });
+  };
+
+  const handleToggleChild = (childId) => {
+      setFormData(prev => {
+          const newPerms = prev.backendPermissions.includes(childId)
+              ? prev.backendPermissions.filter(id => id !== childId)
+              : [...prev.backendPermissions, childId];
+          return { ...prev, backendPermissions: newPerms };
+      });
   };
 
   return (
@@ -372,6 +440,127 @@ export function AccountEditPanel({ account, onSave, onCancel }) {
                         </div>
                     </div>
                      </div>
+                </div>
+            </div>
+
+            {/* Section 4.5: Backend Permissions - Hierarchical Tree */}
+            <div className={`space-y-4 transition-all ${!isBackendPermsEnabled ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
+                <div className="flex items-center gap-2 mb-1">
+                    <label className="block text-sm font-semibold text-slate-700">後台權限</label>
+                    <div className="group relative cursor-help">
+                        <HelpCircle size={14} className="text-slate-400 hover:text-blue-500 transition-colors" />
+                        <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-2 bg-slate-800 text-white text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20">
+                            只有當身分為「系統管理員」或「已授權單位」有選擇單位時，才可以設定此後台權限。
+                            <div className="absolute left-1/2 -translate-x-1/2 top-full border-4 border-transparent border-t-slate-800"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[380px]">
+                    <div className="p-3 border-b border-slate-200 bg-slate-50 flex flex-col gap-3">
+                        <div className="relative">
+                            <SearchIcon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                            <input
+                                type="text"
+                                placeholder="搜尋權限名稱..."
+                                value={permSearchTerm}
+                                onChange={(e) => setPermSearchTerm(e.target.value)}
+                                className="w-full pl-9 pr-4 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                            />
+                        </div>
+                    </div>
+                    
+                    <div className="flex-1 overflow-y-auto custom-scrollbar p-5">
+                        {filteredTree.length === 0 ? (
+                            <div className="text-center py-10 text-slate-400 text-sm">無符合的權限</div>
+                        ) : (
+                            <div className="space-y-6">
+                                {filteredTree.map(parent => {
+                                    // Rule: if parent label == child label (single level), display as single level
+                                    const isSingleLevel = parent.children.length === 1 && parent.label === parent.children[0].label;
+                                    const childIds = parent.children.map(c => c.id);
+                                    const checkedCount = childIds.filter(id => formData.backendPermissions.includes(id)).length;
+                                    const allChecked = checkedCount === childIds.length;
+                                    const someChecked = checkedCount > 0 && !allChecked;
+                                    
+                                    if (isSingleLevel) {
+                                        const singleChildId = parent.children[0].id;
+                                        const isChecked = formData.backendPermissions.includes(singleChildId);
+                                        return (
+                                            <div key={parent.id} className="flex items-center gap-3">
+                                                <div 
+                                                    onClick={() => handleToggleChild(singleChildId)}
+                                                    className={`w-5 h-5 rounded border flex items-center justify-center cursor-pointer transition-colors ${isChecked ? 'bg-blue-600 border-blue-600' : 'bg-white border-slate-300 hover:border-blue-400'}`}
+                                                >
+                                                    {isChecked && <Check size={14} className="text-white stroke-[3]" />}
+                                                </div>
+                                                <span 
+                                                    className="text-[15px] font-semibold text-slate-700 cursor-pointer select-none"
+                                                    onClick={() => handleToggleChild(singleChildId)}
+                                                >
+                                                    {parent.label}
+                                                </span>
+                                            </div>
+                                        );
+                                    }
+
+                                    return (
+                                        <div key={parent.id} className="space-y-3">
+                                            {/* Parent Checkbox */}
+                                            <div className="flex items-center gap-2">
+                                                <div 
+                                                    onClick={() => handleToggleParent(parent)}
+                                                    className={`w-5 h-5 rounded border flex items-center justify-center cursor-pointer transition-colors ${allChecked ? 'bg-blue-600 border-blue-600' : someChecked ? 'bg-blue-100 border-blue-600' : 'bg-white border-slate-300 hover:border-blue-400'}`}
+                                                >
+                                                    {allChecked && <Check size={14} className="text-white stroke-[3]" />}
+                                                    {someChecked && <div className="w-2.5 h-0.5 bg-blue-600 rounded"></div>}
+                                                </div>
+                                                
+                                                <div 
+                                                    onClick={() => toggleExpand(parent.id)}
+                                                    className="w-5 h-5 flex items-center justify-center cursor-pointer text-slate-400 hover:text-slate-600 transition-colors"
+                                                >
+                                                    {expandedPerms[parent.id] ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                                                </div>
+                                                <span 
+                                                    className="text-[15px] font-semibold text-slate-700 cursor-pointer select-none"
+                                                    onClick={() => handleToggleParent(parent)}
+                                                >
+                                                    {parent.label}
+                                                </span>
+                                            </div>
+                                            
+                                            {/* Children Checkboxes */}
+                                            {expandedPerms[parent.id] && (
+                                                <div className="pl-12 space-y-3">
+                                                    {parent.children.map(child => {
+                                                        const isChecked = formData.backendPermissions.includes(child.id);
+                                                        return (
+                                                            <div key={child.id} className="flex items-center gap-3">
+                                                                <div className="w-4 h-px bg-slate-300"></div>
+                                                                <div 
+                                                                    onClick={() => handleToggleChild(child.id)}
+                                                                    className={`w-[18px] h-[18px] rounded border flex items-center justify-center cursor-pointer transition-colors ${isChecked ? 'bg-blue-600 border-blue-600' : 'bg-white border-slate-300 hover:border-blue-400'}`}
+                                                                >
+                                                                    {isChecked && <Check size={12} className="text-white stroke-[3]" />}
+                                                                </div>
+                                                                <span 
+                                                                    className="text-sm text-slate-600 cursor-pointer select-none"
+                                                                    onClick={() => handleToggleChild(child.id)}
+                                                                >
+                                                                    {child.label}
+                                                                </span>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
             
