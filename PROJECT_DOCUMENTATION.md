@@ -546,14 +546,23 @@ selectedCorpusId: 'proper_noun' | 'synonym'
 
 #### ApplicationConfigPanel 預設設定 (分頁式設計)
 
-與 `BotConfigPanel` 相同的分頁式區塊結構，但選取邏輯有所不同：
+與 `BotConfigPanel` 區塊結構相似，但針對 `LLM_CHAT_CHAIN` (生成預覽對話) 的模式 (對話 vs Canvas) 提供兩種不同選取邏輯：
 
+**1. 對話模式 (Chat Mode) / 一般流程**
 | 分頁 | 選取邏輯 | 說明 |
 |------|---------|------|
 | **語言模型** | 多選 (Checkbox) + ⭐ 星號預設 | 可選取多個模型 (自動排除 Embedding 類型)，透過星號標記預設模型 |
-| **參數** | 單選 (Radio) | 僅可設定一組參數 |
+| **參數** | 多選 (Checkbox) + ⭐ 星號預設 | 可選取多組參數，透過星號標記預設參數 |
 | **提示詞** | 多選 (Checkbox) + ⭐ 星號預設 | 可選取多個提示詞，透過星號標記預設 |
-| **工具** | 多選 (Checkbox) + 啟用開關 | 可啟用多個工具，含 `defaultOn` 切換 |
+| **工具** | 多選 (Checkbox) + 啟用開關 | 可啟用多個工具庫元件，含 `defaultOn` 切換 |
+
+**2. Canvas 模式 (Canvas Mode)**
+| 分頁 | 選取邏輯 | 說明 |
+|------|---------|------|
+| **語言模型** | 單選 (Radio 行為) | 僅可設定一個模型（會自動覆寫舊設定並作為預設） |
+| **參數** | 單選 (Radio 行為) | 僅可設定一組參數 |
+| **提示詞** | 單選 (Radio 行為) | 僅可設定一個提示詞 |
+| **功能** | 多選 (Checkbox List) | 原本的「工具」標籤變更為「功能」，改為勾選特定 Canvas 專屬功能 (例如：儲存 Canvas 結果、下載附件等)，採左右兩欄網格排列。 |
 
 #### 5. 檢索設定 (Retrieval Settings)
 在 `ApplicationConfigPanel` 與 `BotConfigPanel` 的「功能設定」區塊採用左右兩欄佈局：

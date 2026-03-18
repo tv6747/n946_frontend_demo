@@ -1,10 +1,19 @@
 import React, { useState, useMemo } from 'react';
 import { 
-    LayoutGrid, Trash2, Save, ArrowLeft, ChevronsRight, Check, Cpu, Users, Plus, X, Star, Wrench, MessageSquare, Settings, HelpCircle
+    LayoutGrid, Trash2, Save, ArrowLeft, ChevronsRight, Check, Cpu, Plus, X, Star, Wrench, MessageSquare, Settings, HelpCircle,
+    Download, Copy, ArrowUpRight, FolderDown
 } from 'lucide-react';
 import { MOCK_LLM_MODELS, MOCK_LLM_PARAMS, MOCK_LLM_PROMPTS } from '../../data/mockLLMData';
 import { MOCK_TOOLS } from '../../data/mockToolData';
 import { MOCK_USERS } from '../../data/mockData';
+
+const CANVAS_FEATURES = [
+    { id: 'isSave', label: '儲存 Canvas 結果', icon: Save },
+    { id: 'isCopy', label: '複製 Canvas 結果', icon: Copy },
+    { id: 'isDownload', label: '下載 Canvas 結果', icon: Download },
+    { id: 'isAppendix', label: '下載附件', icon: FolderDown },
+    { id: 'isReturn', label: '傳回公文系統', icon: ArrowUpRight }
+];
 
 export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, onCreateApp, onDeleteApp, onBack }) {
   if (!app) return null;
@@ -52,7 +61,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
   const [selectedAvailablePromptIds, setSelectedAvailablePromptIds] = useState([]); // New state for prompts
   const [selectedAvailableToolIds, setSelectedAvailableToolIds] = useState([]); // New state for tools
   const [selectedAvailableUserIds, setSelectedAvailableUserIds] = useState([]);
-  const [selectedAvailableParamId, setSelectedAvailableParamId] = useState(null); // Single-select for params
+  const [selectedAvailableParamIds, setSelectedAvailableParamIds] = useState([]); // Array for multi-select params
 
   const filteredUsers = users.filter(u => u.name.includes(userSearch));
   const enabledModels = MOCK_LLM_MODELS.filter(m => m.status === 'active' && m.type !== 'embedding');
@@ -66,6 +75,9 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
   const modeTools = settingsMode === 'chat' ? (formData.tools || []) : (formData.settings?.canvas?.tools || []);
   const modeAvailablePrompts = settingsMode === 'chat' ? (formData.availablePrompts || []) : (formData.settings?.canvas?.availablePrompts || []);
   const modeDefaultPromptId = settingsMode === 'chat' ? formData.defaultPromptId : (formData.settings?.canvas?.defaultPromptId || '');
+  const modeAvailableParams = settingsMode === 'chat' ? (formData.availableParams || (modeDefaultSettings.paramId ? [modeDefaultSettings.paramId] : [])) : (formData.settings?.canvas?.availableParams || (modeDefaultSettings.paramId ? [modeDefaultSettings.paramId] : []));
+  const modeDefaultParamId = settingsMode === 'chat' ? formData.defaultParamId || modeDefaultSettings.paramId : (formData.settings?.canvas?.defaultParamId || modeDefaultSettings.paramId || '');
+  const modeFeatures = formData.settings?.canvas?.features || [];
 
 
   // Mode-aware change helper: writes to flat fields for chat, nested settings.canvas for canvas
@@ -81,24 +93,39 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
 
   // Transfer List Handlers for Models
   const toggleAvailableModelSelection = (id) => {
-    if (selectedAvailableModelIds.includes(id)) {
-        setSelectedAvailableModelIds(prev => prev.filter(mid => mid !== id));
+    if (settingsMode === 'canvas') {
+        setSelectedAvailableModelIds(selectedAvailableModelIds.includes(id) ? [] : [id]);
     } else {
-        setSelectedAvailableModelIds(prev => [...prev, id]);
+        if (selectedAvailableModelIds.includes(id)) {
+            setSelectedAvailableModelIds(prev => prev.filter(mid => mid !== id));
+        } else {
+            setSelectedAvailableModelIds(prev => [...prev, id]);
+        }
     }
   };
 
   const handleAddModelsToApp = () => {
     if (selectedAvailableModelIds.length === 0) return;
-    const currentModels = modeAvailableModels;
-    const newModelsToAdd = selectedAvailableModelIds.filter(id => !currentModels.includes(id));
-    if (newModelsToAdd.length > 0) {
-        handleModeFieldChange({ availableModels: [...currentModels, ...newModelsToAdd] });
+    if (settingsMode === 'canvas') {
+        const selectedId = selectedAvailableModelIds[0];
+        handleModeFieldChange({ 
+            availableModels: [selectedId],
+            defaultModelId: selectedId,
+            defaultSettings: { ...modeDefaultSettings, modelId: selectedId }
+        });
         setSelectedAvailableModelIds([]);
+    } else {
+        const currentModels = modeAvailableModels;
+        const newModelsToAdd = selectedAvailableModelIds.filter(id => !currentModels.includes(id));
+        if (newModelsToAdd.length > 0) {
+            handleModeFieldChange({ availableModels: [...currentModels, ...newModelsToAdd] });
+            setSelectedAvailableModelIds([]);
+        }
     }
   };
 
   const handleAddAllModels = () => {
+    if (settingsMode === 'canvas') return;
     const currentModels = modeAvailableModels;
     const allEnabledIds = enabledModels.map(m => m.id);
     const newModelsToAdd = allEnabledIds.filter(id => !currentModels.includes(id));
@@ -131,24 +158,39 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
 
   // Transfer List Handlers for Prompts
   const toggleAvailablePromptSelection = (id) => {
-    if (selectedAvailablePromptIds.includes(id)) {
-        setSelectedAvailablePromptIds(prev => prev.filter(pid => pid !== id));
+    if (settingsMode === 'canvas') {
+        setSelectedAvailablePromptIds(selectedAvailablePromptIds.includes(id) ? [] : [id]);
     } else {
-        setSelectedAvailablePromptIds(prev => [...prev, id]);
+        if (selectedAvailablePromptIds.includes(id)) {
+            setSelectedAvailablePromptIds(prev => prev.filter(pid => pid !== id));
+        } else {
+            setSelectedAvailablePromptIds(prev => [...prev, id]);
+        }
     }
   };
 
   const handleAddPromptsToApp = () => {
     if (selectedAvailablePromptIds.length === 0) return;
-    const currentPrompts = modeAvailablePrompts;
-    const newPromptsToAdd = selectedAvailablePromptIds.filter(id => !currentPrompts.includes(id));
-    if (newPromptsToAdd.length > 0) {
-        handleModeFieldChange({ availablePrompts: [...currentPrompts, ...newPromptsToAdd] });
+    if (settingsMode === 'canvas') {
+        const selectedId = selectedAvailablePromptIds[0];
+        handleModeFieldChange({ 
+            availablePrompts: [selectedId],
+            defaultPromptId: selectedId,
+            defaultSettings: { ...modeDefaultSettings, promptId: selectedId }
+        });
         setSelectedAvailablePromptIds([]);
+    } else {
+        const currentPrompts = modeAvailablePrompts;
+        const newPromptsToAdd = selectedAvailablePromptIds.filter(id => !currentPrompts.includes(id));
+        if (newPromptsToAdd.length > 0) {
+            handleModeFieldChange({ availablePrompts: [...currentPrompts, ...newPromptsToAdd] });
+            setSelectedAvailablePromptIds([]);
+        }
     }
   };
 
   const handleAddAllPrompts = () => {
+    if (settingsMode === 'canvas') return;
     const currentPrompts = modeAvailablePrompts;
     const allIds = enabledPrompts.map(p => p.id);
     const newPromptsToAdd = allIds.filter(id => !currentPrompts.includes(id));
@@ -227,13 +269,82 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
       handleModeFieldChange({ tools: newTools });
   };
 
-  // Single-select handler for Params
-  const handleSetParamToApp = () => {
-      if (!selectedAvailableParamId) return;
-      handleModeFieldChange({ defaultSettings: { ...modeDefaultSettings, paramId: selectedAvailableParamId } });
-      setSelectedAvailableParamId(null);
+  // Transfer List Handlers for Params
+  const toggleAvailableParamSelection = (id) => {
+      if (settingsMode === 'canvas') {
+          setSelectedAvailableParamIds(selectedAvailableParamIds.includes(id) ? [] : [id]);
+      } else {
+          if (selectedAvailableParamIds.includes(id)) {
+              setSelectedAvailableParamIds(prev => prev.filter(pid => pid !== id));
+          } else {
+              setSelectedAvailableParamIds(prev => [...prev, id]);
+          }
+      }
   };
-  const handleClearParam = () => handleModeFieldChange({ defaultSettings: { ...modeDefaultSettings, paramId: '' } });
+
+  const handleAddParamsToApp = () => {
+      if (selectedAvailableParamIds.length === 0) return;
+      if (settingsMode === 'canvas') {
+          const selectedId = selectedAvailableParamIds[0];
+          handleModeFieldChange({ 
+              availableParams: [selectedId],
+              defaultParamId: selectedId,
+              defaultSettings: { ...modeDefaultSettings, paramId: selectedId }
+          });
+          setSelectedAvailableParamIds([]);
+      } else {
+          const currentParams = modeAvailableParams;
+          const newParamsToAdd = selectedAvailableParamIds.filter(id => !currentParams.includes(id));
+          if (newParamsToAdd.length > 0) {
+              handleModeFieldChange({ availableParams: [...currentParams, ...newParamsToAdd] });
+              setSelectedAvailableParamIds([]);
+          }
+      }
+  };
+
+  const handleAddAllParams = () => {
+      if (settingsMode === 'canvas') return;
+      const currentParams = modeAvailableParams;
+      const allIds = MOCK_LLM_PARAMS.map(p => p.id);
+      const newParamsToAdd = allIds.filter(id => !currentParams.includes(id));
+      if (newParamsToAdd.length > 0) {
+          handleModeFieldChange({ availableParams: [...currentParams, ...newParamsToAdd] });
+      }
+  };
+
+  const handleRemoveParam = (paramId) => {
+      const currentParams = modeAvailableParams;
+      const newParams = currentParams.filter(id => id !== paramId);
+      
+      if (modeDefaultParamId === paramId && newParams.length > 0) {
+          handleModeFieldChange({ 
+              availableParams: newParams,
+              defaultParamId: newParams[0],
+              defaultSettings: { ...modeDefaultSettings, paramId: newParams[0] }
+          });
+      } else {
+          handleModeFieldChange({ 
+              availableParams: newParams,
+              ...(modeDefaultParamId === paramId && { defaultParamId: '', defaultSettings: { ...modeDefaultSettings, paramId: '' } })
+          });
+      }
+  };
+
+  const handleSetDefaultParam = (paramId) => {
+      handleModeFieldChange({ 
+          defaultParamId: paramId,
+          defaultSettings: { ...modeDefaultSettings, paramId: paramId }
+      });
+  };
+
+  // Canvas Feature toggle
+  const handleToggleCanvasFeature = (featureId) => {
+      const currentFeatures = modeFeatures;
+      const newFeatures = currentFeatures.includes(featureId)
+          ? currentFeatures.filter(f => f !== featureId)
+          : [...currentFeatures, featureId];
+      handleModeFieldChange({ features: newFeatures });
+  };
 
   // Transfer List Handlers for Users
   const toggleAvailableUserSelection = (id) => {
@@ -561,7 +672,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                               {/* Top Reranker */}
                               <div className="space-y-2">
                                   <div className="flex justify-between items-center">
-                                      <span className="text-xs text-slate-500">最終結果數量(Top Reranker)</span>
+                                      <span className="text-xs text-slate-500">最終結果數量(Top Rerank)</span>
                                       <span className="text-xs font-mono font-medium text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">
                                           {formData.featureSettings?.topReranker ?? 5}
                                       </span>
@@ -686,7 +797,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                    </div>)}
                </div>
               <div className="flex border-b border-slate-200 px-6">
-                  {[{ key: 'model', label: '語言模型' }, { key: 'params', label: '參數' }, { key: 'prompt', label: '提示詞' }, { key: 'tools', label: '工具' }].map(tab => (
+                  {[{ key: 'model', label: '語言模型' }, { key: 'params', label: '參數' }, { key: 'prompt', label: '提示詞' }, { key: 'tools', label: settingsMode === 'canvas' ? '功能' : '工具' }].map(tab => (
                       <button key={tab.key} onClick={() => setDefaultSettingsTab(tab.key)}
                           className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${defaultSettingsTab === tab.key ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
                           {tab.label}
@@ -731,10 +842,12 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                               className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed" title="新增選取的項目">
                               <ChevronsRight size={18} />
                           </button>
-                          <button onClick={handleAddAllModels}
-                              className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all text-xs font-bold" title="新增全部">
-                              全部
-                          </button>
+                          {settingsMode !== 'canvas' && (
+                              <button onClick={handleAddAllModels}
+                                  className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all text-xs font-bold" title="新增全部">
+                                  全部
+                              </button>
+                          )}
                       </div>
                       <div className="flex-1 flex flex-col min-w-0">
                           <div className="p-3 border-b border-slate-100 bg-purple-50/30 flex justify-between items-center">
@@ -754,10 +867,10 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                                               <div className="flex items-center gap-2 min-w-0 flex-1">
                                                   <div className="w-6 h-6 rounded-full bg-purple-200 text-purple-700 flex items-center justify-center"><Cpu size={12} /></div>
                                                   <span className="text-sm font-medium text-slate-700 truncate">{model.name}</span>
-                                                  {isDefault && <Star size={14} className="text-yellow-500 fill-yellow-500 flex-shrink-0" />}
+                                                  {(isDefault && settingsMode !== 'canvas') && <Star size={14} className="text-yellow-500 fill-yellow-500 flex-shrink-0" />}
                                               </div>
                                               <div className="flex items-center gap-1">
-                                                  {!isDefault && (
+                                                  {(!isDefault && settingsMode !== 'canvas') && (
                                                       <button onClick={() => handleSetDefaultModel(modelId)} className="p-1 text-slate-400 hover:text-yellow-500 hover:bg-yellow-50 rounded transition-all opacity-0 group-hover:opacity-100" title="設為預設模型"><Star size={14} /></button>
                                                   )}
                                                   <button onClick={() => handleRemoveModel(modelId)} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"><X size={14} /></button>
@@ -770,7 +883,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                       </div>
                   </>)}
 
-                  {/* ===== Params Tab (Single Select) ===== */}
+                  {/* ===== Params Tab (Multi Select + Star Default) ===== */}
                   {defaultSettingsTab === 'params' && (<>
                       <div className="flex-1 flex flex-col min-w-0 border-r border-slate-100">
                           <div className="p-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
@@ -780,13 +893,13 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                           <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
                               <div className="space-y-1">
                                   {MOCK_LLM_PARAMS.map(param => {
-                                      const isSelected = selectedAvailableParamId === param.id;
-                                      const isCurrent = modeDefaultSettings?.paramId === param.id;
+                                      const isSelected = selectedAvailableParamIds.includes(param.id);
+                                      const isAdded = modeAvailableParams.includes(param.id);
                                       return (
-                                          <div key={param.id} onClick={() => !isCurrent && setSelectedAvailableParamId(isSelected ? null : param.id)}
-                                              className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent ${isCurrent ? 'opacity-50 bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}`}>
-                                              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center mr-3 ${isSelected ? 'border-blue-600' : 'border-slate-300'}`}>
-                                                  {isSelected && <div className="w-2 h-2 rounded-full bg-blue-600" />}
+                                          <div key={param.id} onClick={() => !isAdded && toggleAvailableParamSelection(param.id)}
+                                              className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent ${isAdded ? 'opacity-50 grayscale bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}`}>
+                                              <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 bg-white'}`}>
+                                                  {isSelected && <Check size={10} />}
                                               </div>
                                               <div className="flex-1 min-w-0 flex items-center gap-2">
                                                   <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center"><Settings size={12} /></div>
@@ -794,7 +907,7 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                                                       <div className="text-sm font-medium text-slate-700 truncate">{param.name}</div>
                                                       <div className="text-[10px] text-slate-400">T:{param.temperature} P:{param.topP} K:{param.topK}</div>
                                                   </div>
-                                                  {isCurrent && <span className="text-xs text-slate-400 flex-shrink-0">• 已設定</span>}
+                                                  {isAdded && <span className="text-xs text-slate-400 flex-shrink-0">• 已加入</span>}
                                               </div>
                                           </div>
                                       );
@@ -803,35 +916,52 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                           </div>
                       </div>
                       <div className="w-16 bg-slate-50 border-x border-slate-200 flex flex-col items-center justify-center gap-3 p-2 z-10">
-                          <button onClick={handleSetParamToApp} disabled={!selectedAvailableParamId}
-                              className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed" title="設定參數">
+                          <button onClick={handleAddParamsToApp} disabled={selectedAvailableParamIds.length === 0}
+                              className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed" title="新增選取的項目">
                               <ChevronsRight size={18} />
                           </button>
+                          {settingsMode !== 'canvas' && (
+                              <button onClick={handleAddAllParams}
+                                  className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all text-xs font-bold" title="新增全部">
+                                  全部
+                              </button>
+                          )}
                       </div>
                       <div className="flex-1 flex flex-col min-w-0">
                           <div className="p-3 border-b border-slate-100 bg-blue-50/30 flex justify-between items-center">
-                              <span className="text-sm font-semibold text-slate-700">已設定參數</span>
-                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">{modeDefaultSettings?.paramId ? 1 : 0}</span>
+                              <span className="text-sm font-semibold text-slate-700">已設參數</span>
+                              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">{modeAvailableParams.length}</span>
                           </div>
                           <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-                              {!modeDefaultSettings?.paramId ? (
+                              {modeAvailableParams.length === 0 ? (
                                   <div className="flex flex-col items-center justify-center h-full text-slate-400"><Settings size={32} className="mb-2 opacity-50" /><p className="text-xs">尚未設定參數</p></div>
-                              ) : (() => {
-                                  const param = MOCK_LLM_PARAMS.find(p => p.id === modeDefaultSettings.paramId);
-                                  if (!param) return null;
-                                  return (
-                                      <div className="flex items-center justify-between p-2 rounded-lg bg-blue-50 border border-blue-100 group hover:bg-blue-100 transition-colors">
-                                          <div className="flex items-center gap-2 min-w-0 flex-1">
-                                              <div className="w-6 h-6 rounded-full bg-blue-200 text-blue-700 flex items-center justify-center"><Settings size={12} /></div>
-                                              <div className="flex-1 min-w-0">
-                                                  <span className="block text-sm font-medium text-slate-700 truncate">{param.name}</span>
-                                                  <span className="text-[10px] text-slate-400">T:{param.temperature} P:{param.topP} K:{param.topK}</span>
+                              ) : (
+                                  <div className="space-y-1">
+                                      {modeAvailableParams.map((paramId, index) => {
+                                          const param = MOCK_LLM_PARAMS.find(p => p.id === paramId);
+                                          if (!param) return null;
+                                          const isDefault = modeDefaultParamId ? modeDefaultParamId === paramId : index === 0;
+                                          return (
+                                              <div key={paramId} className={`flex items-center justify-between p-2 rounded-lg group hover:bg-blue-100 transition-colors ${isDefault ? 'bg-blue-100 border border-blue-200' : 'bg-blue-50 border border-blue-100'}`}>
+                                                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                      <div className="w-6 h-6 rounded-full bg-blue-200 text-blue-700 flex items-center justify-center"><Settings size={12} /></div>
+                                                      <div className="flex-1 min-w-0">
+                                                          <span className="block text-sm font-medium text-slate-700 truncate">{param.name}</span>
+                                                          <span className="text-[10px] text-slate-400">T:{param.temperature} P:{param.topP} K:{param.topK}</span>
+                                                      </div>
+                                                      {(isDefault && settingsMode !== 'canvas') && <Star size={14} className="text-yellow-500 fill-yellow-500 flex-shrink-0" />}
+                                                  </div>
+                                                  <div className="flex items-center gap-1">
+                                                      {(!isDefault && settingsMode !== 'canvas') && (
+                                                          <button onClick={() => handleSetDefaultParam(paramId)} className="p-1 text-slate-400 hover:text-yellow-500 hover:bg-yellow-50 rounded transition-all opacity-0 group-hover:opacity-100" title="設為預設參數"><Star size={14} /></button>
+                                                      )}
+                                                      <button onClick={() => handleRemoveParam(paramId)} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all" title="移除參數"><X size={14} /></button>
+                                                  </div>
                                               </div>
-                                          </div>
-                                          <button onClick={handleClearParam} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all" title="清除參數"><X size={14} /></button>
-                                      </div>
-                                  );
-                              })()}
+                                          );
+                                      })}
+                                  </div>
+                              )}
                           </div>
                       </div>
                   </>)}
@@ -872,10 +1002,12 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                               className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed" title="新增選取的項目">
                               <ChevronsRight size={18} />
                           </button>
-                          <button onClick={handleAddAllPrompts}
-                              className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all text-xs font-bold" title="新增全部">
-                              全部
-                          </button>
+                          {settingsMode !== 'canvas' && (
+                              <button onClick={handleAddAllPrompts}
+                                  className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all text-xs font-bold" title="新增全部">
+                                  全部
+                              </button>
+                          )}
                       </div>
                       <div className="flex-1 flex flex-col min-w-0">
                           <div className="p-3 border-b border-slate-100 bg-green-50/30 flex justify-between items-center">
@@ -895,10 +1027,10 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                                               <div className="flex items-center gap-2 min-w-0 flex-1">
                                                   <div className="w-6 h-6 rounded-full bg-green-200 text-green-700 flex items-center justify-center"><MessageSquare size={12} /></div>
                                                   <span className="text-sm font-medium text-slate-700 truncate">{prompt.name}</span>
-                                                  {isDefault && <Star size={14} className="text-yellow-500 fill-yellow-500 flex-shrink-0" />}
+                                                  {(isDefault && settingsMode !== 'canvas') && <Star size={14} className="text-yellow-500 fill-yellow-500 flex-shrink-0" />}
                                               </div>
                                               <div className="flex items-center gap-1">
-                                                  {!isDefault && (
+                                                  {(!isDefault && settingsMode !== 'canvas') && (
                                                       <button onClick={() => handleSetDefaultPrompt(promptId)} className="p-1 text-slate-400 hover:text-yellow-500 hover:bg-yellow-50 rounded transition-all opacity-0 group-hover:opacity-100" title="設為預設提示詞"><Star size={14} /></button>
                                                   )}
                                                   <button onClick={() => handleRemovePrompt(promptId)} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"><X size={14} /></button>
@@ -911,87 +1043,116 @@ export function ApplicationConfigPanel({ app, isCreating, users, onUpdateApp, on
                       </div>
                   </>)}
 
-                  {/* ===== Tools Tab (Multi Select + Enable Toggle) ===== */}
-                  {defaultSettingsTab === 'tools' && (<>
-                      <div className="flex-1 flex flex-col min-w-0 border-r border-slate-100">
-                          <div className="p-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                              <span className="text-sm font-semibold text-slate-700">可用工具庫</span>
-                              <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">{enabledTools.length}</span>
-                          </div>
-                          <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-                              <div className="space-y-1">
-                                  {enabledTools.length === 0 ? (
-                                      <div className="text-center py-10 text-slate-400 text-sm">無可用工具</div>
-                                  ) : enabledTools.map(tool => {
-                                      const strId = String(tool.id);
-                                      const isSelected = selectedAvailableToolIds.includes(strId);
-                                      const isAdded = modeTools.some(t => t.id === strId);
-                                      return (
-                                          <div key={tool.id} onClick={() => !isAdded && toggleAvailableToolSelection(tool.id)}
-                                              className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent ${isAdded ? 'opacity-50 grayscale bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}`}>
-                                              <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 bg-white'}`}>
-                                                  {isSelected && <Check size={10} />}
-                                              </div>
-                                              <div className="flex-1 min-w-0 flex items-center gap-2">
-                                                  <div className="w-6 h-6 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center"><Wrench size={12} /></div>
-                                                  <div className="flex-1 min-w-0">
-                                                      <div className="text-sm font-medium text-slate-700 truncate">{tool.name}</div>
-                                                      <div className="text-[10px] text-slate-400 truncate">{tool.description}</div>
+                  {/* ===== Tools/Features Tab ===== */}
+                  {defaultSettingsTab === 'tools' && (
+                      settingsMode === 'canvas' ? (
+                          <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
+                              <div className="max-w-2xl space-y-4">
+                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      {CANVAS_FEATURES.map(feature => {
+                                          const isChecked = modeFeatures.includes(feature.id);
+                                          return (
+                                              <label key={feature.id} className="flex items-center gap-3 cursor-pointer group p-3 border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors">
+                                                  <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${isChecked ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300'}`}>
+                                                      {isChecked && <Check size={14} strokeWidth={3} />}
                                                   </div>
-                                                  {isAdded && <span className="text-xs text-slate-400 flex-shrink-0">• 已啟用</span>}
-                                              </div>
-                                          </div>
-                                      );
-                                  })}
+                                                  <feature.icon size={16} />
+                                                  <span className="text-sm font-medium text-slate-700 group-hover:text-blue-700">{feature.label}</span>
+                                                  <input 
+                                                      type="checkbox"
+                                                      className="hidden"
+                                                      checked={isChecked}
+                                                      onChange={() => handleToggleCanvasFeature(feature.id)}
+                                                  />
+                                              </label>
+                                          );
+                                      })}
+                                  </div>
                               </div>
                           </div>
-                      </div>
-                      <div className="w-16 bg-slate-50 border-x border-slate-200 flex flex-col items-center justify-center gap-3 p-2 z-10">
-                          <button onClick={handleAddToolsToApp} disabled={selectedAvailableToolIds.length === 0}
-                              className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed" title="啟用選取的工具">
-                              <ChevronsRight size={18} />
-                          </button>
-                          <button onClick={handleAddAllTools}
-                              className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all text-xs font-bold" title="啟用全部">
-                              全部
-                          </button>
-                      </div>
-                      <div className="flex-1 flex flex-col min-w-0">
-                          <div className="p-3 border-b border-slate-100 bg-orange-50/30 flex justify-between items-center">
-                              <span className="text-sm font-semibold text-slate-700">已啟用工具</span>
-                              <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold">{modeTools.length}</span>
-                          </div>
-                          <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-                              <div className="space-y-1">
-                                  {(modeTools.length === 0) ? (
-                                      <div className="flex flex-col items-center justify-center h-full text-slate-400"><Wrench size={32} className="mb-2 opacity-50" /><p className="text-xs">尚未啟用任何工具</p></div>
-                                  ) : modeTools.map(toolObj => {
-                                      const toolId = toolObj.id;
-                                      const tool = MOCK_TOOLS.find(t => String(t.id) === String(toolId));
-                                      if (!tool) return null;
-                                      return (
-                                          <div key={toolId} className="flex items-center justify-between p-2 rounded-lg bg-orange-50 border border-orange-100 group hover:bg-orange-100 transition-colors">
-                                              <div className="flex items-center gap-2 min-w-0 flex-1">
-                                                  <div className="w-6 h-6 rounded-lg bg-orange-200 text-orange-700 flex items-center justify-center"><Wrench size={12} /></div>
-                                                  <div className="flex-1 min-w-0">
-                                                      <span className="block text-sm font-medium text-slate-700 truncate">{tool.name}</span>
-                                                      <span className="text-[10px] text-slate-400">{toolObj.defaultOn ? '預設啟用' : '手動觸發'}</span>
+                      ) : (
+                          <>
+                              <div className="flex-1 flex flex-col min-w-0 border-r border-slate-100">
+                                  <div className="p-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                      <span className="text-sm font-semibold text-slate-700">可用工具庫</span>
+                                      <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">{enabledTools.length}</span>
+                                  </div>
+                                  <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                                      <div className="space-y-1">
+                                          {enabledTools.length === 0 ? (
+                                              <div className="text-center py-10 text-slate-400 text-sm">無可用工具</div>
+                                          ) : enabledTools.map(tool => {
+                                              const strId = String(tool.id);
+                                              const isSelected = selectedAvailableToolIds.includes(strId);
+                                              const isAdded = modeTools.some(t => t.id === strId);
+                                              return (
+                                                  <div key={tool.id} onClick={() => !isAdded && toggleAvailableToolSelection(tool.id)}
+                                                      className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent ${isAdded ? 'opacity-50 grayscale bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}`}>
+                                                      <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 bg-white'}`}>
+                                                          {isSelected && <Check size={10} />}
+                                                      </div>
+                                                      <div className="flex-1 min-w-0 flex items-center gap-2">
+                                                          <div className="w-6 h-6 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center"><Wrench size={12} /></div>
+                                                          <div className="flex-1 min-w-0">
+                                                              <div className="text-sm font-medium text-slate-700 truncate">{tool.name}</div>
+                                                              <div className="text-[10px] text-slate-400 truncate">{tool.description}</div>
+                                                          </div>
+                                                          {isAdded && <span className="text-xs text-slate-400 flex-shrink-0">• 已啟用</span>}
+                                                      </div>
                                                   </div>
-                                              </div>
-                                              <div className="flex items-center gap-2">
-                                                  <label className="relative inline-flex items-center cursor-pointer" title="設定是否預設啟用">
-                                                      <input type="checkbox" className="sr-only peer" checked={!!toolObj.defaultOn} onChange={() => handleToggleToolDefault(toolId)} />
-                                                      <div className="w-7 h-4 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-500"></div>
-                                                  </label>
-                                                  <button onClick={() => handleRemoveTool(toolId)} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all" title="移除工具"><X size={14} /></button>
-                                              </div>
-                                          </div>
-                                      );
-                                  })}
+                                              );
+                                          })}
+                                      </div>
+                                  </div>
                               </div>
-                          </div>
-                      </div>
-                  </>)}
+                              <div className="w-16 bg-slate-50 border-x border-slate-200 flex flex-col items-center justify-center gap-3 p-2 z-10">
+                                  <button onClick={handleAddToolsToApp} disabled={selectedAvailableToolIds.length === 0}
+                                      className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed" title="啟用選取的工具">
+                                      <ChevronsRight size={18} />
+                                  </button>
+                                  <button onClick={handleAddAllTools}
+                                      className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all text-xs font-bold" title="啟用全部">
+                                      全部
+                                  </button>
+                              </div>
+                              <div className="flex-1 flex flex-col min-w-0">
+                                  <div className="p-3 border-b border-slate-100 bg-orange-50/30 flex justify-between items-center">
+                                      <span className="text-sm font-semibold text-slate-700">已啟用工具</span>
+                                      <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold">{modeTools.length}</span>
+                                  </div>
+                                  <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+                                      <div className="space-y-1">
+                                          {(modeTools.length === 0) ? (
+                                              <div className="flex flex-col items-center justify-center h-full text-slate-400"><Wrench size={32} className="mb-2 opacity-50" /><p className="text-xs">尚未啟用任何工具</p></div>
+                                          ) : modeTools.map(toolObj => {
+                                              const toolId = toolObj.id;
+                                              const tool = MOCK_TOOLS.find(t => String(t.id) === String(toolId));
+                                              if (!tool) return null;
+                                              return (
+                                                  <div key={toolId} className="flex items-center justify-between p-2 rounded-lg bg-orange-50 border border-orange-100 group hover:bg-orange-100 transition-colors">
+                                                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                                                          <div className="w-6 h-6 rounded-lg bg-orange-200 text-orange-700 flex items-center justify-center"><Wrench size={12} /></div>
+                                                          <div className="flex-1 min-w-0">
+                                                              <span className="block text-sm font-medium text-slate-700 truncate">{tool.name}</span>
+                                                              <span className="text-[10px] text-slate-400">{toolObj.defaultOn ? '預設啟用' : '手動觸發'}</span>
+                                                          </div>
+                                                      </div>
+                                                      <div className="flex items-center gap-2">
+                                                          <label className="relative inline-flex items-center cursor-pointer" title="設定是否預設啟用">
+                                                              <input type="checkbox" className="sr-only peer" checked={!!toolObj.defaultOn} onChange={() => handleToggleToolDefault(toolId)} />
+                                                              <div className="w-7 h-4 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-500"></div>
+                                                          </label>
+                                                          <button onClick={() => handleRemoveTool(toolId)} className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all" title="移除工具"><X size={14} /></button>
+                                                      </div>
+                                                  </div>
+                                              );
+                                          })}
+                                      </div>
+                                  </div>
+                              </div>
+                          </>
+                      )
+                  )}
               </div>
           </section>
           )}
