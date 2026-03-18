@@ -37,7 +37,7 @@ frontend_demo/
 │   │   └── template3.jpg          # PPT 範本圖片 3
 │   ├── components/                # 共用元件 (15 個)
 │   │   ├── common/                # 通用元件 (6 個)
-│   │   │   ├── ChatInput.jsx      # 通用聊天輸入框
+│   │   │   ├── ChatInput.jsx      # 通用聊天輸入框 (整合上傳與加入知識庫按鈕)
 │   │   │   ├── ChatMessage.jsx    # 通用聊天訊息 (含 👍/👎/回饋按鈕)
 │   │   │   ├── MainDropdown.jsx   # 主功能選擇下拉選單
 │   │   │   ├── MenuItem.jsx       # 選單項目元件
@@ -135,11 +135,11 @@ frontend_demo/
   - 互動問答 (`INTERACTIVE`)
   - 知識庫管理 (`KB_MANAGEMENT`)
   - PPT 互動產出 (`PPT_GEN`)
-  - 提示詞優化 (`PROMPT_OPT`)
   - 文件翻譯 (`DOC_TRANS`)
-  - 語料庫管理 (`CORPUS_MANAGEMENT`)
-  - 答詢機器人管理 (`BOT_MANAGEMENT`)
-  - 預設答詢機器人：人事差勤機器人 (`BOT_HR`)、資訊安全機器人 (`BOT_SECURITY`)
+  - 提示詞優化 (`PROMPT_OPT`) - **僅一般使用者可見** (管理員移動至後台)
+  - 語料庫管理 (`CORPUS_MANAGEMENT`) - **僅一般使用者可見** (管理員移動至後台)
+  - 答詢機器人管理 (`BOT_MANAGEMENT`) - **僅一般使用者可見** (管理員移動至後台)
+  - 預設答詢機器人：人事差勤機器人 (`BOT_HR`)、資訊安全機器人 (`BOT_SECURITY`) - **開放管理員使用對話介面**
 
 #### 2. **智慧公文輔助系統** (`currentSystem = 'DOC'`)
 - **對象**: 僅一般使用者 (管理員無權存取)
@@ -169,6 +169,9 @@ frontend_demo/
   - **API 管理** (`ADMIN_APIS`) - `APIManagementPanel`
   - **工具管理** (`ADMIN_TOOLS`) - `ToolManagementPanel`
   - **帳號管理** (`ADMIN_ACCOUNT`) - `AccountManagementPanel` + `AccountEditPanel`
+  - **答詢機器人對話測試**:
+    - 人事差勤機器人 (`BOT_HR`)
+    - 資訊安全機器人 (`BOT_SECURITY`)
   - **稽核管理** (`ADMIN_AUDIT`) - `AuditManagement`
     - 子檢視: `kb_logs`, `chat_records`, `stats`
   - **LangFlow** (`ADMIN_LANGFLOW`) - `LangFlowPanel`
@@ -408,8 +411,8 @@ const LOCAL_PPT_TEMPLATES = [
 - 星號預設清單在進入 QA 時自動載入（僅在無手動選檔的情況下）
 
 **權限控制**:
-- 一般使用者可存取 `personal` 和 `shared_*` 資料夾
-- 管理員僅能存取 `org` 組織資料夾
+- 管理員與一般使用者均可存取 `personal`、`shared_*` 與 `org` 組織資料夾
+- 當資料夾為「個人知識庫」時，不可編輯名稱
 - 移動檔案時，一般使用者僅能移動到個人資料夾
 
 ---
@@ -544,6 +547,14 @@ selectedCorpusId: 'proper_noun' | 'synonym'
 | **參數** | 單選 (Radio) | 僅可設定一組參數 |
 | **提示詞** | 多選 (Checkbox) + ⭐ 星號預設 | 可選取多個提示詞，透過星號標記預設 |
 | **工具** | 多選 (Checkbox) + 啟用開關 | 可啟用多個工具，含 `defaultOn` 切換 |
+
+#### 5. 檢索設定 (Retrieval Settings)
+在 `ApplicationConfigPanel` 與 `BotConfigPanel` 的「功能設定」區塊採用左右兩欄佈局：
+- **左側**: 原有的功能設定勾選/開關
+- **右側**: 新增「檢索設定」，包含以下三項：
+  - **相似度 (Similarity)**: 0 ~ 1 的拉桿 (預設 0.9)
+  - **Top K**: 0 ~ 50 的拉桿 (預設 30)
+  - **Top Reranker**: 0 ~ 50 的拉桿 (預設 5)
 
 **語言模型管理** (`ADMIN_LLM`):
 - 模型管理 (`models`): `ModelManagementPanel`
