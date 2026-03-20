@@ -95,17 +95,23 @@ export const CORPUS_PAGES = [
 ];
 
 export const MOCK_GLOSSARIES = [
-    { id: 1, word_before: '行動電話', word_after: '手機', sync_status: 1, updated_at: '2024-03-18 10:00' },
-    { id: 2, word_before: '人工智慧', word_after: 'AI', sync_status: 0, updated_at: '2024-03-18 11:30' },
-    { id: 3, word_before: '筆記型電腦', word_after: '筆電', sync_status: 1, updated_at: '2024-03-17 09:15' },
+    { id: 1, word_before: '行動電話', word_after: '手機', sync_status: 1, model: 'm1', updated_at: '2024-03-18 10:00' },
+    { id: 2, word_before: '人工智慧', word_after: 'AI', sync_status: 0, model: 'm2', updated_at: '2024-03-18 11:30' },
+    { id: 3, word_before: '筆記型電腦', word_after: '筆電', sync_status: 1, model: 'm1', updated_at: '2024-03-17 09:15' },
 ];
 
 export const MOCK_SYNONYMS = [];
 
-export const MOCK_CORPUS_MODELS = [
+export const MOCK_CORPUS_MODEL_TYPES = [
   { id: 'type_0', name: 'Type 0（適用所有場合）', description: '屬於通用型號，在系統的所有頁面都可以看到並選擇這個模型' },
   { id: 'type_1', name: 'Type 1（檔案辨識專用）', description: '專門用來處理已經錄好的音檔。這個模型選項只會在「音檔上傳」或「錄音上傳」的頁面出現' },
   { id: 'type_2', name: 'Type 2（即時辨識專用）', description: '專門用來處理即時語音轉文字。這個模型選項只會在「即時辨識」的頁面出現' },
+];
+
+export const MOCK_CORPUS_MODELS = [
+  { id: 'm1', name: 'NLMA-Speech-V1', description: '基礎語音辨識模型' },
+  { id: 'm2', name: 'NLMA-Speech-Pro', description: '進階專業語音辨識模型' },
+  { id: 'm3', name: 'NLMA-Fast-Transcriber', description: '快速即時語音轉譯模型' },
 ];
 
 // --- New NLMA Terminology Mock Data ---
@@ -129,7 +135,8 @@ export const MOCK_TERM_DEFINITIONS = [
         type: 'user', // user or pinyin
         probability: 0.95,
         sync_status: 1, // 0: 等待整合, 1: 已整合, 2: 等待刪除
-        model: 'type_0',
+        modelType: 'type_0',
+        model: 'm1',
         updated_at: '2024-03-18 09:30'
     },
     { 
@@ -138,7 +145,8 @@ export const MOCK_TERM_DEFINITIONS = [
         type: 'user',
         probability: 0.88,
         sync_status: 0,
-        model: 'type_1',
+        modelType: 'type_1',
+        model: 'm2',
         updated_at: '2024-03-18 10:15'
     },
     { 
@@ -147,7 +155,8 @@ export const MOCK_TERM_DEFINITIONS = [
         type: 'user', 
         probability: 0.92,
         sync_status: 1,
-        model: 'type_2',
+        modelType: 'type_2',
+        model: 'm3',
         updated_at: '2024-03-17 14:20'
     },
     {
@@ -156,6 +165,7 @@ export const MOCK_TERM_DEFINITIONS = [
         type: 'pinyin',
         probability: 0, // Ignored for pinyin
         sync_status: 2,
+        modelType: 'all',
         model: 'all',
         updated_at: '2024-03-16 11:00'
     }

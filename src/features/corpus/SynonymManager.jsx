@@ -10,15 +10,19 @@ import {
   Hash,
   Info
 } from 'lucide-react';
-import { MOCK_GLOSSARIES } from '../../data/mockData';
+import { MOCK_GLOSSARIES, MOCK_CORPUS_MODELS } from '../../data/mockData';
 
-export function SynonymManager({ searchTerm, onEdit }) {
+export function SynonymManager({ searchTerm, selectedModel, onEdit }) {
   const data = useMemo(() => {
     return MOCK_GLOSSARIES.filter(item => {
         const matchSearch = item.word_before.includes(searchTerm) || item.word_after.includes(searchTerm);
-        return matchSearch;
-    });
-  }, [searchTerm]);
+        const matchModel = selectedModel === 'all' || item.model === 'all' || item.model === selectedModel;
+        return matchSearch && matchModel;
+    }).map(item => ({
+        ...item,
+        modelDetails: MOCK_CORPUS_MODELS.find(m => m.id === item.model)
+    }));
+  }, [searchTerm, selectedModel]);
 
   return (
     <div className="flex flex-col h-full bg-slate-50 w-full">
@@ -29,10 +33,11 @@ export function SynonymManager({ searchTerm, onEdit }) {
             <table className="w-full text-left text-sm">
                 <thead>
                     <tr className="bg-slate-50 border-b border-slate-200 text-slate-500">
-                        <th className="px-6 py-3 font-medium w-1/4">修正前</th>
-                        <th className="px-6 py-3 font-medium w-1/2">修正後</th>
-                        <th className="px-6 py-3 font-medium w-1/6">同步狀態</th>
-                        <th className="px-6 py-3 font-medium text-right">操作</th>
+                        <th className="px-6 py-3 font-medium w-[20%]">修正前</th>
+                        <th className="px-6 py-3 font-medium w-[35%]">修正後</th>
+                        <th className="px-6 py-3 font-medium w-[20%]">適用模型</th>
+                        <th className="px-6 py-3 font-medium w-[15%]">同步狀態</th>
+                        <th className="px-6 py-3 font-medium text-right w-[10%]">操作</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -43,6 +48,12 @@ export function SynonymManager({ searchTerm, onEdit }) {
                             </td>
                             <td className="px-6 py-4 align-top">
                                 <div className="font-mono text-slate-800 text-base">{item.word_after}</div>
+                            </td>
+                            <td className="px-6 py-4 align-top">
+                                <div className="text-xs text-slate-500 flex items-center gap-1">
+                                    <Tag size={12} className="text-slate-400" />
+                                    {item.modelDetails ? item.modelDetails.name : '適用所有模型'}
+                                </div>
                             </td>
                             <td className="px-6 py-4 align-top">
                                 {item.sync_status === 0 ? (

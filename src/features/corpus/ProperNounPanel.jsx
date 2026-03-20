@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Search, Filter, ChevronDown, UploadCloud, X, Save, Plus } from 'lucide-react';
 import { TermDefinitionManager } from './TermDefinitionManager';
-import { MOCK_CORPUS_MODELS } from '../../data/mockData';
+import { MOCK_CORPUS_MODEL_TYPES, MOCK_CORPUS_MODELS } from '../../data/mockData';
 
 export function ProperNounPanel() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('all');
+  const [selectedModelType, setSelectedModelType] = useState('all');
   const [selectedModel, setSelectedModel] = useState('all');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -39,6 +40,7 @@ export function ProperNounPanel() {
         type: 'user',
         probability: 0.5,
         sync_status: 0,
+        modelType: 'all',
         model: 'all',
         updated_at: new Date().toISOString().substring(0, 16).replace('T', ' ')
       });
@@ -86,6 +88,21 @@ export function ProperNounPanel() {
              <div className="relative min-w-[140px]">
                  <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 z-10 pointer-events-none" />
                  <select 
+                    value={selectedModelType}
+                    onChange={(e) => setSelectedModelType(e.target.value)}
+                    className="w-full appearance-none bg-white border border-slate-200 hover:border-slate-300 rounded-lg pl-9 pr-8 py-2.5 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer font-medium text-slate-600"
+                 >
+                     <option value="all">所有模型類型</option>
+                     {MOCK_CORPUS_MODEL_TYPES.map(opt => (
+                         <option key={opt.id} value={opt.id}>{opt.name}</option>
+                     ))}
+                 </select>
+                 <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+             </div>
+
+             <div className="relative min-w-[140px]">
+                 <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 z-10 pointer-events-none" />
+                 <select 
                     value={selectedModel}
                     onChange={(e) => setSelectedModel(e.target.value)}
                     className="w-full appearance-none bg-white border border-slate-200 hover:border-slate-300 rounded-lg pl-9 pr-8 py-2.5 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer font-medium text-slate-600"
@@ -114,11 +131,11 @@ export function ProperNounPanel() {
          </div>
       </header>
 
-      {/* Content Area Rendering */}
       <div className="flex-1 overflow-hidden flex flex-col">
           <TermDefinitionManager 
               searchTerm={searchTerm} 
               selectedType={selectedType}
+              selectedModelType={selectedModelType}
               selectedModel={selectedModel}
               onEdit={handleEdit}
           />
@@ -201,13 +218,28 @@ export function ProperNounPanel() {
                           </div>
                       </div>
                       
+                      {/* Model Type */}
+                      <div>
+                          <label className="block text-sm font-bold text-slate-700 mb-2">模型類型 (可選)</label>
+                          <select 
+                            value={editingTerm.modelType || 'all'}
+                            onChange={(e) => handleFieldChange('modelType', e.target.value)}
+                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all text-slate-700 bg-white"
+                          >
+                              <option value="all">所有模型類型</option>
+                              {MOCK_CORPUS_MODEL_TYPES.map(opt => (
+                                  <option key={opt.id} value={opt.id}>{opt.name}</option>
+                              ))}
+                          </select>
+                      </div>
+
                       {/* Model */}
                       <div>
                           <label className="block text-sm font-bold text-slate-700 mb-2">模型 (可選)</label>
                           <select 
                             value={editingTerm.model || 'all'}
                             onChange={(e) => handleFieldChange('model', e.target.value)}
-                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
+                            className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all text-slate-700 bg-white"
                           >
                               <option value="all">所有模型</option>
                               {MOCK_CORPUS_MODELS.map(opt => (

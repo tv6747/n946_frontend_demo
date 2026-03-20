@@ -44,7 +44,7 @@ export const MOCK_APPLICATIONS = [
     name: '知識庫管理',
     level: 'GAI',
     page: 'kb_manage',
-    flow: 'LLM_CHAT_RAG',
+    flow: 'KNOWLEDGE_BASE',
     supportCanvas: false,
     defaultSettings: {
       modelId: 'model_1',
@@ -104,7 +104,7 @@ export const MOCK_APPLICATIONS = [
     name: '文件翻譯',
     level: 'GAI',
     page: 'translation',
-    flow: 'LLM_CHAT_RAG',
+    flow: 'DOCUMENT_TRANSLATION',
     supportCanvas: false,
     defaultSettings: {
       modelId: 'model_1',

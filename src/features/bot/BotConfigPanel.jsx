@@ -307,14 +307,13 @@ export function BotConfigPanel({ bot, isCreating, associatedFiles, folderFiles, 
                                 />
                           </div>
                           <div className="space-y-1">
-                              <label className="block text-sm font-medium text-slate-700">應用流程</label>
+                              <label className="block text-sm font-medium text-slate-700">應用類型</label>
                               <select 
-                                  value={formData.flow || 'LLM_CHAT'}
+                                  value={formData.flow || 'LLM_CHAT_RAG'}
                                   onChange={(e) => handleChange({ flow: e.target.value })}
                                   className="w-full px-4 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
                               >
                                   <option value="LLM_CHAT_RAG">檢索文件對話</option>
-                                  <option value="LLM_CHAT_CHAIN">生成預覽對話</option>
                               </select>
                           </div>
                       </div>

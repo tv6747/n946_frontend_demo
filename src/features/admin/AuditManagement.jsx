@@ -138,7 +138,7 @@ function ChatLogView() {
                             <tr className="bg-slate-50 border-b border-slate-200 text-slate-500">
                                 <th className="px-6 py-3 font-medium w-10"></th>
                                 <th className="px-6 py-3 font-medium">時間</th>
-                                <th className="px-6 py-3 font-medium">應用類型</th>
+                                <th className="px-6 py-3 font-medium">應用</th>
                                 <th className="px-6 py-3 font-medium">對話標題</th>
                                 <th className="px-6 py-3 font-medium">使用者</th>
                             </tr>

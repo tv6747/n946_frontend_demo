@@ -1,20 +1,22 @@
 import React, { useMemo } from 'react';
 import { Search, BookOpen, Tag, AlertCircle, Edit2, Trash2 } from 'lucide-react';
-import { MOCK_TERM_DEFINITIONS, MOCK_CORPUS_MODELS } from '../../data/mockData';
+import { MOCK_TERM_DEFINITIONS, MOCK_CORPUS_MODEL_TYPES, MOCK_CORPUS_MODELS } from '../../data/mockData';
 
-export function TermDefinitionManager({ searchTerm, selectedType, selectedModel, onEdit }) {
+export function TermDefinitionManager({ searchTerm, selectedType, selectedModelType, selectedModel, onEdit }) {
   // Filter Data
   const filteredData = useMemo(() => {
     return MOCK_TERM_DEFINITIONS.filter(term => {
       const matchSearch = term.term_name.includes(searchTerm);
       const matchType = selectedType === 'all' || term.type === selectedType;
+      const matchModelType = selectedModelType === 'all' || term.modelType === 'all' || term.modelType === selectedModelType;
       const matchModel = selectedModel === 'all' || term.model === 'all' || term.model === selectedModel;
-      return matchSearch && matchType && matchModel;
+      return matchSearch && matchType && matchModelType && matchModel;
     }).map(term => ({
         ...term,
+        modelTypeDetails: MOCK_CORPUS_MODEL_TYPES.find(m => m.id === term.modelType),
         modelDetails: MOCK_CORPUS_MODELS.find(m => m.id === term.model)
     }));
-  }, [searchTerm, selectedType, selectedModel]);
+  }, [searchTerm, selectedType, selectedModelType, selectedModel]);
 
   return (
     <div className="flex flex-col h-full bg-slate-50 w-full">
@@ -47,7 +49,9 @@ export function TermDefinitionManager({ searchTerm, selectedType, selectedModel,
                                     </div>
                                     <div className="text-xs text-slate-500 flex items-center gap-1">
                                         <Tag size={12} className="text-slate-400" />
-                                        {term.modelDetails ? term.modelDetails.name : '適用於所有模型'}
+                                        {term.modelTypeDetails ? term.modelTypeDetails.name.split('（')[0] : '無適用類型'}
+                                        <span className="text-slate-300 mx-1">|</span>
+                                        {term.modelDetails ? term.modelDetails.name : '適用所有模型'}
                                     </div>
                                 </div>
                             </td>

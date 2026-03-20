@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
-import { Search, Plus, X, UploadCloud, Save } from 'lucide-react';
+import { Search, Plus, X, UploadCloud, Save, Filter, ChevronDown } from 'lucide-react';
 import { SynonymManager } from './SynonymManager';
-import { MOCK_GLOSSARIES } from '../../data/mockData';
+import { MOCK_GLOSSARIES, MOCK_CORPUS_MODELS } from '../../data/mockData';
 
 export function SynonymPanel() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedModel, setSelectedModel] = useState('all');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [formData, setFormData] = useState({
       word_before: '',
       word_after: '',
-      sync_status: 0
+      sync_status: 0,
+      model: 'all'
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -18,7 +20,8 @@ export function SynonymPanel() {
       setFormData({
           word_before: item.word_before,
           word_after: item.word_after,
-          sync_status: item.sync_status
+          sync_status: item.sync_status,
+          model: item.model || 'all'
       });
       setIsEditModalOpen(true);
   };
@@ -28,7 +31,8 @@ export function SynonymPanel() {
       setFormData({
           word_before: '',
           word_after: '',
-          sync_status: 0
+          sync_status: 0,
+          model: 'all'
       });
       setIsEditModalOpen(true);
   };
@@ -53,6 +57,21 @@ export function SynonymPanel() {
                     className="w-full bg-slate-100 border-transparent focus:bg-white border focus:border-blue-500 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10 transition-all font-medium placeholder:text-slate-400"
                 />
              </div>
+             
+             <div className="relative min-w-[140px]">
+                 <Filter size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 z-10 pointer-events-none" />
+                 <select 
+                    value={selectedModel}
+                    onChange={(e) => setSelectedModel(e.target.value)}
+                    className="w-full appearance-none bg-white border border-slate-200 hover:border-slate-300 rounded-lg pl-9 pr-8 py-2.5 text-sm focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all cursor-pointer font-medium text-slate-600"
+                 >
+                     <option value="all">所有模型</option>
+                     {MOCK_CORPUS_MODELS.map(opt => (
+                         <option key={opt.id} value={opt.id}>{opt.name}</option>
+                     ))}
+                 </select>
+                 <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+             </div>
          </div>
          <button
             onClick={handleAddNew}
@@ -67,6 +86,7 @@ export function SynonymPanel() {
           <div className="flex-1 overflow-y-auto">
              <SynonymManager 
                  searchTerm={searchTerm}
+                 selectedModel={selectedModel}
                  onEdit={handleEdit}
              />
           </div>
@@ -105,6 +125,20 @@ export function SynonymPanel() {
                               value={formData.word_after}
                               onChange={(e) => setFormData({...formData, word_after: e.target.value})}
                           ></textarea>
+                      </div>
+
+                      <div className="space-y-1">
+                          <label className="block text-sm font-medium text-slate-700">適用模型</label>
+                          <select 
+                            value={formData.model || 'all'}
+                            onChange={(e) => setFormData({...formData, model: e.target.value})}
+                            className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 bg-white"
+                          >
+                              <option value="all">所有模型</option>
+                              {MOCK_CORPUS_MODELS.map(opt => (
+                                  <option key={opt.id} value={opt.id}>{opt.name}</option>
+                              ))}
+                          </select>
                       </div>
 
                       <div className="space-y-1">
