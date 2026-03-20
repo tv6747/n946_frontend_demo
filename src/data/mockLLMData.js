@@ -186,17 +186,6 @@ export const MOCK_LLM_APIS = [
   },
   {
     id: 'api_3',
-    name: '文本嵌入 API',
-    path: '/api/v1/embeddings',
-    params: 'model=text-embedding-3-large',
-    apiKey: 'api-key-embed-456',
-    modelId: 'model_3',
-    paramId: 'param_4',
-    promptId: '',
-    createdAt: '2024-02-15'
-  },
-  {
-    id: 'api_4',
     name: '創意文案生成',
     path: '/api/v1/creative-content',
     params: 'category=marketing&style=energetic',

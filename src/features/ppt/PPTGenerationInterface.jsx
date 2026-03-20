@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { 
-    Bot, MonitorPlay, Check, ChevronRight as ChevronRightIcon, 
-    ChevronLeft as ChevronLeftIcon, Paperclip, Settings, Send, GripVertical, Download, Upload,
+import { ChevronRight as ChevronRightIcon, 
+    ChevronLeft as ChevronLeftIcon, Settings, Send, GripVertical, Download, Upload,
     Star, Pencil, Trash2, CheckCircle2, Ban, X
 } from 'lucide-react';
 import { useResizable } from '../../hooks/useResizable';
@@ -311,8 +310,14 @@ export function PPTGenerationInterface({ currentFeature, onOpenLLMSettings }) {
         <div className="p-4 bg-white border-t border-slate-200">
          <div className="max-w-5xl mx-auto">
             <div className="relative border border-slate-300 rounded-lg flex items-center p-2 gap-2 bg-white">
-          <button className="p-1.5 text-slate-400 hover:bg-slate-100 rounded-full"><Paperclip size={18}/></button>
-          <input 
+            <button 
+               onClick={handleFileUpload}
+               className="p-2 text-slate-400 hover:bg-slate-100 hover:text-blue-600 rounded-full transition-colors"
+               title="上傳檔案"
+            >
+               <Upload size={20}/>
+            </button>          
+            <input 
             className="flex-1 outline-none text-sm min-w-0" 
             placeholder={currentFeature.placeholder} 
             onKeyDown={(e) => {

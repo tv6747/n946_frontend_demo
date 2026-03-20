@@ -280,8 +280,7 @@ INSERT INTO app_linked_file (id, app_id, file_id_list, creator_id, status) VALUE
 INSERT INTO app_api_provide (id, api_name, endpoint_path, endpoint_parameter, api_key, model_settings, creator_id, status, created_at) VALUES
 (1, '公文生成 API',   '/api/v1/generate-document',        'type=official&format=pdf',             'api-key-doc-123',      '{"modelId": 1, "paramId": 2, "promptId": 1}', 1, '啟用', '2024-02-10'),
 (2, '客服回覆 API',   '/api/v1/customer-service/reply',   'lang=zh-TW&tone=friendly',             '',                     '{"modelId": 2, "paramId": 3, "promptId": 2}', 1, '啟用', '2024-02-12'),
-(3, '文本嵌入 API',   '/api/v1/embeddings',               'model=text-embedding-3-large',         'api-key-embed-456',    '{"modelId": 3, "paramId": 4, "promptId": null}', 1, '啟用', '2024-02-15'),
-(4, '創意文案生成',   '/api/v1/creative-content',         'category=marketing&style=energetic',   'api-key-creative-789', '{"modelId": 1, "paramId": 1, "promptId": 4}', 1, '啟用', '2024-02-18');
+(3, '創意文案生成',   '/api/v1/creative-content',         'category=marketing&style=energetic',   'api-key-creative-789', '{"modelId": 1, "paramId": 1, "promptId": 4}', 1, '啟用', '2024-02-18');
 
 -- ==========================================
 -- 20. Chat 模組 - chat_session (對話記錄)
