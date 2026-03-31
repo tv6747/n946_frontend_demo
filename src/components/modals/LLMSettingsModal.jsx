@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Settings, HelpCircle, ChevronDown, X } from 'lucide-react';
+import { Settings, HelpCircle, ChevronDown, X, LayoutGrid } from 'lucide-react';
 import { ModalOverlay } from '../common/ModalOverlay';
 import { LLM_MODELS, PROMPT_TEMPLATES } from '../../data/constants';
 import { MOCK_TOOLS } from '../../data/mockToolData';
+import { MOCK_ADMIN_APPS } from '../../data/mockData';
 
-export function LLMSettingsModal({ isOpen, onClose, showTemplate = true }) {
+export function LLMSettingsModal({ isOpen, onClose, showTemplate = true, showAppSelector = false }) {
   // 模擬預設設定狀態
   const [settings, setSettings] = useState({
     model: 'gpt-4o',
@@ -15,6 +16,7 @@ export function LLMSettingsModal({ isOpen, onClose, showTemplate = true }) {
     tools: ['1', '3'] // 預設啟用 Google Search, OCR
   });
 
+  const [selectedAppId, setSelectedAppId] = useState('');
   const [isToolMenuOpen, setIsToolMenuOpen] = useState(false);
   const toolMenuRef = useRef(null);
 
@@ -46,6 +48,28 @@ export function LLMSettingsModal({ isOpen, onClose, showTemplate = true }) {
       });
   };
 
+  // 選擇應用後自動帶入對應的預設設定
+  const handleAppSelect = (appId) => {
+    setSelectedAppId(appId);
+    if (!appId) return;
+    
+    const app = MOCK_ADMIN_APPS.find(a => a.id === appId);
+    if (app) {
+      // Map app model to LLM_MODELS id
+      const modelMatch = LLM_MODELS.find(m => m.id === app.model);
+      const templateMatch = PROMPT_TEMPLATES.find(t => t.id === app.template);
+      
+      setSettings(prev => ({
+        ...prev,
+        model: modelMatch ? app.model : prev.model,
+        template: templateMatch ? app.template : prev.template,
+        temperature: app.settings?.temperature ?? prev.temperature,
+        topP: app.settings?.topP ?? prev.topP,
+        topK: app.settings?.topK ?? prev.topK,
+      }));
+    }
+  };
+
   const activeTools = MOCK_TOOLS.filter(t => t.status === 'active');
 
   if (!isOpen) return null;
@@ -58,6 +82,37 @@ export function LLMSettingsModal({ isOpen, onClose, showTemplate = true }) {
         </h3>
         
         <div className="space-y-6">
+
+           {/* 選擇應用 (僅在提示詞優化時顯示) */}
+           {showAppSelector && (
+             <div className="space-y-2">
+                <div className="flex items-center gap-2 mb-1">
+                   <label className="text-sm font-medium text-slate-700">選擇應用</label>
+                   <div className="group relative">
+                      <HelpCircle size={14} className="text-slate-400 cursor-help" />
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2 bg-slate-800 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+                         選擇應用後將自動帶入該應用的預設模型、工具及參數設定，下方仍可手動調整。
+                      </div>
+                   </div>
+                </div>
+                <select 
+                  value={selectedAppId} 
+                  onChange={(e) => handleAppSelect(e.target.value)}
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 bg-white"
+                >
+                   <option value="">-- 請選擇應用 --</option>
+                   {MOCK_ADMIN_APPS.map(app => (
+                     <option key={app.id} value={app.id}>{app.name} ({app.system})</option>
+                   ))}
+                </select>
+                {selectedAppId && (
+                  <div className="flex items-center gap-2 text-xs text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100 animate-in fade-in duration-200">
+                    <LayoutGrid size={14} />
+                    <span>已載入「{MOCK_ADMIN_APPS.find(a => a.id === selectedAppId)?.name}」的預設設定，下方可手動調整</span>
+                  </div>
+                )}
+             </div>
+           )}
            
            {/* 模型選擇 */}
            <div className="space-y-2">
@@ -170,7 +225,7 @@ export function LLMSettingsModal({ isOpen, onClose, showTemplate = true }) {
                                    onClick={() => toggleTool(toolId)}
                                    className="hover:bg-blue-200 rounded-full p-0.5 transition-colors"
                                >
-                                   <X size={12} />
+                               <X size={12} />
                                </button>
                            </span>
                        );

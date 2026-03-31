@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Search, Plus, Edit2, Trash2, X, MessageSquare, Users } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, MessageSquare } from 'lucide-react';
 import { MOCK_LLM_PROMPTS } from '../../data/mockLLMData';
-import { MOCK_USERS } from '../../data/mockData';
+
 import { PromptConfigPanel } from './PromptConfigPanel';
 
 export function PromptManagementPanel() {
@@ -25,7 +25,6 @@ export function PromptManagementPanel() {
           id: `prompt_${Date.now()}`,
           createdAt: new Date().toISOString().split('T')[0],
           creator: 'Me', // Default creator
-          permissions: newPromptData.permissions || { allowedUsers: [], isPublic: false }
       };
       setPrompts(prev => [...prev, newPrompt]);
       setSelectedPrompt(null); // Return to list
@@ -42,7 +41,6 @@ export function PromptManagementPanel() {
           <PromptConfigPanel 
               prompt={selectedPrompt === 'NEW' ? null : selectedPrompt}
               isCreating={selectedPrompt === 'NEW'}
-              users={MOCK_USERS}
               onUpdatePrompt={handleUpdatePrompt}
               onCreatePrompt={handleCreatePrompt}
               onDeletePrompt={handleDeletePrompt}
@@ -86,7 +84,6 @@ export function PromptManagementPanel() {
                       <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider">
                           <th className="px-6 py-3 font-bold text-left w-1/5">提示詞名稱</th>
                           <th className="px-6 py-3 font-bold text-left w-2/5">提示詞內容</th>
-                          <th className="px-6 py-3 font-bold text-left">權限</th>
                           <th className="px-6 py-3 font-bold text-left">建立者</th>
                           <th className="px-6 py-3 font-bold text-left">建立日期</th>
                           <th className="px-6 py-3 font-bold text-right">操作</th>
@@ -107,14 +104,6 @@ export function PromptManagementPanel() {
                                   <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed font-mono bg-slate-50 p-2 rounded border border-slate-100">
                                       {prompt.content}
                                   </p>
-                              </td>
-                              <td className="px-6 py-4 align-top">
-                                  <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-1">
-                                      <Users size={14} />
-                                      <span>
-                                          {prompt.permissions?.isPublic ? '公開' : `${(prompt.permissions?.allowedUsers || []).length} 人`}
-                                      </span>
-                                  </div>
                               </td>
                               <td className="px-6 py-4 align-top">
                                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">

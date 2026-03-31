@@ -709,6 +709,7 @@ export default function App() {
                isOpen={isLLMModalOpen} 
                onClose={() => setIsLLMModalOpen(false)} 
                showTemplate={!shouldHideTemplateInSettings} 
+               showAppSelector={currentFeature.mode === MODES.PROMPT}
             />
           )}
           {fileDetailsModal && (

@@ -325,9 +325,14 @@ export const MOCK_ARCHIVES = [
 ];
 
 export const MOCK_VERSIONS = [
-  { id: 'v1.0', label: 'v1.0 - 初始版本', content: '你是一個專業的公文撰寫助理，請使用正式且精確的語氣。' },
-  { id: 'v1.1', label: 'v1.1 - 增加語氣限制', content: '你是一個專業的公文撰寫助理，請使用正式且精確的語氣。請避免使用過於情緒化的字眼。' },
-  { id: 'v2.0', label: 'v2.0 - 針對長度優化', content: '你是一個專業的公文撰寫助理。請精簡摘要內容，重點條列式呈現，適合高層快速閱讀。' },
+  { id: 'v1.0', promptId: 'prompt_1', label: 'v1.0 - 初始版本', content: '你是一個專業的公文撰寫助理，請使用正式且精確的語氣。' },
+  { id: 'v1.1', promptId: 'prompt_1', label: 'v1.1 - 增加語氣限制', content: '你是一個專業的公文撰寫助理，請使用正式且精確的語氣。請避免使用過於情緒化的字眼。' },
+  { id: 'v2.0', promptId: 'prompt_1', label: 'v2.0 - 針對長度優化', content: '你是一個專業的公文撰寫助理。請精簡摘要內容，重點條列式呈現，適合高層快速閱讀。' },
+  { id: 'v1.0_p2', promptId: 'prompt_2', label: 'v1.0 - 初始版本', content: '你是一個專業的客服人員。請以親切、同理的態度回應客戶問題。' },
+  { id: 'v1.1_p2', promptId: 'prompt_2', label: 'v1.1 - 加強專業度', content: '你是一個專業的客服人員。請以親切、同理的態度回應客戶問題，確保提供準確的資訊並維持專業形象。' },
+  { id: 'v1.0_p3', promptId: 'prompt_3', label: 'v1.0 - 初始版本', content: '你是一個資深數據分析師。請基於提供的數據進行深入分析，找出關鍵趨勢與洞察。' },
+  { id: 'v1.0_p4', promptId: 'prompt_4', label: 'v1.0 - 初始版本', content: '你是一個充滿創意的行銷文案寫手。請使用生動活潑、引人入勝的語氣。' },
+  { id: 'v1.0_p5', promptId: 'prompt_5', label: 'v1.0 - 初始版本', content: 'You are an expert software architect and code reviewer. Provide constructive feedback on code quality.' },
 ];
 
 // --- Admin Mock Data ---

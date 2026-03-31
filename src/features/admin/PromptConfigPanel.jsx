@@ -1,17 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { 
-    LayoutGrid, Trash2, Save, ArrowLeft, ChevronsRight, Check, X, MessageSquare, HelpCircle
+    Trash2, Save, ArrowLeft, MessageSquare
 } from 'lucide-react';
 
 export function PromptConfigPanel({ prompt, isCreating, users, onUpdatePrompt, onCreatePrompt, onDeletePrompt, onBack }) {
     // Default empty state for creating new prompt
     const defaultState = {
         name: '',
-        content: '',
-        permissions: {
-            allowedUsers: [],
-            isPublic: false
-        }
+        content: ''
     };
 
     const [formData, setFormData] = useState(prompt || defaultState);
@@ -30,45 +26,6 @@ export function PromptConfigPanel({ prompt, isCreating, users, onUpdatePrompt, o
         if (!isCreating && onUpdatePrompt) {
             onUpdatePrompt(prompt.id, updates);
         }
-    };
-
-    const [userSearch, setUserSearch] = useState('');
-    const [selectedAvailableUserIds, setSelectedAvailableUserIds] = useState([]);
-    const [isPublic, setIsPublic] = useState(false);
-
-    const filteredUsers = users.filter(u => u.name.toLowerCase().includes(userSearch.toLowerCase()));
-
-    // Transfer List Handlers for Users
-    const toggleAvailableUserSelection = (id) => {
-        if (selectedAvailableUserIds.includes(id)) {
-            setSelectedAvailableUserIds(prev => prev.filter(uid => uid !== id));
-        } else {
-            setSelectedAvailableUserIds(prev => [...prev, id]);
-        }
-    };
-
-    const handleAddUsersToPrompt = () => {
-        if (selectedAvailableUserIds.length === 0) return;
-        const currentUsers = formData.permissions?.allowedUsers || [];
-        const newUsersToAdd = selectedAvailableUserIds.filter(id => !currentUsers.includes(id));
-        if (newUsersToAdd.length > 0) {
-            handleChange({ permissions: { ...formData.permissions, allowedUsers: [...currentUsers, ...newUsersToAdd] } });
-            setSelectedAvailableUserIds([]);
-        }
-    };
-
-    const handleAddAllUsers = () => {
-        const currentUsers = formData.permissions?.allowedUsers || [];
-        const allFilteredIds = filteredUsers.map(u => u.id);
-        const newUsersToAdd = allFilteredIds.filter(id => !currentUsers.includes(id));
-        if (newUsersToAdd.length > 0) {
-            handleChange({ permissions: { ...formData.permissions, allowedUsers: [...currentUsers, ...newUsersToAdd] } });
-        }
-    };
-
-    const handleRemoveUser = (userId) => {
-        const currentUsers = formData.permissions?.allowedUsers || [];
-        handleChange({ permissions: { ...formData.permissions, allowedUsers: currentUsers.filter(id => id !== userId) } });
     };
 
     const handleSave = () => {
@@ -109,7 +66,7 @@ export function PromptConfigPanel({ prompt, isCreating, users, onUpdatePrompt, o
                             {isCreating ? '新增提示詞' : formData.name}
                         </h1>
                         <p className="text-xs text-slate-500">
-                            {isCreating ? '建立一個新的提示詞' : '編輯提示詞內容與權限'}
+                            {isCreating ? '建立一個新的提示詞' : '編輯提示詞內容'}
                         </p>
                     </div>
                 </div>
@@ -163,132 +120,7 @@ export function PromptConfigPanel({ prompt, isCreating, users, onUpdatePrompt, o
                     </div>
                 </section>
 
-                {/* Permissions */}
-                <section className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[400px]">
-                    <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
-                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">使用者權限設定</h3>
-                        <div className="flex items-center gap-2">
-                            <label className="relative inline-flex items-center cursor-pointer">
-                                <input 
-                                    type="checkbox" 
-                                    checked={isPublic}
-                                    onChange={(e) => setIsPublic(e.target.checked)}
-                                    className="sr-only peer"
-                                />
-                                <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
-                                <span className="ml-2 text-sm font-medium text-slate-600">設定為公開</span>
-                            </label>
-                            <div className="relative group">
-                                <HelpCircle size={14} className="text-slate-400 cursor-help" />
-                                <div className="absolute top-full right-0 mt-2 px-3 py-2 bg-slate-800 text-white text-xs rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all whitespace-nowrap z-50">
-                                    所有使用者皆可以使用
-                                    <div className="absolute bottom-full right-2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-slate-800"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className={`flex-1 flex overflow-hidden ${isPublic ? 'opacity-40 pointer-events-none' : ''}`}>
-                        {/* Left: Available Users */}
-                        <div className="flex-1 flex flex-col min-w-0 border-r border-slate-100">
-                            <div className="p-3 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                                <span className="text-sm font-semibold text-slate-700">選擇人員</span>
-                                <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full">{filteredUsers.length}</span>
-                            </div>
-                            <div className="p-3">
-                                <input 
-                                    value={userSearch}
-                                    onChange={(e) => setUserSearch(e.target.value)}
-                                    placeholder="搜尋..." 
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:border-blue-400 transition-all" 
-                                />
-                            </div>
-                            <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-                                <div className="space-y-1">
-                                    {filteredUsers.length === 0 ? (
-                                        <div className="text-center py-10 text-slate-400 text-sm">無可用項目</div>
-                                    ) : filteredUsers.map(user => {
-                                        const isSelected = selectedAvailableUserIds.includes(user.id);
-                                        const isAdded = (formData.permissions?.allowedUsers || []).includes(user.id);
-                                        return (
-                                            <div 
-                                                key={user.id}
-                                                onClick={() => !isAdded && toggleAvailableUserSelection(user.id)} 
-                                                className={`flex items-center p-2 rounded-lg cursor-pointer transition-colors border border-transparent
-                                                ${isAdded ? 'opacity-50 grayscale bg-slate-50' : isSelected ? 'bg-blue-50 border-blue-200' : 'hover:bg-slate-50'}
-                                                `}
-                                            >
-                                                <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'border-slate-300 bg-white'}`}>
-                                                    {isSelected && <Check size={10} />}
-                                                </div>
-                                                <div className="flex-1 min-w-0 flex items-center gap-2">
-                                                    <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">
-                                                        {user.name.charAt(0)}
-                                                    </div>
-                                                    <div className="text-sm font-medium text-slate-700 truncate">{user.name}</div>
-                                                    {isAdded && <span className="text-xs text-slate-400">• 已加入</span>}
-                                                </div>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            </div>
-                        </div>
 
-                        {/* Center: Actions */}
-                        <div className="w-16 bg-slate-50 border-x border-slate-200 flex flex-col items-center justify-center gap-3 p-2 z-10">
-                            <button 
-                                onClick={handleAddUsersToPrompt}
-                                disabled={selectedAvailableUserIds.length === 0}
-                                className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                                title="新增選取的項目"
-                            >
-                                <ChevronsRight size={18} />
-                            </button>
-                            <button 
-                                onClick={handleAddAllUsers}
-                                className="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all text-xs font-bold"
-                                title="新增全部"
-                            >
-                                全部
-                            </button>
-                        </div>
-
-                        {/* Right: Assigned Users */}
-                        <div className="flex-1 flex flex-col min-w-0">
-                            <div className="p-3 border-b border-slate-100 bg-blue-50/30 flex justify-between items-center">
-                                <span className="text-sm font-semibold text-slate-700">已授權</span>
-                                <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">{(formData.permissions?.allowedUsers || []).length}</span>
-                            </div>
-                            <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-                                <div className="space-y-1">
-                                    {(!formData.permissions?.allowedUsers || formData.permissions.allowedUsers.length === 0) ? (
-                                        <div className="text-center py-10 text-slate-400 text-sm">無已授權使用者</div>
-                                    ) : formData.permissions.allowedUsers.map(userId => {
-                                        const user = users.find(u => u.id === userId);
-                                        if (!user) return null;
-                                        return (
-                                            <div key={userId} className="flex items-center justify-between p-2 bg-blue-50 border border-blue-100 rounded-lg group hover:bg-blue-100 transition-colors">
-                                                <div className="flex items-center gap-2 min-w-0 flex-1">
-                                                    <div className="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500">
-                                                        {user.name.charAt(0)}
-                                                    </div>
-                                                    <span className="text-sm font-medium text-slate-700 truncate">{user.name}</span>
-                                                </div>
-                                                <button 
-                                                    onClick={() => handleRemoveUser(userId)}
-                                                    className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
-                                                >
-                                                    <X size={14} />
-                                                </button>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
             </div>
         </div>
     );
