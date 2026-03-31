@@ -444,13 +444,13 @@ export function AccountEditPanel({ account, onSave, onCancel }) {
             </div>
 
             {/* Section 4.5: Backend Permissions - Hierarchical Tree */}
-            <div className={`space-y-4 transition-all ${!isBackendPermsEnabled ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
+            <div className={`space-y-4 transition-all  ${formData.isAdmin ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
                 <div className="flex items-center gap-2 mb-1">
                     <label className="block text-sm font-semibold text-slate-700">後台權限</label>
                     <div className="group relative cursor-help">
                         <HelpCircle size={14} className="text-slate-400 hover:text-blue-500 transition-colors" />
                         <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-64 p-2 bg-slate-800 text-white text-xs rounded shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20">
-                            只有當身分為「系統管理員」或「已授權單位」有選擇單位時，才可以設定此後台權限。
+                            只有當「已授權單位」有選擇單位時，才可以設定此後台權限。
                             <div className="absolute left-1/2 -translate-x-1/2 top-full border-4 border-transparent border-t-slate-800"></div>
                         </div>
                     </div>
