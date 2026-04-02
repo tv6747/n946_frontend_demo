@@ -133,7 +133,7 @@ export function AccountEditPanel({ account, onSave, onCancel }) {
   };
 
   // --- Backend Permissions logic ---
-  const isBackendPermsEnabled = formData.isAdmin || formData.permissionUnits.length > 0;
+  const isBackendPermsEnabled = formData.permissionUnits.length > 0;
 
   // Filtering logic for tree
   const filteredTree = ALL_BACKEND_PERMISSIONS.map(parent => {
@@ -444,7 +444,7 @@ export function AccountEditPanel({ account, onSave, onCancel }) {
             </div>
 
             {/* Section 4.5: Backend Permissions - Hierarchical Tree */}
-            <div className={`space-y-4 transition-all  ${formData.isAdmin ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
+            <div className={`space-y-4 transition-all  ${formData.isAdmin || !isBackendPermsEnabled ? 'opacity-50 pointer-events-none grayscale' : ''}`}>
                 <div className="flex items-center gap-2 mb-1">
                     <label className="block text-sm font-semibold text-slate-700">後台權限</label>
                     <div className="group relative cursor-help">

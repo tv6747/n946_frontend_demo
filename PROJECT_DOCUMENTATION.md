@@ -165,7 +165,7 @@ frontend_demo/
     - 模型管理 (`models`) - `ModelManagementPanel`
     - 模型參數管理 (`params`) - `ModelParametersPanel`
   - **提示詞管理** (`ADMIN_PROMPTS`) - `PromptManagementPanel` + `PromptConfigPanel` (無權限設定)
-  - **提示詞優化** (`ADMIN_PROMPT_OPT`) - `PromptOptimizerInterface` (統一對話輸入區、載入提示詞 Modal、存檔 Modal、LLM 設定含「選擇應用」)
+  - **提示詞優化** (`ADMIN_PROMPT_OPT`) - `PromptOptimizerInterface` (應用選擇下拉+Canvas 切換+載入/存檔 Modal+LLM 參數連動)
   - **API 管理** (`ADMIN_APIS`) - `APIManagementPanel`
   - **工具管理** (`ADMIN_TOOLS`) - `ToolManagementPanel`
   - **帳號管理** (`ADMIN_ACCOUNT`) - `AccountManagementPanel` + `AccountEditPanel`
@@ -582,12 +582,12 @@ selectedCorpusId: 'proper_noun' | 'synonym'
 - 已移除權限設定功能 (編輯畫面無權限區塊，列表無權限欄位)
 
 **提示詞優化** (`ADMIN_PROMPT_OPT`): `PromptOptimizerInterface`
-- **統一對話輸入區**：底部輸入區整合上傳檔案、加入知識庫、LLM 設定齒輪（統一設定兩個對話介面參數）、送出按鈕，取代原本各 PromptBlock 的獨立齒輪
-- **LLM 設定 Modal**：在「可用 LLM 模型」上方新增「選擇應用」下拉選單，選擇後自動帶入該應用的預設模型、工具及參數，下方仍可手動調整
-- **載入提示詞 Modal**：改為兩步驟選擇器 — 先選擇提示詞，再選擇該提示詞的可用版本，支援直接載入最新內容
-- **存檔 Modal**：點擊儲存圖示觸發 Modal，提供兩種模式：
-  1. **另存 (新增)**：設定名稱 + 備註欄
-  2. **建立新版本 / 覆蓋**：名稱唯讀 + 備註欄
+- **統一對話輸入區**：底部輸入區整合上傳檔案、加入知識庫、LLM 設定齒輪（統一設定兩個對話介面參數）、送出按鈕
+- **應用選擇下拉選單**：頂部「目前應用」下拉選單，選項標註 Canvas 支援狀態 (✦)，預設為「互動問答」，選擇後自動帶入該應用的預設模型、工具及參數至 LLM 設定 Modal
+- **Canvas 預覽切換**：下拉選單旁的「Canvas 預覽」按鈕，不支援時反灰無法點擊，點擊後同時切換兩個 PromptBlock 的預覽區域為 `CanvasPreview` 公文格式
+- **LLM 設定 Modal**：透過 `initialAppId` 與應用選擇連動，開啟時自動反映目前應用的預設參數，下方仍可手動調整
+- **載入提示詞 Modal**：兩步驟選擇器 — 先選提示詞，再選版本
+- **存檔 Modal**：點擊儲存圖示觸發，提供「另存新增」與「建立新版本/覆蓋」兩種模式
 
 **其他管理模組**:
 - 專有名詞語料庫 (`ADMIN_PROPER_NOUN`): `ProperNounPanel`
@@ -793,7 +793,7 @@ graph TD
 | `UploadModal` | 點擊上傳按鈕 | 上傳新檔案到知識庫 |
 | `ExportModal` | 匯出對話紀錄 | 選擇匯出格式 (PDF/Word/Markdown) |
 | `SaveArchiveModal` | 儲存對話 | 命名並儲存對話歷史 |
-| `LLMSettingsModal` | LLM 設定按鈕 | 調整模型、溫度、範本等參數。提示詞優化模式下額外顯示「選擇應用」下拉選單 |
+| `LLMSettingsModal` | LLM 設定按鈕 | 調整模型、溫度、範本等參數。提示詞優化模式下透過 `initialAppId` 自動帶入應用預設參數 |
 | `FileDetailsModal` | 點擊檔案詳情 | 顯示檔案元資料與分享狀態 |
 | `AddTermModal` | 新增術語 | 在語料庫中新增專有名詞或同義詞 |
 | `AddToListModal` | 加入常用清單按鈕 | 將已選文件加入現有或新增的常用清單 |
@@ -958,6 +958,6 @@ npm run deploy
 ✅ **範本管理**: PPT 範本的收藏、編輯、上傳、系統保護機制  
 ✅ **常用清單**: 知識庫文件收藏清單，支援 Q&A 快速問答與獨立勾選  
 ✅ **完整後台**: 21 個管理元件涵蓋服務、模型、帳號、稽核等管理功能  
-✅ **提示詞優化強化**: 統一對話輸入區、載入提示詞 Modal、存檔 Modal、LLM 設定含「選擇應用」自動帶入預設值  
+✅ **提示詞優化強化**: 應用選擇下拉+Canvas 切換、載入/存檔 Modal、LLM 參數自動連動  
 
 此專案可作為 AI SaaS 平台前端的參考架構，適合快速原型開發與功能展示。

@@ -5,7 +5,7 @@ import { LLM_MODELS, PROMPT_TEMPLATES } from '../../data/constants';
 import { MOCK_TOOLS } from '../../data/mockToolData';
 import { MOCK_ADMIN_APPS } from '../../data/mockData';
 
-export function LLMSettingsModal({ isOpen, onClose, showTemplate = true, showAppSelector = false }) {
+export function LLMSettingsModal({ isOpen, onClose, showTemplate = true, showAppSelector = false, onAppChange, initialAppId }) {
   // 模擬預設設定狀態
   const [settings, setSettings] = useState({
     model: 'gpt-4o',
@@ -17,6 +17,28 @@ export function LLMSettingsModal({ isOpen, onClose, showTemplate = true, showApp
   });
 
   const [selectedAppId, setSelectedAppId] = useState('');
+  const [lastAppliedAppId, setLastAppliedAppId] = useState('');
+
+  // 當外部 initialAppId 變更時，自動套用該應用的預設參數
+  useEffect(() => {
+    if (initialAppId && initialAppId !== lastAppliedAppId) {
+      setLastAppliedAppId(initialAppId);
+      setSelectedAppId(initialAppId);
+      const app = MOCK_ADMIN_APPS.find(a => a.id === initialAppId);
+      if (app) {
+        const modelMatch = LLM_MODELS.find(m => m.id === app.model);
+        const templateMatch = PROMPT_TEMPLATES.find(t => t.id === app.template);
+        setSettings(prev => ({
+          ...prev,
+          model: modelMatch ? app.model : prev.model,
+          template: templateMatch ? app.template : prev.template,
+          temperature: app.settings?.temperature ?? prev.temperature,
+          topP: app.settings?.topP ?? prev.topP,
+          topK: app.settings?.topK ?? prev.topK,
+        }));
+      }
+    }
+  }, [initialAppId]);
   const [isToolMenuOpen, setIsToolMenuOpen] = useState(false);
   const toolMenuRef = useRef(null);
 
@@ -51,6 +73,7 @@ export function LLMSettingsModal({ isOpen, onClose, showTemplate = true, showApp
   // 選擇應用後自動帶入對應的預設設定
   const handleAppSelect = (appId) => {
     setSelectedAppId(appId);
+    if (onAppChange) onAppChange(appId);
     if (!appId) return;
     
     const app = MOCK_ADMIN_APPS.find(a => a.id === appId);

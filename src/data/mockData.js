@@ -344,6 +344,7 @@ export const MOCK_ADMIN_APPS = [
       name: '互動問答', 
       description: '通用型 AI 助手，提供問答、寫作協助。',
       flow: 'LLM_CHAT',
+      supportCanvas: false,
       group: '通用功能',
       departments: ['u1', 'u5'],
       users: ['u2', 'u3', 'u4'],
@@ -363,6 +364,7 @@ export const MOCK_ADMIN_APPS = [
       name: '文件翻譯', 
       description: '多國語言文件翻譯服務。',
       flow: 'LLM_CHAT',
+      supportCanvas: false,
       group: '通用功能',
       departments: ['u1'],
       users: [],
@@ -381,7 +383,8 @@ export const MOCK_ADMIN_APPS = [
       system: 'DOC',
       name: '首長信箱',
       description: '協助回覆民眾陳情案件。',
-      flow: 'LLM_CHAT',
+      flow: 'LLM_CHAT_CHAIN',
+      supportCanvas: true,
       group: '例行函稿',
       departments: ['u5'],
       users: ['u3'],
@@ -401,6 +404,7 @@ export const MOCK_ADMIN_APPS = [
       name: '人資規章小幫手',
       description: '解答員工關於請假、福利等規章問題。',
       flow: 'LLM_CHAT_RAG',
+      supportCanvas: false,
       group: '通用功能',
       departments: ['u1', 'u5'],
       users: [],
@@ -420,6 +424,7 @@ export const MOCK_ADMIN_APPS = [
       name: '程式碼審查員',
       description: '協助開發人員進行 Code Review 與優化建議。',
       flow: 'LLM_CHAT_RAG',
+      supportCanvas: false,
       group: '通用功能',
       departments: ['u1'],
       users: ['u2'],
@@ -439,6 +444,7 @@ export const MOCK_ADMIN_APPS = [
       name: '每日新聞摘要',
       description: '自動彙整並摘要每日產業新聞。',
       flow: 'LLM_CHAT',
+      supportCanvas: false,
       group: '通用功能',
       departments: ['u4'],
       users: [],
@@ -450,6 +456,26 @@ export const MOCK_ADMIN_APPS = [
           temperature: 0.5,
           topP: 0.9,
           topK: 40
+      }
+  },
+  {
+      id: 'app_ppt_gen',
+      system: 'GAI',
+      name: 'PPT 互動產出',
+      description: '根據主題自動生成簡報大綱與內容。',
+      flow: 'LLM_CHAT_CHAIN',
+      supportCanvas: true,
+      group: '通用功能',
+      departments: ['u1', 'u5'],
+      users: ['u2', 'u3'],
+      model: 'gpt-4o',
+      template: 'creative_writer',
+      includeHistory: true,
+      settings: {
+          systemPrompt: '你是簡報製作專家，請根據使用者描述生成精美的簡報內容。',
+          temperature: 0.8,
+          topP: 0.9,
+          topK: 50
       }
   }
 ];

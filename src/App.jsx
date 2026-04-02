@@ -104,6 +104,7 @@ export default function App() {
   const [fileDetailsModal, setFileDetailsModal] = useState(null); 
   const [isLLMModalOpen, setIsLLMModalOpen] = useState(false); // 新增 LLM 設定 Modal 狀態
   const [isAddTermModalOpen, setIsAddTermModalOpen] = useState(false);
+  const [promptOptAppId, setPromptOptAppId] = useState('app_gai_qa'); // 提示詞優化：目前選擇的應用 ID (預設互動問答)
 
   // KB Role State for Demo
   const [userRole, setUserRole] = useState('admin'); // 'admin' | 'user'
@@ -709,7 +710,8 @@ export default function App() {
                isOpen={isLLMModalOpen} 
                onClose={() => setIsLLMModalOpen(false)} 
                showTemplate={!shouldHideTemplateInSettings} 
-               showAppSelector={currentFeature.mode === MODES.PROMPT}
+               showAppSelector={false}
+               initialAppId={currentFeature.mode === MODES.PROMPT ? promptOptAppId : undefined}
             />
           )}
           {fileDetailsModal && (
@@ -782,6 +784,8 @@ export default function App() {
             <PromptOptimizerInterface 
               onSaveSystemPrompt={() => setIsPromptSaveModalOpen(true)} 
               onOpenLLMSettings={openLLMSettings}
+              selectedAppId={promptOptAppId}
+              onAppChange={(appId) => setPromptOptAppId(appId)}
             />
           )}
            {currentFeature.mode === MODES.TRANS && (

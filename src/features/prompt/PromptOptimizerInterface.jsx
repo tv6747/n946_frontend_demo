@@ -1,15 +1,27 @@
 import React, { useState, useRef, useMemo } from 'react';
-import { Send, Settings, ChevronDown, ChevronRight, Save, Upload, Database, X, FileText,History } from 'lucide-react';
-import { MOCK_VERSIONS } from '../../data/mockData';
+import { Send, Settings, ChevronDown, ChevronRight, Save, Upload, Database, X, FileText, History, PanelRight } from 'lucide-react';
+import { MOCK_VERSIONS, MOCK_ADMIN_APPS } from '../../data/mockData';
 import { MOCK_LLM_PROMPTS } from '../../data/mockLLMData';
 import { KBFileSelectorModal } from '../../components/common/KBFileSelectorModal';
 import { ModalOverlay } from '../../components/common/ModalOverlay';
+import { CanvasPreview } from '../ppt/CanvasPreview';
 
-export function PromptOptimizerInterface({ onSaveSystemPrompt, onOpenLLMSettings }) {
+export function PromptOptimizerInterface({ onSaveSystemPrompt, onOpenLLMSettings, selectedAppId, onAppChange }) {
+  const selectedApp = useMemo(() => {
+    if (!selectedAppId) return null;
+    return MOCK_ADMIN_APPS.find(a => a.id === selectedAppId) || null;
+  }, [selectedAppId]);
+  const canvasEnabled = selectedApp?.supportCanvas === true;
+  const [isCanvasMode, setIsCanvasMode] = useState(false);
   const [globalInput, setGlobalInput] = useState('');
   const [selectedKBFiles, setSelectedKBFiles] = useState([]);
   const [isKBModalOpen, setIsKBModalOpen] = useState(false);
   const fileInputRef = useRef(null);
+
+  // Reset canvas mode when app changes and doesn't support canvas
+  useMemo(() => {
+    if (!canvasEnabled) setIsCanvasMode(false);
+  }, [canvasEnabled]);
 
   const handleUploadClick = () => {
     if (fileInputRef.current) fileInputRef.current.click();
@@ -50,13 +62,46 @@ export function PromptOptimizerInterface({ onSaveSystemPrompt, onOpenLLMSettings
 
   return (
     <div className="flex flex-col h-full bg-slate-100">
-      <div className="flex-1 p-4 grid grid-cols-2 gap-4 overflow-hidden">
+      {/* Top bar: app selector dropdown + Canvas toggle */}
+      <div className="px-4 pt-3 pb-1 flex items-center gap-3">
+        <span className="text-xs text-slate-400 flex-shrink-0">目前應用：</span>
+        <select
+          value={selectedAppId || ''}
+          onChange={(e) => onAppChange && onAppChange(e.target.value)}
+          className="text-xs font-semibold text-slate-700 bg-white pl-2.5 pr-7 py-1.5 rounded-md border border-slate-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 cursor-pointer"
+        >
+          <option value="">-- 請選擇應用 --</option>
+          {MOCK_ADMIN_APPS.map(app => (
+            <option key={app.id} value={app.id}>
+              {app.name} ({app.system}){app.supportCanvas ? ' ✦ Canvas' : ''}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={() => canvasEnabled && setIsCanvasMode(!isCanvasMode)}
+          disabled={!canvasEnabled}
+          className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-all font-medium ${
+            !canvasEnabled
+              ? 'bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed'
+              : isCanvasMode 
+                ? 'bg-amber-100 text-amber-700 border-amber-300 shadow-sm cursor-pointer' 
+                : 'bg-white text-slate-500 border-slate-200 hover:bg-amber-50 hover:text-amber-600 hover:border-amber-200 cursor-pointer'
+          }`}
+          title={!canvasEnabled ? '目前應用不支援 Canvas' : isCanvasMode ? '切換回訊息預覽' : '切換到 Canvas 預覽'}
+        >
+          <PanelRight size={14} />
+          Canvas 預覽
+        </button>
+      </div>
+
+      <div className="flex-1 p-4 pt-2 grid grid-cols-2 gap-4 overflow-hidden">
         <PromptBlock 
           title="提示詞設定 A" 
           defaultModel="GPT-4 Turbo" 
           defaultSystem="你是一個專業的公文撰寫助理，請使用正式且精確的語氣..."
           color="blue"
           onSave={onSaveSystemPrompt}
+          isCanvasMode={isCanvasMode}
         />
         <PromptBlock 
           title="提示詞設定 B" 
@@ -64,6 +109,7 @@ export function PromptOptimizerInterface({ onSaveSystemPrompt, onOpenLLMSettings
           defaultSystem="你是一個親切的客服人員，請用口語化、有同理心的方式回應..."
           color="indigo"
           onSave={onSaveSystemPrompt}
+          isCanvasMode={isCanvasMode}
         />
       </div>
 
@@ -151,7 +197,7 @@ export function PromptOptimizerInterface({ onSaveSystemPrompt, onOpenLLMSettings
   );
 }
 
-function PromptBlock({ title, defaultModel, defaultSystem, color, onSave }) {
+function PromptBlock({ title, defaultModel, defaultSystem, color, onSave, isCanvasMode }) {
   const [currentTitle, setCurrentTitle] = useState(title);
   const [systemPrompt, setSystemPrompt] = useState(defaultSystem);
   const [isSystemPromptOpen, setIsSystemPromptOpen] = useState(true);
@@ -209,17 +255,31 @@ function PromptBlock({ title, defaultModel, defaultSystem, color, onSave }) {
       </div>
 
       <div className="flex-1 flex flex-col min-h-0 bg-white">
-        <div className="px-4 py-2 border-b border-slate-50 text-xs font-semibold text-slate-400">預覽結果</div>
-        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-3">
-           <div className="flex justify-end">
-              <div className="bg-slate-100 text-slate-700 px-3 py-2 rounded-lg rounded-tr-none text-sm max-w-[85%]">測試訊息內容...</div>
-           </div>
-           <div className="flex justify-start">
-              <div className={`px-3 py-2 rounded-lg rounded-tl-none text-sm max-w-[85%] border ${color === 'blue' ? 'bg-blue-50 border-blue-100 text-blue-900' : 'bg-indigo-50 border-indigo-100 text-indigo-900'}`}>
-                {color === 'blue' ? '這是 A 設定的回應模擬。' : '這是 B 設定的回應模擬。'}
-              </div>
-           </div>
+        <div className="px-4 py-2 border-b border-slate-50 text-xs font-semibold text-slate-400">
+          {isCanvasMode ? 'Canvas 預覽' : '預覽結果'}
         </div>
+        {isCanvasMode ? (
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-100/50 flex justify-center">
+            <div className="w-full my-2 mx-auto shadow-lg">
+              <CanvasPreview 
+                type="doc"
+                content={color === 'blue' ? '這是 A 設定的 Canvas 預覽回應模擬。\n\n一、本局已派員前往稽查，並依噪音管制法第X條規定量測噪音分貝數。\n二、經查該處施工單位已申請夜間施工許可。' : '這是 B 設定的 Canvas 預覽回應模擬。\n\n一、針對於用戶提出的問題，建議按照內部流程執行。\n二、結果將於下一個工作日提供。'}
+                title="測試訊息內容"
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-3">
+             <div className="flex justify-end">
+                <div className="bg-slate-100 text-slate-700 px-3 py-2 rounded-lg rounded-tr-none text-sm max-w-[85%]">測試訊息內容...</div>
+             </div>
+             <div className="flex justify-start">
+                <div className={`px-3 py-2 rounded-lg rounded-tl-none text-sm max-w-[85%] border ${color === 'blue' ? 'bg-blue-50 border-blue-100 text-blue-900' : 'bg-indigo-50 border-indigo-100 text-indigo-900'}`}>
+                  {color === 'blue' ? '這是 A 設定的回應模擬。' : '這是 B 設定的回應模擬。'}
+                </div>
+             </div>
+          </div>
+        )}
       </div>
 
       {/* Load Prompt Modal */}
