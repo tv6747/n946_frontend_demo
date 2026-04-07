@@ -107,37 +107,44 @@ export const MOCK_LLM_PROMPTS = [
   {
     id: 'prompt_1',
     name: '公文撰寫助理',
-    content: '你是一個專業的公文撰寫助理。請使用標準的台灣公文格式與用字遣詞 (如：函、簽、公告等)。語氣需正式、精確、不帶情緒。',
     creator: 'Admin',
-    createdAt: '2024-01-20'
+    versions: [
+      { id: 'v2', label: 'v2.0', content: '你是一個專業的公文撰寫助理。請使用標準的台灣公文格式與用字遣詞 (如：函、簽、公告等)。語氣需正式、精確、不帶情緒。', createdAt: '2024-02-05' },
+      { id: 'v1', label: 'v1.0', content: '舊版公文助手。請產出公文格式的回覆。', createdAt: '2024-01-20' }
+    ]
   },
   {
     id: 'prompt_2',
     name: '客服回覆專家',
-    content: '你是一個專業的客服人員。請以親切、同理的態度回應客戶問題，確保提供準確的資訊並維持專業形象。',
     creator: 'John Doe',
-    createdAt: '2024-01-25'
+    versions: [
+      { id: 'v2', label: 'v2.0', content: '你是一個專業的客服人員。請以親切、同理的態度回應客戶問題，確保提供準確的資訊並維持專業形象。', createdAt: '2024-02-10' },
+      { id: 'v1', label: 'v1.0', content: '客服專用提示詞，回覆要親切。', createdAt: '2024-01-25' }
+    ]
   },
   {
     id: 'prompt_3',
     name: '數據分析師',
-    content: '你是一個資深數據分析師。請基於提供的數據進行深入分析，找出關鍵趨勢與洞察，並以清晰的方式呈現結果。',
     creator: 'Admin',
-    createdAt: '2024-02-01'
+    versions: [
+      { id: 'v1', label: 'v1.0', content: '你是一個資深數據分析師。請基於提供的數據進行深入分析，找出關鍵趨勢與洞察，並以清晰的方式呈現結果。', createdAt: '2024-02-01' }
+    ]
   },
   {
     id: 'prompt_4',
     name: '創意文案寫手',
-    content: '你是一個充滿創意的行銷文案寫手。請使用生動活潑、引人入勝的語氣，為產品或主題撰寫吸引人的文案。',
     creator: 'Marketing Team',
-    createdAt: '2024-02-08'
+    versions: [
+      { id: 'v1', label: 'v1.0', content: '你是一個充滿創意的行銷文案寫手。請使用生動活潑、引人入勝的語氣，為產品或主題撰寫吸引人的文案。', createdAt: '2024-02-08' }
+    ]
   },
   {
     id: 'prompt_5',
     name: '程式碼審查專家',
-    content: 'You are an expert software architect and code reviewer. Provide constructive feedback on code quality, design patterns, and best practices. Explain your suggestions clearly.',
     creator: 'Dev Team',
-    createdAt: '2024-02-12'
+    versions: [
+      { id: 'v1', label: 'v1.0', content: 'You are an expert software architect and code reviewer. Provide constructive feedback on code quality, design patterns, and best practices. Explain your suggestions clearly.', createdAt: '2024-02-12' }
+    ]
   }
 ];
 

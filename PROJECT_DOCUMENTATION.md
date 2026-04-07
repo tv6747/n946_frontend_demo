@@ -580,6 +580,10 @@ selectedCorpusId: 'proper_noun' | 'synonym'
 **提示詞管理** (`ADMIN_PROMPTS`):
 - `PromptManagementPanel` + `PromptConfigPanel`
 - 已移除權限設定功能 (編輯畫面無權限區塊，列表無權限欄位)
+- **提示詞版本控制 (Version Control)**:
+  - 列表畫面清楚標記最新版本號與內容。
+  - 編輯畫面支援「檢視過往版本」切換與預覽。
+  - 使用統一 `SavePromptModal` 介面，提供「另存 (新增)」與「建立新版本 / 覆蓋」兩種模式，自動判定內容有無修改疊加版本號。
 
 **提示詞優化** (`ADMIN_PROMPT_OPT`): `PromptOptimizerInterface`
 - **統一對話輸入區**：底部輸入區整合上傳檔案、加入知識庫、LLM 設定齒輪（統一設定兩個對話介面參數）、送出按鈕

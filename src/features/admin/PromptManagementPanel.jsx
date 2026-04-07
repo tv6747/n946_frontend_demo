@@ -9,11 +9,12 @@ export function PromptManagementPanel() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPrompt, setSelectedPrompt] = useState(null); // null for list, 'NEW' for create, object for edit
 
-  const filteredPrompts = prompts.filter(prompt => 
-      prompt.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      prompt.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      prompt.creator.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPrompts = prompts.filter(prompt => {
+      const latestContent = prompt.versions && prompt.versions.length > 0 ? prompt.versions[0].content : '';
+      return prompt.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          latestContent.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          prompt.creator.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   const handleUpdatePrompt = (id, updates) => {
       setPrompts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
@@ -21,10 +22,17 @@ export function PromptManagementPanel() {
 
   const handleCreatePrompt = (newPromptData) => {
       const newPrompt = {
-          ...newPromptData,
+          name: newPromptData.name,
+          creator: 'Me',
           id: `prompt_${Date.now()}`,
-          createdAt: new Date().toISOString().split('T')[0],
-          creator: 'Me', // Default creator
+          versions: [
+              {
+                  id: 'v1',
+                  label: 'v1.0',
+                  content: newPromptData.content,
+                  createdAt: new Date().toISOString().split('T')[0]
+              }
+          ]
       };
       setPrompts(prev => [...prev, newPrompt]);
       setSelectedPrompt(null); // Return to list
@@ -98,11 +106,16 @@ export function PromptManagementPanel() {
                                           <MessageSquare size={16} />
                                       </div>
                                       <span className="font-bold text-slate-800 text-sm">{prompt.name}</span>
+                                      {prompt.versions && prompt.versions.length > 0 && (
+                                          <span className="text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-mono ml-2 border border-blue-100">
+                                              {prompt.versions[0].label}
+                                          </span>
+                                      )}
                                   </div>
                               </td>
                               <td className="px-6 py-4 align-top">
                                   <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed font-mono bg-slate-50 p-2 rounded border border-slate-100">
-                                      {prompt.content}
+                                      {prompt.versions && prompt.versions.length > 0 ? prompt.versions[0].content : ''}
                                   </p>
                               </td>
                               <td className="px-6 py-4 align-top">
@@ -111,7 +124,7 @@ export function PromptManagementPanel() {
                                   </span>
                               </td>
                               <td className="px-6 py-4 align-top text-sm text-slate-500 mt-1">
-                                  {prompt.createdAt}
+                                  {prompt.versions && prompt.versions.length > 0 ? prompt.versions[0].createdAt : ''}
                               </td>
                               <td className="px-6 py-4 align-top text-right">
                                   <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">

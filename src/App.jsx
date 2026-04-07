@@ -6,7 +6,9 @@ import {
   PanelLeftOpen, 
   MessageSquare, 
   Folder,
-  Settings
+  Settings,
+  Video,
+  X
 } from 'lucide-react';
 
 import { MODES, FEATURES } from './data/constants';
@@ -111,6 +113,7 @@ export default function App() {
 
   const [currentSystem, setCurrentSystem] = useState('GAI'); // 'GAI' | 'DOC'
   const [isSystemMenuOpen, setIsSystemMenuOpen] = useState(false);
+  const [isMeetingModalOpen, setIsMeetingModalOpen] = useState(false);
 
   const handleFolderSelect = (folderId) => {
     setSelectedFolderId(folderId);
@@ -526,6 +529,17 @@ export default function App() {
                           <div className={`font-bold text-sm ${currentSystem === 'DOC' ? 'text-blue-700' : 'text-slate-700'}`}>智慧公文輔助系統</div>
                       </div>
                  </div>
+                  <div 
+                    className={`px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition-colors`}
+                    onClick={() => { setIsSystemMenuOpen(false); setIsMeetingModalOpen(true); }}
+                  >
+                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-slate-100 text-slate-500`}>
+                           <Video size={18} />
+                       </div>
+                       <div>
+                           <div className={`font-bold text-sm text-slate-700`}>會議系統</div>
+                       </div>
+                  </div>
                  {userRole === 'admin' && (
                   <div 
                     className={`px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition-colors ${currentSystem === 'BACKEND' ? 'bg-blue-50/50' : ''}`}
@@ -735,6 +749,31 @@ export default function App() {
                 onClose={() => setIsAddToListModalOpen(false)}
               />
            )}
+           {isMeetingModalOpen && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsMeetingModalOpen(false)} />
+                <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 animate-in fade-in zoom-in-95 duration-200 overflow-hidden">
+                  <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-5 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                        <Video size={22} className="text-white" />
+                      </div>
+                      <h3 className="text-lg font-bold text-white">會議系統</h3>
+                    </div>
+                    <button onClick={() => setIsMeetingModalOpen(false)} className="p-1.5 rounded-lg hover:bg-white/20 text-white/80 hover:text-white transition-colors">
+                      <X size={20} />
+                    </button>
+                  </div>
+                  <div className="p-6">
+                    <p className="text-slate-600 text-sm leading-relaxed">即將跳轉到<span className="font-semibold text-slate-800">「會議系統」</span>，是否繼續？</p>
+                  </div>
+                  <div className="px-6 pb-6 flex gap-3 justify-end">
+                    <button onClick={() => setIsMeetingModalOpen(false)} className="px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">取消</button>
+                    <button onClick={() => { setIsMeetingModalOpen(false); alert('跳轉到會議系統 (Demo)'); }} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors shadow-sm">確認跳轉</button>
+                  </div>
+                </div>
+              </div>
+            )}
        </>
     }>
         {currentFeature.mode === MODES.KB && (

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Activity, Database, MessageSquare, BarChart2, Search, Calendar, ChevronDown, ChevronRight, FileText, User, Settings, UserPlus, Pencil, Trash2, Upload, Power, FolderPlus } from 'lucide-react';
-import { MOCK_AUDIT_KB_LOGS, MOCK_AUDIT_CHAT_LOGS, MOCK_ADMIN_STATS, MOCK_TERM_CATEGORIES, MOCK_ADMIN_APPS, MOCK_BOTS } from '../../data/mockData';
+import { MOCK_AUDIT_KB_LOGS, MOCK_AUDIT_CHAT_LOGS, MOCK_ADMIN_STATS, MOCK_TERM_CATEGORIES, MOCK_ADMIN_APPS, MOCK_BOTS, MOCK_STATS_ORGS } from '../../data/mockData';
 import { MOCK_LLM_MODELS } from '../../data/mockLLMData';
 
 export function AuditManagement({ activeView = 'kb_logs' }) { // Accept prop
@@ -199,6 +199,7 @@ function StatsView() {
     const [startDate, setStartDate] = useState(formatDate(oneMonthAgo));
     const [endDate, setEndDate] = useState(formatDate(today));
     const [orgFilter, setOrgFilter] = useState('all');
+    const [deptFilter, setDeptFilter] = useState('all');
     const [appFilter, setAppFilter] = useState('all');
     const [queryKey, setQueryKey] = useState(0); // Increment to trigger re-calculation
 
@@ -207,6 +208,32 @@ function StatsView() {
         ...MOCK_ADMIN_APPS.map(a => ({ id: a.id, name: a.name })),
         ...MOCK_BOTS.map(b => ({ id: b.id, name: b.name })),
     ];
+
+    // Org / Dept logic based on MOCK_STATS_ORGS
+    const selectedOrg = MOCK_STATS_ORGS.find(o => o.id === orgFilter) || null;
+    const hasDeptOptions = selectedOrg && selectedOrg.children && selectedOrg.children.length > 0;
+
+    // When org changes, reset dept filter
+    const handleOrgChange = (val) => {
+        setOrgFilter(val);
+        setDeptFilter('all');
+    };
+
+    // Get display label for current org+dept selection
+    const getOrgDisplayLabels = () => {
+        if (orgFilter === 'all') {
+            // return root level orgs (國土管理署, and all branch offices)
+            return MOCK_STATS_ORGS.map(org => org.name);
+        }
+        if (hasDeptOptions) {
+            if (deptFilter === 'all') {
+                return selectedOrg.children.map(c => c.name);
+            }
+            const dept = selectedOrg.children.find(c => c.id === deptFilter);
+            return dept ? [dept.name] : [selectedOrg.name];
+        }
+        return selectedOrg ? [selectedOrg.name] : [];
+    };
 
     // Generate time-series labels (dates in range)
     const generateDateLabels = () => {
@@ -238,7 +265,7 @@ function StatsView() {
     };
 
     // Category definitions for each chart
-    const deptCategories = MOCK_TERM_CATEGORIES.slice(0, 5).map(c => c.name); // Top 5 depts
+    const deptCategories = getOrgDisplayLabels();
     const appCategories = [...MOCK_ADMIN_APPS.slice(0, 4).map(a => a.name), ...MOCK_BOTS.map(b => b.name)]; // 4 apps + 2 bots
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const modelCategories = React.useMemo(() => MOCK_LLM_MODELS.filter(m => m.status === 'active' && m.type !== 'embedding').map(m => m.name), [queryKey]); // Active models
@@ -259,7 +286,7 @@ function StatsView() {
             label,
             segments: categories.map((cat, ci) => ({
                 name: cat,
-                value: Math.floor(seededRandom(baseSeed + i * 100 + ci * 17) * maxPerCat) + Math.floor(maxPerCat * 0.05),
+                value: Math.floor(seededRandom(baseSeed + i * 100 + ci * 17 + queryKey * 3) * maxPerCat) + Math.floor(maxPerCat * 0.05),
                 color: CHART_COLORS[ci % CHART_COLORS.length],
                 legendDot: LEGEND_DOTS[ci % LEGEND_DOTS.length],
             }))
@@ -270,6 +297,34 @@ function StatsView() {
     const appUsageData = generateStackedData(dateLabels, appCategories, 200, 60);
     const modelUsageData = generateStackedData(dateLabels, modelCategories, 300, 120);
     const tokenUsageData = generateStackedData(dateLabels, tokenModelCategories, 400, 30000);
+
+    // === Token Horizontal Bar Chart Data ===
+    // Get all orgs to display (署 + children + 分署), compute random total token usage for each
+    const tokenBarOrgs = React.useMemo(() => {
+        let orgs = [];
+        if (orgFilter === 'all') {
+            orgs = MOCK_STATS_ORGS.map(org => org.name);
+        } else if (hasDeptOptions) {
+            if (deptFilter === 'all') {
+                orgs = selectedOrg.children.map(c => c.name);
+            } else {
+                const dept = selectedOrg.children.find(c => c.id === deptFilter);
+                if (dept) orgs = [dept.name];
+            }
+        } else if (selectedOrg) {
+            orgs = [selectedOrg.name];
+        }
+        // Generate token totals
+        return orgs.map((name, i) => ({
+            name,
+            tokens: Math.floor(seededRandom(i * 73 + 999 + queryKey * 7) * 80000) + 5000,
+        })).sort((a, b) => b.tokens - a.tokens);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [orgFilter, deptFilter, queryKey]);
+
+    const maxTokenBar = Math.max(...tokenBarOrgs.map(o => o.tokens), 1);
+
+    const TOKEN_BAR_COLORS = ['#3b82f6', '#10b981', '#8b5cf6', '#f97316', '#f43f5e', '#06b6d4', '#f59e0b', '#6366f1', '#14b8a6'];
 
     const formatNumber = (n) => n >= 1000 ? `${(n/1000).toFixed(1)}k` : n.toString();
 
@@ -351,17 +406,33 @@ function StatsView() {
                         />
                     </div>
 
-                    {/* Org Filter */}
+                    {/* Org Filter - 署 */}
                     <div className="flex items-center gap-2">
-                        <label className="text-xs font-medium text-slate-500 whitespace-nowrap">組織</label>
+                        <label className="text-xs font-medium text-slate-500 whitespace-nowrap">署</label>
                         <select
                             value={orgFilter}
-                            onChange={(e) => setOrgFilter(e.target.value)}
-                            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-600 min-w-[140px]"
+                            onChange={(e) => handleOrgChange(e.target.value)}
+                            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-600 min-w-[160px]"
                         >
                             <option value="all">全部組織</option>
-                            {MOCK_TERM_CATEGORIES.map(org => (
+                            {MOCK_STATS_ORGS.map(org => (
                                 <option key={org.id} value={org.id}>{org.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Dept Filter - 組室 */}
+                    <div className="flex items-center gap-2">
+                        <label className="text-xs font-medium text-slate-500 whitespace-nowrap">組室</label>
+                        <select
+                            value={deptFilter}
+                            onChange={(e) => setDeptFilter(e.target.value)}
+                            disabled={!hasDeptOptions}
+                            className={`bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all min-w-[140px] ${!hasDeptOptions ? 'text-slate-400 cursor-not-allowed opacity-60' : 'text-slate-600'}`}
+                        >
+                            <option value="all">{hasDeptOptions ? '全選' : '全選'}</option>
+                            {hasDeptOptions && selectedOrg.children.map(dept => (
+                                <option key={dept.id} value={dept.id}>{dept.name}</option>
                             ))}
                         </select>
                     </div>
@@ -392,8 +463,8 @@ function StatsView() {
                  </div>
              </header>
 
-             {/* Charts Grid: 2 rows × 2 columns */}
-             <div className="p-6 grid grid-cols-2 gap-6 flex-1">
+             {/* Charts Grid: 2 rows \u00d7 2 columns */}
+             <div className="p-6 grid grid-cols-2 gap-6">
                  <StackedBarChart 
                      title="部門使用數時序統計" 
                      data={deptUsageData} 
@@ -419,6 +490,31 @@ function StatsView() {
                      unit="tokens"
                  />
              </div>
+
+             {/* Full-width horizontal bar chart: Token Usage by Org */}
+             <div className="px-6 pb-6">
+                 <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                     <h4 className="font-bold text-slate-700 mb-5 text-sm">Token 使用數</h4>
+                     <div className="space-y-3">
+                         {tokenBarOrgs.map((item, idx) => (
+                             <div key={idx} className="flex items-center gap-3 group">
+                                 <span className="text-xs text-slate-600 font-medium w-[180px] truncate text-right flex-shrink-0" title={item.name}>{item.name}</span>
+                                 <div className="flex-1 h-7 bg-slate-100 rounded-full overflow-hidden relative">
+                                     <div 
+                                         className="h-full rounded-full transition-all duration-500 group-hover:opacity-80"
+                                         style={{ 
+                                             width: `${(item.tokens / maxTokenBar) * 100}%`,
+                                             backgroundColor: TOKEN_BAR_COLORS[idx % TOKEN_BAR_COLORS.length],
+                                             minWidth: '24px'
+                                         }}
+                                     ></div>
+                                 </div>
+                                 <span className="text-xs font-bold text-slate-600 w-16 text-right tabular-nums">{formatNumber(item.tokens)}</span>
+                             </div>
+                         ))}
+                     </div>
+                 </div>
+             </div>
         </div>
     );
 }
@@ -432,6 +528,8 @@ function KBStatsView() {
     const [startDate, setStartDate] = useState(formatDate(oneMonthAgo));
     const [endDate, setEndDate] = useState(formatDate(today));
     const [orgFilter, setOrgFilter] = useState('all');
+    const [deptFilter, setDeptFilter] = useState('all');
+    const [sectionFilter, setSectionFilter] = useState('all');
 
     // Seeded random
     const seededRandom = (seed) => {
@@ -439,32 +537,68 @@ function KBStatsView() {
         return x - Math.floor(x);
     };
 
-    const orgs = MOCK_TERM_CATEGORIES;
+    // === 3-level org logic ===
+    const selectedOrg = MOCK_STATS_ORGS.find(o => o.id === orgFilter) || null;
+    const hasDeptOptions = selectedOrg && selectedOrg.children && selectedOrg.children.length > 0;
+    const selectedDept = hasDeptOptions ? selectedOrg.children.find(d => d.id === deptFilter) : null;
+    const hasSectionOptions = selectedDept && selectedDept.children && selectedDept.children.length > 0;
 
-    // Parent-child org mapping: selecting a parent includes its sub-departments
-    const ORG_CHILDREN = {
-        1: [1, 2, 3, 4, 5],  // 國土計畫組 includes 國土組XX科
-        6: [6, 7, 8, 9],     // 人事室 includes 人事室XX科
+    const handleOrgChange = (val) => {
+        setOrgFilter(val);
+        setDeptFilter('all');
+        setSectionFilter('all');
+    };
+    const handleDeptChange = (val) => {
+        setDeptFilter(val);
+        setSectionFilter('all');
     };
 
-    const getFilteredOrgIds = () => {
-        if (orgFilter === 'all') return orgs.map(o => o.id);
-        const selectedId = parseInt(orgFilter);
-        // If selected org is a parent, include children
-        if (ORG_CHILDREN[selectedId]) return ORG_CHILDREN[selectedId];
-        return [selectedId];
+    // Get labels for STATIC stats (only down to 組 level)
+    const getStaticLabels = () => {
+        if (orgFilter === 'all') {
+            return MOCK_STATS_ORGS.map(org => org.name);
+        }
+        if (hasDeptOptions) {
+            if (deptFilter === 'all') {
+                return selectedOrg.children.map(c => c.name);
+            }
+            return [selectedDept.name];
+        }
+        return selectedOrg ? [selectedOrg.name] : [];
     };
-    const filteredOrgIds = getFilteredOrgIds();
-    const filteredOrgs = orgs.filter(o => filteredOrgIds.includes(o.id));
 
-    // === Static Stats: Doc counts per org ===
-    const docCountData = orgs.map((org, i) => ({
-        name: org.name,
+    // Get labels for DYNAMIC stats (down to 科 level)
+    const getDynamicLabels = () => {
+        if (orgFilter === 'all') {
+            return MOCK_STATS_ORGS.map(org => org.name);
+        }
+        if (hasDeptOptions) {
+            if (deptFilter === 'all') {
+                return selectedOrg.children.map(c => c.name);
+            }
+            // A specific dept is selected
+            if (hasSectionOptions) {
+                if (sectionFilter === 'all') {
+                    return selectedDept.children.map(s => s.name);
+                }
+                const sec = selectedDept.children.find(s => s.id === sectionFilter);
+                return sec ? [sec.name] : [selectedDept.name];
+            }
+            return [selectedDept.name];
+        }
+        return selectedOrg ? [selectedOrg.name] : [];
+    };
+
+    const staticLabels = getStaticLabels();
+    const dynamicLabels = getDynamicLabels();
+
+    // === Static Stats: Doc counts ===
+    const docCountData = staticLabels.map((name, i) => ({
+        name,
         count: Math.floor(seededRandom(i * 31 + 7) * 180) + 20,
     }));
-    const filteredDocData = orgFilter === 'all' ? docCountData : docCountData.filter((_, i) => filteredOrgIds.includes(orgs[i].id));
-    const maxDocCount = Math.max(...filteredDocData.map(d => d.count), 1);
-    const totalDocs = filteredDocData.reduce((sum, d) => sum + d.count, 0);
+    const maxDocCount = Math.max(...docCountData.map(d => d.count), 1);
+    const totalDocs = docCountData.reduce((sum, d) => sum + d.count, 0);
 
     // Pie chart colors
     const PIE_COLORS = ['#3b82f6', '#10b981', '#8b5cf6', '#f97316', '#f43f5e', '#06b6d4', '#f59e0b', '#6366f1', '#14b8a6'];
@@ -472,7 +606,7 @@ function KBStatsView() {
     // Build pie chart conic-gradient
     const buildPieGradient = () => {
         let cumPct = 0;
-        const stops = filteredDocData.map((d, i) => {
+        const stops = docCountData.map((d, i) => {
             const pct = (d.count / totalDocs) * 100;
             const start = cumPct;
             cumPct += pct;
@@ -482,8 +616,8 @@ function KBStatsView() {
     };
 
     // === Dynamic Stats: QA counts ===
-    const qaCountData = filteredOrgs.map((org, i) => ({
-        name: org.name,
+    const qaCountData = dynamicLabels.map((name, i) => ({
+        name,
         count: Math.floor(seededRandom(i * 47 + 13) * 500) + 50,
     }));
     const maxQACount = Math.max(...qaCountData.map(d => d.count), 1);
@@ -508,12 +642,12 @@ function KBStatsView() {
     };
     const dateLabels = generateDateLabels();
 
-    // Stacked time-series data: per org per date
+    // Stacked time-series data
     const CHART_COLORS = ['bg-blue-500', 'bg-emerald-500', 'bg-purple-500', 'bg-orange-500', 'bg-rose-500', 'bg-cyan-500', 'bg-amber-500', 'bg-indigo-500', 'bg-teal-500'];
     const stackedTimeData = dateLabels.map((label, di) => ({
         label,
-        segments: filteredOrgs.map((org, oi) => ({
-            name: org.name,
+        segments: dynamicLabels.map((name, oi) => ({
+            name,
             value: Math.floor(seededRandom(di * 100 + oi * 23 + 500) * 60) + 5,
             color: CHART_COLORS[oi % CHART_COLORS.length],
         }))
@@ -524,36 +658,72 @@ function KBStatsView() {
 
     return (
         <div className="flex flex-col h-full overflow-y-auto bg-slate-50">
-            {/* Sticky Header with Org Filter */}
+            {/* Sticky Header with 3-level Org Filters */}
             <header className="px-6 py-5 bg-white border-b border-slate-200 sticky top-0 z-10 flex items-center justify-between gap-4 shadow-sm">
-                <div className="flex items-center gap-3">
-                    <label className="text-xs font-medium text-slate-500 whitespace-nowrap">組織</label>
-                    <select
-                        value={orgFilter}
-                        onChange={(e) => setOrgFilter(e.target.value)}
-                        className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-600 min-w-[160px]"
-                    >
-                        <option value="all">全部組織</option>
-                        {orgs.map(org => (
-                            <option key={org.id} value={org.id}>{org.name}</option>
-                        ))}
-                    </select>
+                <div className="flex items-center gap-3 flex-wrap">
+                    {/* 署 */}
+                    <div className="flex items-center gap-2">
+                        <label className="text-xs font-medium text-slate-500 whitespace-nowrap">署</label>
+                        <select
+                            value={orgFilter}
+                            onChange={(e) => handleOrgChange(e.target.value)}
+                            className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all text-slate-600 min-w-[160px]"
+                        >
+                            <option value="all">全部組織</option>
+                            {MOCK_STATS_ORGS.map(org => (
+                                <option key={org.id} value={org.id}>{org.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* 組室 */}
+                    <div className="flex items-center gap-2">
+                        <label className="text-xs font-medium text-slate-500 whitespace-nowrap">組室</label>
+                        <select
+                            value={deptFilter}
+                            onChange={(e) => handleDeptChange(e.target.value)}
+                            disabled={!hasDeptOptions}
+                            className={`bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all min-w-[140px] ${!hasDeptOptions ? 'text-slate-400 cursor-not-allowed opacity-60' : 'text-slate-600'}`}
+                        >
+                            <option value="all">全選</option>
+                            {hasDeptOptions && selectedOrg.children.map(dept => (
+                                <option key={dept.id} value={dept.id}>{dept.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* 科 (only for dynamic stats, but shown in header) */}
+                    <div className="flex items-center gap-2">
+                        <label className="text-xs font-medium text-slate-500 whitespace-nowrap">科</label>
+                        <select
+                            value={sectionFilter}
+                            onChange={(e) => setSectionFilter(e.target.value)}
+                            disabled={!hasSectionOptions}
+                            className={`bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all min-w-[140px] ${!hasSectionOptions ? 'text-slate-400 cursor-not-allowed opacity-60' : 'text-slate-600'}`}
+                        >
+                            <option value="all">全選</option>
+                            {hasSectionOptions && selectedDept.children.map(sec => (
+                                <option key={sec.id} value={sec.id}>{sec.name}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
             </header>
 
-            {/* ===== Static Stats Section ===== */}
+            {/* ===== Static Stats Section (filtered to 組 level only) ===== */}
             <div className="px-6 pt-6 pb-2">
-                <div className="mb-4">
+                <div className="mb-4 flex items-center gap-3">
                     <h2 className="text-lg font-bold text-slate-800">靜態統計</h2>
+                    <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">篩選至組室</span>
                 </div>
                 <div className="grid grid-cols-2 gap-6">
                     {/* Horizontal Bar Chart: Doc counts */}
                     <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
                         <h4 className="font-bold text-slate-700 mb-4 text-sm">各組織知識文件數統計</h4>
                         <div className="space-y-3">
-                            {filteredDocData.map((item, idx) => (
+                            {docCountData.map((item, idx) => (
                                 <div key={idx} className="flex items-center gap-3">
-                                    <span className="text-xs text-slate-600 font-medium w-[140px] truncate text-right flex-shrink-0" title={item.name}>{item.name}</span>
+                                    <span className="text-xs text-slate-600 font-medium w-[160px] truncate text-right flex-shrink-0" title={item.name}>{item.name}</span>
                                     <div className="flex-1 h-6 bg-slate-100 rounded-full overflow-hidden relative">
                                         <div 
                                             className="h-full rounded-full transition-all"
@@ -591,7 +761,7 @@ function KBStatsView() {
                             </div>
                             {/* Legend */}
                             <div className="space-y-1.5">
-                                {filteredDocData.map((item, idx) => (
+                                {docCountData.map((item, idx) => (
                                     <div key={idx} className="flex items-center gap-2">
                                         <div className="w-3 h-3 rounded-sm flex-shrink-0" style={{ backgroundColor: PIE_COLORS[idx % PIE_COLORS.length] }}></div>
                                         <span className="text-xs text-slate-600 truncate max-w-[120px]" title={item.name}>{item.name}</span>
@@ -609,10 +779,11 @@ function KBStatsView() {
                 <hr className="border-slate-200" />
             </div>
 
-            {/* ===== Dynamic Stats Section ===== */}
+            {/* ===== Dynamic Stats Section (filtered to 科 level) ===== */}
             <div className="px-6 pb-6">
                 <div className="flex items-center gap-4 mb-4 flex-wrap">
                     <h2 className="text-lg font-bold text-slate-800">動態統計</h2>
+                    <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">篩選至科</span>
                     <div className="flex items-center gap-2">
                         <label className="text-xs font-medium text-slate-500">日期區間</label>
                         <input 
@@ -638,13 +809,13 @@ function KBStatsView() {
                     </div>
                 </div>
                 <div className="grid grid-cols-2 gap-6">
-                    {/* Horizontal bar: QA counts per org */}
+                    {/* Horizontal bar: QA counts */}
                     <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
                         <h4 className="font-bold text-slate-700 mb-4 text-sm">知識庫文件問答次數</h4>
                         <div className="space-y-3">
                             {qaCountData.map((item, idx) => (
                                 <div key={idx} className="flex items-center gap-3">
-                                    <span className="text-xs text-slate-600 font-medium w-[140px] truncate text-right flex-shrink-0" title={item.name}>{item.name}</span>
+                                    <span className="text-xs text-slate-600 font-medium w-[160px] truncate text-right flex-shrink-0" title={item.name}>{item.name}</span>
                                     <div className="flex-1 h-6 bg-slate-100 rounded-full overflow-hidden">
                                         <div 
                                             className="h-full rounded-full transition-all"
@@ -666,10 +837,10 @@ function KBStatsView() {
                         <h4 className="font-bold text-slate-700 mb-2 text-sm">知識庫文件問答次數時序統計</h4>
                         {/* Legend */}
                         <div className="flex flex-wrap gap-x-3 gap-y-1 mb-4">
-                            {filteredOrgs.map((org, oi) => (
+                            {dynamicLabels.map((name, oi) => (
                                 <div key={oi} className="flex items-center gap-1">
                                     <div className={`w-2.5 h-2.5 rounded-sm ${CHART_COLORS[oi % CHART_COLORS.length]}`}></div>
-                                    <span className="text-[10px] text-slate-500">{org.name}</span>
+                                    <span className="text-[10px] text-slate-500">{name}</span>
                                 </div>
                             ))}
                         </div>

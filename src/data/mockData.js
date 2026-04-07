@@ -128,6 +128,28 @@ export const MOCK_TERM_CATEGORIES = [
     { id: 9, name: '人事室綜合人事三科', description: '掌理訓練進修、人力規劃等' },
 ];
 
+// --- 統計圖表用組織資料 (三層：署 → 組室 → 科) ---
+export const MOCK_STATS_ORGS = [
+    { id: 'nlma', name: '國土管理署', children: [
+        { id: 'nlma_land', name: '國土組', children: [
+            { id: 'nlma_land_plan', name: '國土規劃科' },
+            { id: 'nlma_land_dev', name: '國土發展科' },
+            { id: 'nlma_land_spec', name: '特域規劃科' },
+            { id: 'nlma_land_ctrl', name: '國土管制科' },
+        ]},
+        { id: 'nlma_hr', name: '人事室', children: [
+            { id: 'nlma_hr_gen1', name: '綜合人事科' },
+            { id: 'nlma_hr_gen2', name: '綜合人事二科' },
+            { id: 'nlma_hr_gen3', name: '綜合人事三科' },
+        ]},
+    ]},
+    { id: 'branch_north', name: '北區都市基礎工程分署', children: [] },
+    { id: 'branch_central', name: '中區都市基礎工程分署', children: [] },
+    { id: 'branch_south', name: '南區都市基礎工程分署', children: [] },
+    { id: 'branch_sewer', name: '下水道工程分署', children: [] },
+    { id: 'branch_rural', name: '城鄉發展分署', children: [] },
+];
+
 export const MOCK_TERM_DEFINITIONS = [
     { 
         id: 't1', 
